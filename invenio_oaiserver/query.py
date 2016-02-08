@@ -25,6 +25,7 @@ from invenio_query_parser.walkers.match_unit import MatchUnit
 from invenio_records.models import RecordMetadata
 from invenio_search import Query as SearchQuery
 from invenio_search import current_search_client
+from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.utils import cached_property
 
 from .utils import parser, query_walkers
@@ -59,10 +60,30 @@ def get_records(page=1):
 
     for result in response['hits']['hits']:
         yield {
-            # FIXME
             "id": result['_id'],
             "json": result['_source'],
             # FIXME retrieve from elastic search
             "updated": RecordMetadata.query.filter_by(
                 id=result['_id']).one().updated
         }
+
+
+def get_record(recid):
+    """Get a record."""
+    response = current_search_client.get(
+        index=current_app.config['OAISERVER_RECORD_INDEX'],
+        id=recid
+        # version=True,
+    )
+    try:
+        result = response['hits']['hits'][0]
+    except TypeError:
+        raise NoResultFound()
+
+    return {
+        "id": result['_id'],
+        "json": result['_source'],
+        # FIXME retrieve from elastic search
+        "updated": RecordMetadata.query.filter_by(
+            id=result['_id']).one().updated
+    }
