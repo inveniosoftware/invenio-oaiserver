@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2013, 2015 CERN.
+# Copyright (C) 2014, 2015 CERN.
 #
 # Invenio is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -17,11 +17,24 @@
 # along with Invenio; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 
-"""OAI repository interface."""
+"""Test app."""
 
-from __future__ import unicode_literals
+from __future__ import absolute_import
 
-from flask import Blueprint
+import pytest
+from flask import Flask
 
-blueprint = Blueprint('oairepository', __name__, url_prefix='/',
-                      template_folder='templates', static_folder='static')
+from invenio_oaiserver import InvenioOAIServer
+
+
+def test_version():
+    """Test version import."""
+    from invenio_oaiserver import __version__
+    assert __version__
+
+
+def test_init():
+    """Test extension initialization."""
+    app = Flask('testapp')
+    with pytest.warns(None):
+        InvenioOAIServer(app)

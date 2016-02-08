@@ -1,0 +1,35 @@
+{%- extends config.OAISERVER_BASE_TEMPLATE %}
+
+{% block body %}
+<h1>Create new sets</h1>
+<!-- <form>
+  <div class="form-group">
+    <label for="setName">Set name</label>
+    <input type="text" class="form-control" id="setName" placeholder="mysetname">
+  </div>
+  <div class="form-group">
+    <label for="setDescription">Description</label>
+    <input type="password" class="form-control" id="setDescription" placeholder="Short description of the set">
+  </div>
+  <div class="form-group">
+    <label for="setQuery">Query</label>
+    <input type="text" class="form-control" id="setQuery" placeholder="country:Canada">
+    <p class="help-block">Example block-leveel help text here.</p>
+  </div>
+    <div class="form-group">
+    <label for="setCollection">Collection</label>
+    <input type="text" class="form-control" id="setCollection" placeholder="mysetname">
+  </div>
+  <button type="submit" class="btn btn-default">Submit</button>
+</form> -->
+
+{% import 'macros_bootstrap.html' as bt %}
+
+{{ bt.render_form(new_set_form,
+                  action_url=url_for(".submit_set"),
+                  action_text='Save set',
+                  id_='new_set_form',
+                  class_='form-horizontal',
+                  btn_class='btn btn-success') }}
+
+{% endblock %}
