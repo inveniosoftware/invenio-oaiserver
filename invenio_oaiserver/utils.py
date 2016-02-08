@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import, print_function
 
+from datetime import datetime
 from functools import partial
 
 import six
@@ -36,6 +37,22 @@ try:
     from functools import lru_cache
 except ImportError:  # pragma: no cover
     from functools32 import lru_cache
+
+
+def datestamp_to_datetime(datestamp):
+    """Transform datestamp to datetime."""
+    return datetime.strptime(datestamp, "%Y-%m-%dT%H:%M:%S.%f")
+
+
+def datetime_to_datestamp(dt, day_granularity=False):
+    """Transform datetime to datestamp."""
+    assert dt.tzinfo is None  # only accept timezone naive datetimes
+    # ignore microseconds
+    dt = dt.replace(microsecond=0)
+    result = dt.isoformat() + 'Z'
+    if day_granularity:
+        result = result[:-10]
+    return result
 
 
 def parser():

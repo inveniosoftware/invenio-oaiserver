@@ -24,10 +24,9 @@ from flask import current_app
 from invenio_query_parser.walkers.match_unit import MatchUnit
 from invenio_search import Query as SearchQuery
 from invenio_search import current_search_client
-from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.utils import cached_property
 
-from .utils import parser, query_walkers
+from .utils import datestamp_to_datetime, parser, query_walkers
 
 
 class Query(SearchQuery):
@@ -61,34 +60,36 @@ def get_records(page=1):
         yield {
             "id": result['_id'],
             "json": result['_source'],
-            "updated": result['_source']['_updated']
+            "updated": datestamp_to_datetime(result['_source']['_updated'])
         }
 
 
-def get_record(recid=None, oaiid=None):
-    """Get a record."""
-    if recid:
-        query = {"_id": recid}
-    else:
-        query = {"_source": {"_oaiid": oaiid}}
-
-    body = {
-        'index': current_app.config['OAISERVER_RECORD_INDEX'],
-        'query': {'match': query}
-    }
-
-    response = current_search_client.get(
+def get_record_by_oaiid(oaiid):
+    """Get record by oaiid."""
+    query = {'match_all': {"_oaiid": oaiid}}
+    response = current_search_client.search(
         index=current_app.config['OAISERVER_RECORD_INDEX'],
-        body=body
+        body={'query': query}
         # version=True,
     )
-    try:
-        result = response['hits']['hits'][0]
-    except TypeError:
-        raise NoResultFound()
-
+    result = response['hits']['hits'][0]
     return {
         "id": result['_id'],
         "json": result['_source'],
-        "updated": result['_source']['_updated']
+        "updated": datestamp_to_datetime(result['_source']['_updated'])
+    }
+
+
+def get_record(recid):
+    """Get a record."""
+    if recid:
+        response = current_search_client.get(
+            index=current_app.config['OAISERVER_RECORD_INDEX'],
+            id=str(recid)
+            # version=True,
+        )
+    return {
+        "id": response['_id'],
+        "json": response['_source'],
+        "updated": datestamp_to_datetime(response['_source']['_updated'])
     }
