@@ -65,11 +65,21 @@ def get_records(page=1):
         }
 
 
-def get_record(recid):
+def get_record(recid=None, oaiid=None):
     """Get a record."""
+    if recid:
+        query = {"_id": recid}
+    else:
+        query = {"_source": {"_oaiid": oaiid}}
+
+    body = {
+        'index': current_app.config['OAISERVER_RECORD_INDEX'],
+        'query': {'match': query}
+    }
+
     response = current_search_client.get(
         index=current_app.config['OAISERVER_RECORD_INDEX'],
-        id=recid
+        body=body
         # version=True,
     )
     try:
