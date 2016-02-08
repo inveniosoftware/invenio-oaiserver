@@ -32,5 +32,5 @@ Happy hacking and thanks for flying Invenio-OAIServer.
 |   Email: info@invenio-software.org
 |   IRC: #invenio on irc.freenode.net
 |   Twitter: http://twitter.com/inveniosoftware
-|   GitHub: https://github.com/dziolas/invenio-oaiserver
+|   GitHub: https://github.com/inveniosoftware/invenio-oaiserver
 |   URL: http://invenio-software.org

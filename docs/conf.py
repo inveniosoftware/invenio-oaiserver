@@ -144,7 +144,7 @@ html_theme_options = {
     'github_banner': True,
     'show_powered_by': False,
     'extra_nav_links': {
-        'invenio-oaiserver@GitHub': 'http://github.com/dziolas/invenio-oaiserver',
+        'invenio-oaiserver@GitHub': 'http://github.com/inveniosoftware/invenio-oaiserver',
         'invenio-oaiserver@PyPI': 'http://pypi.python.org/pypi/invenio-oaiserver/',
     }
 }

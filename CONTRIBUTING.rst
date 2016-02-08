@@ -10,7 +10,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/dziolas/invenio-oaiserver/issues.
+Report bugs at https://github.com/inveniosoftware/invenio-oaiserver/issues.
 
 If you are reporting a bug, please include:
 
@@ -41,7 +41,7 @@ Submit Feedback
 ~~~~~~~~~~~~~~~
 
 The best way to send feedback is to file an issue at
-https://github.com/dziolas/invenio-oaiserver/issues.
+https://github.com/inveniosoftware/invenio-oaiserver/issues.
 
 If you are proposing a feature:
 
@@ -109,5 +109,5 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring.
 3. The pull request should work for Python 2.7, 3.3, 3.4 and 3.5. Check
-   https://travis-ci.com/dziolas/invenio-oaiserver/pull_requests
+   https://travis-ci.com/inveniosoftware/invenio-oaiserver/pull_requests
    and make sure that the tests pass for all supported Python versions.
