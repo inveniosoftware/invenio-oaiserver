@@ -465,16 +465,63 @@ def test_listidentifiers(app):
 
 
 def test_list_sets_long(app):
+    """Test listing of sets."""
+    from invenio_db import db
+    from invenio_oaiserver.models import OAISet
+
+    with app.app_context():
+        with db.session.begin_nested():
+            for i in range(27):
+                db.session.add(OAISet(
+                    spec='test{0}'.format(i),
+                    name='Test{0}'.format(i),
+                    description='test desc {0}'.format(i),
+                    search_pattern='title:Test{0}'.format(i),
+                ))
+        db.session.commit()
+
+    namespaces = {'x': NS_OAIPMH}
+
     with app.test_client() as c:
+        # First page:
         result = c.get('/oai2d?verb=ListSets')
+        tree = etree.fromstring(result.data)
 
+        assert len(tree.xpath('/x:OAI-PMH/x:ListSets/x:set',
+                              namespaces=namespaces)) == 10
 
-def test_list_sets_with_resumption_token(app):
-    pass
+        resumption_token = tree.xpath(
+            '/x:OAI-PMH/x:ListSets/x:resumptionToken', namespaces=namespaces
+        )[0]
+        assert resumption_token.text
 
+        # Second page:
+        result = c.get('/oai2d?verb=ListSets&resumptionToken={0}'.format(
+            resumption_token.text
+        ))
+        tree = etree.fromstring(result.data)
 
-def test_list_sets_with_second_resumption_token(app):
-    pass
+        assert len(tree.xpath('/x:OAI-PMH/x:ListSets/x:set',
+                              namespaces=namespaces)) == 10
+
+        resumption_token = tree.xpath(
+            '/x:OAI-PMH/x:ListSets/x:resumptionToken', namespaces=namespaces
+        )[0]
+        assert resumption_token.text
+
+        # Third page:
+        result = c.get('/oai2d?verb=ListSets&resumptionToken={0}'.format(
+            resumption_token.text
+        ))
+        tree = etree.fromstring(result.data)
+
+        assert len(tree.xpath('/x:OAI-PMH/x:ListSets/x:set',
+                              namespaces=namespaces)) == 7
+
+        resumption_token = tree.xpath(
+            '/x:OAI-PMH/x:ListSets/x:resumptionToken', namespaces=namespaces
+        )[0]
+        assert not resumption_token.text
 
 
 def test_list_sets_with_resumption_token_and_other_args(app):

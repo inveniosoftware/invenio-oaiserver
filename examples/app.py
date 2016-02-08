@@ -80,7 +80,7 @@ InvenioAssets(app)
 InvenioDB(app)
 InvenioRecords(app)
 InvenioPIDStore(app)
-# InvenioSearch(app)
+InvenioSearch(app)
 InvenioOAIServer(app)
 
 
