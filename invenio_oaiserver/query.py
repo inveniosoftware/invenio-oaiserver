@@ -22,7 +22,6 @@
 import pypeg2
 from flask import current_app
 from invenio_query_parser.walkers.match_unit import MatchUnit
-from invenio_records.models import RecordMetadata
 from invenio_search import Query as SearchQuery
 from invenio_search import current_search_client
 from sqlalchemy.orm.exc import NoResultFound
@@ -62,9 +61,7 @@ def get_records(page=1):
         yield {
             "id": result['_id'],
             "json": result['_source'],
-            # FIXME retrieve from elastic search
-            "updated": RecordMetadata.query.filter_by(
-                id=result['_id']).one().updated
+            "updated": result['_source']['_updated']
         }
 
 
@@ -83,7 +80,5 @@ def get_record(recid):
     return {
         "id": result['_id'],
         "json": result['_source'],
-        # FIXME retrieve from elastic search
-        "updated": RecordMetadata.query.filter_by(
-            id=result['_id']).one().updated
+        "updated": result['_source']['_updated']
     }
