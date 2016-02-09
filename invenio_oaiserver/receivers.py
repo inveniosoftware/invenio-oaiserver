@@ -48,7 +48,7 @@ def _build_cache():
     """Preprocess set queries."""
     for _set in OAISet.query.filter(
             OAISet.search_pattern.isnot(None)).all():
-        yield _set.name, dict(
+        yield _set.spec, dict(
             query=_set.search_pattern,
         )
     raise StopIteration
@@ -60,16 +60,16 @@ def _find_matching_sets_internally(sets, record):
     :param sets: set of sets where search
     :param record: record to match
     """
-    for name, data in iteritems(sets):
+    for spec, data in iteritems(sets):
         if _build_query(data['query']).match(record):
-            yield set((name,))
+            yield set((spec, ))
     raise StopIteration
 
 
 def get_record_sets(record, matcher):
     """Return list of sets to which record belongs to.
 
-    :record: Record instance
+    :param record: Record instance
     :return: list of set names
     """
     sets = current_oaiserver.sets

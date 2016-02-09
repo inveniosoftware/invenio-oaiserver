@@ -38,6 +38,7 @@ class OAISet(db.Model, Timestamp):
 
     spec = db.Column(
         db.String(40),
+        nullable=False,
         unique=True,
         info=dict(
             label=_('Identifier'),

@@ -51,17 +51,17 @@ def _try_populate_oaisets():
         'required': ['title'],
     }
 
-    a = OAISet(name="a")
-    b = OAISet(name="b")
+    a = OAISet(spec="a")
+    b = OAISet(spec="b")
     e = OAISet(
-        name="e", search_pattern="title:Test2 OR title:Test3")
-    c = OAISet(name="c", search_pattern="title:Test0")
-    d = OAISet(name="d", search_pattern="title:Test1")
-    f = OAISet(name="f", search_pattern="title:Test2")
-    g = OAISet(name="g")
-    h = OAISet(name="h")
-    i = OAISet(name="i", search_pattern="title:Test3")
-    j = OAISet(name="j", search_pattern="title:Test4")
+        spec="e", search_pattern="title:Test2 OR title:Test3")
+    c = OAISet(spec="c", search_pattern="title:Test0")
+    d = OAISet(spec="d", search_pattern="title:Test1")
+    f = OAISet(spec="f", search_pattern="title:Test2")
+    g = OAISet(spec="g")
+    h = OAISet(spec="h")
+    i = OAISet(spec="i", search_pattern="title:Test3")
+    j = OAISet(spec="j", search_pattern="title:Test4")
 
     with db.session.begin_nested():
         for coll in [a, b, c, d, e, f, g, h, i, j]:
@@ -130,8 +130,8 @@ def _try_populate_oaisets():
     assert 'i' in record3['_oaisets']
     assert len(record3['_oaisets']) == 2
 
-    # test update name
-    a.name = "new-a"
+    # test update the spec
+    a.spec = "new-a"
     db.session.add(a)
     db.session.commit()
     record3.commit()
@@ -141,7 +141,7 @@ def _try_populate_oaisets():
     assert len(record3['_oaisets']) == 2
 
     # test update name
-    c.name = "new-c"
+    c.spec = "new-c"
     db.session.add(c)
     db.session.commit()
     record0.commit()
