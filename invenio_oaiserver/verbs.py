@@ -94,9 +94,9 @@ class Verbs(object):
 
         from_ = fields.DateTime()
         until = fields.DateTime()
+        set = fields.Str()
         metadataPrefix = fields.Str(required=True,
                                     validate=validate_metadata_prefix)
-        identifier = fields.Str()
 
     class ListMetadataFormats(OAISchema):
         """Arguments for ListMetadataFormats verb."""
@@ -108,7 +108,7 @@ class Verbs(object):
 
         from_ = fields.DateTime()
         until = fields.DateTime()
-        spec = fields.Str(attribute='set')  # NOTE avoid using set for attr.
+        set = fields.Str()
         metadataPrefix = fields.Str(required=True,
                                     validate=validate_metadata_prefix)
 

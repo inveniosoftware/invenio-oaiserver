@@ -266,8 +266,7 @@ def getrecord(**kwargs):
 def listidentifiers(**kwargs):
     """Create OAI-PMH response for verb ListIdentifiers."""
     e_tree, e_listidentifiers = verb(**kwargs)
-    page = kwargs.get('resumptionToken', {}).get('page', 1)
-    result = get_records(page=page)
+    result = get_records(**kwargs)
 
     for record in result.items:
         pid = oaiid_fetcher(record['id'], record['json'])
@@ -292,8 +291,7 @@ def listrecords(**kwargs):
     record_dumper = serializer(kwargs['metadataPrefix'])
 
     e_tree, e_listrecords = verb(**kwargs)
-    page = kwargs.get('resumptionToken', {}).get('page', 1)
-    result = get_records(page=page)
+    result = get_records(**kwargs)
 
     for record in result.items:
         pid = oaiid_fetcher(record['id'], record['json'])

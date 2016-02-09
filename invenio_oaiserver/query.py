@@ -46,10 +46,14 @@ class Query(SearchQuery):
         return self.query.accept(MatchUnit(record))
 
 
-def get_records(page=1):
+def get_records(**kwargs):
     """Get records."""
+    page = kwargs.get('resumptionToken', {}).get('page', 1)
     size = current_app.config['OAISERVER_PAGE_SIZE']
-    query = Query()[(page-1)*size:page*size]
+    query = Query(
+        # FIXME make a filter
+        '_oaisets:"{set}"'.format(**kwargs) if 'set' in kwargs else None
+    )[(page-1)*size:page*size]
 
     response = current_search_client.search(
         index=current_app.config['OAISERVER_RECORD_INDEX'],
