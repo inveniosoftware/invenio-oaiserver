@@ -36,7 +36,7 @@ class Query(SearchQuery):
     @cached_property
     def query(self):
         """Parse query string using given grammar."""
-        tree = pypeg2.parse(self._query, parser(), whitespace="")
+        tree = pypeg2.parse(self._query, parser(), whitespace='')
         for walker in query_walkers():
             tree = tree.accept(walker)
         return tree
@@ -57,12 +57,23 @@ def get_records(page=1):
         # version=True,
     )
 
-    for result in response['hits']['hits']:
-        yield {
-            # FIXME
-            "id": result['_id'],
-            "json": result['_source'],
-            # FIXME retrieve from elastic search
-            "updated": RecordMetadata.query.filter_by(
-                id=result['_id']).one().updated
-        }
+    class Pagination(object):
+        """Dummy pagination class."""
+
+        @property
+        def has_next(self):
+            """Return True if there are more results."""
+            return page*size <= response['hits']['total']
+
+        @property
+        def items(self):
+            """Return iterator."""
+            for result in response['hits']['hits']:
+                yield {
+                    'id': result['_id'],
+                    'json': result['_source'],
+                    'updated': RecordMetadata.query.filter_by(
+                        id=result['_id']).one().updated,
+                }
+
+    return Pagination()

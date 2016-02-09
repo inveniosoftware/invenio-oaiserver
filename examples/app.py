@@ -58,6 +58,8 @@ from flask import Flask
 from flask_cli import FlaskCLI
 from invenio_assets import InvenioAssets
 from invenio_db import InvenioDB
+from invenio_indexer import InvenioIndexer
+from invenio_indexer.api import RecordIndexer
 from invenio_pidstore import InvenioPIDStore
 from invenio_pidstore.minters import recid_minter
 from invenio_records import InvenioRecords
@@ -70,6 +72,7 @@ from invenio_oaiserver.minters import oaiid_minter
 # Create Flask application
 app = Flask(__name__)
 app.config.update(
+    OAISERVER_RECORD_INDEX='records-record-v1.0.0',
     OAISERVER_ID_PREFIX='oai:localhost:recid/',
     SECRET_KEY='CHANGE_ME',
     SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI',
@@ -80,7 +83,8 @@ InvenioAssets(app)
 InvenioDB(app)
 InvenioRecords(app)
 InvenioPIDStore(app)
-InvenioSearch(app)
+search = InvenioSearch(app)
+InvenioIndexer(app)
 InvenioOAIServer(app)
 
 
@@ -117,12 +121,18 @@ def oaiserver(number):
         'required': ['title'],
     }
 
-    with db.session.begin_nested():
-        for i in range(number):
-            record_id = uuid.uuid4()
-            data = {'title': 'Test{0}'.format(i), '$schema': schema}
-            recid_minter(record_id, data)
-            oaiid_minter(record_id, data)
-            Record.create(data, id_=record_id)
+    search.client.indices.delete_alias('_all', '_all', ignore=[400, 404])
+    search.client.indices.delete('*')
 
-    db.session.commit()
+    with app.app_context():
+        indexer = RecordIndexer()
+        with db.session.begin_nested():
+            for i in range(number):
+                record_id = uuid.uuid4()
+                data = {'title': 'Test{0}'.format(i), '$schema': schema}
+                recid_minter(record_id, data)
+                oaiid_minter(record_id, data)
+                record = Record.create(data, id_=record_id)
+                indexer.index(record)
+
+        db.session.commit()

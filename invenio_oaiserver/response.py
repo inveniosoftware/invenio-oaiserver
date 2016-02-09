@@ -36,6 +36,7 @@ from .fetchers import oaiid_fetcher
 from .models import OAISet
 from .provider import OAIIDProvider
 from .query import get_records
+from .resumption_token import serialize
 from .utils import serializer
 
 NS_OAIPMH = 'http://www.openarchives.org/OAI/2.0/'
@@ -170,7 +171,6 @@ def listsets(**kwargs):
     page = kwargs.get('resumptionToken', {}).get('page', 1)
     oai_sets = OAISet.query.paginate(page=page, per_page=10, error_out=False)
 
-    from .resumption_token import serialize
     token = serialize(has_next=oai_sets.has_next, **kwargs)
 
     for oai_set in oai_sets.items:
@@ -265,14 +265,22 @@ def getrecord(**kwargs):
 def listidentifiers(**kwargs):
     """Create OAI-PMH response for verb ListIdentifiers."""
     e_tree, e_listidentifiers = verb(**kwargs)
+    page = kwargs.get('resumptionToken', {}).get('page', 1)
+    result = get_records(page=page)
 
-    for record in get_records():
+    for record in result.items:
         pid = oaiid_fetcher(record['id'], record['json'])
         header(
             e_listidentifiers,
             identifier=pid.pid_value,
             datestamp=record['updated'],
         )
+
+    token = serialize(has_next=result.has_next, **kwargs)
+    e_resumptionToken = SubElement(e_listidentifiers,
+                                   etree.QName(NS_OAIPMH, 'resumptionToken'))
+    if token:
+        e_resumptionToken.text = token
 
     return e_tree
 
@@ -282,8 +290,10 @@ def listrecords(**kwargs):
     record_dumper = serializer(kwargs['metadataPrefix'])
 
     e_tree, e_listrecords = verb(**kwargs)
+    page = kwargs.get('resumptionToken', {}).get('page', 1)
+    result = get_records(page=page)
 
-    for record in get_records():
+    for record in result.items:
         pid = oaiid_fetcher(record['id'], record['json'])
         e_record = SubElement(e_listrecords,
                               etree.QName(NS_OAIPMH, 'record'))
@@ -294,5 +304,11 @@ def listrecords(**kwargs):
         )
         e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, 'metadata'))
         e_metadata.append(record_dumper(record['json']))
+
+    token = serialize(has_next=result.has_next, **kwargs)
+    e_resumptionToken = SubElement(e_listrecords,
+                                   etree.QName(NS_OAIPMH, 'resumptionToken'))
+    if token:
+        e_resumptionToken.text = token
 
     return e_tree
