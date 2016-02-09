@@ -25,7 +25,8 @@ from invenio_query_parser.walkers.match_unit import MatchUnit
 from invenio_search import Query as SearchQuery
 from invenio_search import current_search_client
 from werkzeug.utils import cached_property
-
+from invenio_records.models import RecordMetadata
+from sqlalchemy.orm.exc import NoResultFound
 from .utils import datestamp_to_datetime, parser, query_walkers
 
 
@@ -57,27 +58,29 @@ def get_records(page=1):
     )
 
     for result in response['hits']['hits']:
-        yield {
-            "id": result['_id'],
-            "json": result['_source'],
-            "updated": datestamp_to_datetime(result['_source']['_updated'])
-        }
+        yield RecordMetadata(
+            id=result['_id'],
+            json=result['_source'],
+            updated=datestamp_to_datetime(result['_source']['_updated'])
+        )
 
 
 def get_record_by_oaiid(oaiid):
     """Get record by oaiid."""
-    query = {'match_all': {"_oaiid": oaiid}}
+    query = {'match': {"_oaiid": oaiid}}
     response = current_search_client.search(
         index=current_app.config['OAISERVER_RECORD_INDEX'],
         body={'query': query}
         # version=True,
     )
-    result = response['hits']['hits'][0]
-    return {
-        "id": result['_id'],
-        "json": result['_source'],
-        "updated": datestamp_to_datetime(result['_source']['_updated'])
-    }
+    results = response['hits']['hits']
+    if len(results) > 0:
+        return RecordMetadata(
+            id=results[0]['_id'],
+            json=results[0]['_source'],
+            updated=datestamp_to_datetime(results[0]['_source']['_updated'])
+        )
+    raise NoResultFound()
 
 
 def get_record(recid):

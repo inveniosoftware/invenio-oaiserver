@@ -35,7 +35,7 @@ from lxml.etree import Element, ElementTree, SubElement
 from .fetchers import oaiid_fetcher
 from .models import OAISet
 from .provider import OAIIDProvider
-from .query import get_record, get_records
+from .query import get_records, get_record_by_oaiid
 from .utils import datetime_to_datestamp, serializer
 
 NS_OAIPMH = 'http://www.openarchives.org/OAI/2.0/'
@@ -234,14 +234,13 @@ def header(parent, identifier, datestamp, sets=None, deleted=False):
 def getrecord(**kwargs):
     """Create OAI-PMH response for verb Identify."""
     record_dumper = serializer(kwargs['metadataPrefix'])
-    pid = OAIIDProvider.get(pid_value=kwargs['identifier']).pid
-    record = get_record(recid=pid.object_uuid)
+    record = get_record_by_oaiid(kwargs['identifier'])
 
     e_tree, e_getrecord = verb(**kwargs)
 
     header(
         e_getrecord,
-        identifier=str(pid.object_uuid),
+        identifier=str(record.id),
         datestamp=record.updated,
     )
     e_metadata = SubElement(e_getrecord,

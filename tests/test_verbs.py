@@ -115,10 +115,15 @@ def test_getrecord(app):
         'required': ['title'],
     }
     with app.test_request_context():
+        indexer = RecordIndexer()
         with db.session.begin_nested():
-            record = Record.create({'title': 'Test0', '$schema': schema}).model
-            recid_minter(record.id, record.json)
-            pid = oaiid_minter(record.id, record.json)
+            record_id = uuid.uuid4()
+            data = {'title': 'Test0', '$schema': schema}
+            recid_minter(record_id, data)
+            pid = oaiid_minter(record_id, data)
+            record = Record.create(data, id_=record_id).model
+            import pudb; pudb.set_trace()  # XXX BREAKPOINT
+            indexer.index_by_id(record_id)
 
         db.session.commit()
 
