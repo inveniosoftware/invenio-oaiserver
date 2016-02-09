@@ -22,12 +22,11 @@
 import pypeg2
 from flask import current_app
 from invenio_query_parser.walkers.match_unit import MatchUnit
-from invenio_records.models import RecordMetadata
 from invenio_search import Query as SearchQuery
 from invenio_search import current_search_client
 from werkzeug.utils import cached_property
 
-from .utils import parser, query_walkers
+from .utils import datestamp_to_datetime, parser, query_walkers
 
 
 class Query(SearchQuery):
@@ -59,10 +58,38 @@ def get_records(page=1):
 
     for result in response['hits']['hits']:
         yield {
-            # FIXME
             "id": result['_id'],
             "json": result['_source'],
-            # FIXME retrieve from elastic search
-            "updated": RecordMetadata.query.filter_by(
-                id=result['_id']).one().updated
+            "updated": datestamp_to_datetime(result['_source']['_updated'])
         }
+
+
+def get_record_by_oaiid(oaiid):
+    """Get record by oaiid."""
+    query = {'match_all': {"_oaiid": oaiid}}
+    response = current_search_client.search(
+        index=current_app.config['OAISERVER_RECORD_INDEX'],
+        body={'query': query}
+        # version=True,
+    )
+    result = response['hits']['hits'][0]
+    return {
+        "id": result['_id'],
+        "json": result['_source'],
+        "updated": datestamp_to_datetime(result['_source']['_updated'])
+    }
+
+
+def get_record(recid):
+    """Get a record."""
+    if recid:
+        response = current_search_client.get(
+            index=current_app.config['OAISERVER_RECORD_INDEX'],
+            id=str(recid)
+            # version=True,
+        )
+    return {
+        "id": response['_id'],
+        "json": response['_source'],
+        "updated": datestamp_to_datetime(response['_source']['_updated'])
+    }

@@ -38,8 +38,8 @@ from lxml import etree
 
 from invenio_oaiserver.minters import oaiid_minter
 from invenio_oaiserver.models import OAISet
-from invenio_oaiserver.response import NS_DC, NS_OAIDC, NS_OAIPMH, \
-    datetime_to_datestamp
+from invenio_oaiserver.response import NS_DC, NS_OAIDC, NS_OAIPMH
+from invenio_oaiserver.utils import datetime_to_datestamp
 
 
 def _xpath_errors(body):

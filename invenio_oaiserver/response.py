@@ -35,8 +35,8 @@ from lxml.etree import Element, ElementTree, SubElement
 from .fetchers import oaiid_fetcher
 from .models import OAISet
 from .provider import OAIIDProvider
-from .query import get_records
-from .utils import serializer
+from .query import get_record, get_records
+from .utils import datetime_to_datestamp, serializer
 
 NS_OAIPMH = 'http://www.openarchives.org/OAI/2.0/'
 NS_OAIPMH_XSD = 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd'
@@ -53,17 +53,6 @@ NSMAP_DESCRIPTION = {
     'dc': NS_DC,
     'xsi': NS_XSI,
 }
-
-
-def datetime_to_datestamp(dt, day_granularity=False):
-    """Transform datetime to datestamp."""
-    assert dt.tzinfo is None  # only accept timezone naive datetimes
-    # ignore microseconds
-    dt = dt.replace(microsecond=0)
-    result = dt.isoformat() + 'Z'
-    if day_granularity:
-        result = result[:-10]
-    return result
 
 
 def envelope(**kwargs):
@@ -246,7 +235,7 @@ def getrecord(**kwargs):
     """Create OAI-PMH response for verb Identify."""
     record_dumper = serializer(kwargs['metadataPrefix'])
     pid = OAIIDProvider.get(pid_value=kwargs['identifier']).pid
-    record = RecordMetadata.query.get(pid.object_uuid)
+    record = get_record(recid=pid.object_uuid)
 
     e_tree, e_getrecord = verb(**kwargs)
 
