@@ -121,10 +121,8 @@ def test_getrecord(app):
             pid = oaiid_minter(record.id, record.json)
 
         db.session.commit()
-
         pid_value = pid.pid_value
-        pid_updated = pid.updated
-
+        record_updated = record.updated
         with app.test_client() as c:
             result = c.get(
                 "/oai2d?verb=GetRecord&identifier={0}&metadataPrefix=oai_dc"
@@ -149,7 +147,7 @@ def test_getrecord(app):
             datestamp = tree.xpath(
                 '/x:OAI-PMH/x:GetRecord/x:header/x:datestamp/text()',
                 namespaces=namespaces)
-            assert datestamp == [datetime_to_datestamp(pid_updated)]
+            assert datestamp == [datetime_to_datestamp(record_updated)]
             assert len(tree.xpath('/x:OAI-PMH/x:GetRecord/x:metadata',
                                   namespaces=namespaces)) == 1
 
