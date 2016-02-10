@@ -37,7 +37,7 @@ invenio_records/data/marc21/bibliographic.xml):
 
 .. code-block:: console
 
-    $ dojson do -i data/marc21/bibliographic.xml -l marcxml marc21 | \
+    $ dojson -i data/marc21/bibliographic.xml -l marcxml do marc21 | \
         flask -a app.py records create
 
 Mint the records:
@@ -63,7 +63,6 @@ from invenio_indexer.api import RecordIndexer
 from invenio_pidstore import InvenioPIDStore
 from invenio_pidstore.minters import recid_minter
 from invenio_records import InvenioRecords
-from invenio_records.models import RecordMetadata
 from invenio_search import InvenioSearch
 
 from invenio_oaiserver import InvenioOAIServer
