@@ -58,7 +58,7 @@ NSMAP_DESCRIPTION = {
 
 def datetime_to_datestamp(dt, day_granularity=False):
     """Transform datetime to datestamp."""
-    assert dt.tzinfo is None  # only accept timezone naive datetimes
+    # assert dt.tzinfo is None  # only accept timezone naive datetimes
     # ignore microseconds
     dt = dt.replace(microsecond=0)
     result = dt.isoformat() + 'Z'
@@ -85,7 +85,7 @@ def envelope(**kwargs):
     e_responseDate.text = datetime_to_datestamp(datetime.utcnow())
     e_request = SubElement(e_oaipmh, etree.QName(NS_OAIPMH, 'request'))
     for key, value in kwargs.items():
-        if key == 'from' or key == 'until':
+        if key == 'from_' or key == 'until':
             value = datetime_to_datestamp(value)
         elif key == 'resumptionToken':
             value = value['token']
@@ -274,7 +274,7 @@ def listidentifiers(**kwargs):
             e_listidentifiers,
             identifier=pid.pid_value,
             datestamp=record['updated'],
-            sets=record['json'].get('_oai', []).get('sets', []),
+            sets=record['json'].get('_oai', {}).get('sets', []),
         )
 
     token = serialize(has_next=result.has_next, **kwargs)
@@ -301,7 +301,7 @@ def listrecords(**kwargs):
             e_record,
             identifier=pid.pid_value,
             datestamp=record['updated'],
-            sets=record['json'].get('_oai', []).get('sets', []),
+            sets=record['json'].get('_oai', {}).get('sets', []),
         )
         e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, 'metadata'))
         e_metadata.append(record_dumper(record['json']))

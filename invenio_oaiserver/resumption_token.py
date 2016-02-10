@@ -24,7 +24,7 @@
 
 """Implement funtions for managing OAI-PMH resumption token."""
 
-from flask import current_app
+from flask import current_app, request
 from itsdangerous import URLSafeTimedSerializer
 from marshmallow import fields
 
@@ -40,6 +40,10 @@ def serialize(has_next=True, **kwargs):
     if 'resumptionToken' in kwargs:
         page = kwargs['resumptionToken']['page'] + 1
         del kwargs['resumptionToken']
+
+    for key in ('from_', 'until'):
+        if key in kwargs:
+            kwargs[key] = request.args.get(key)
 
     token_builder = URLSafeTimedSerializer(
         current_app.config['SECRET_KEY'],
