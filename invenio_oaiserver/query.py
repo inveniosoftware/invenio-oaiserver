@@ -50,15 +50,26 @@ def get_records(**kwargs):
     """Get records."""
     page = kwargs.get('resumptionToken', {}).get('page', 1)
     size = current_app.config['OAISERVER_PAGE_SIZE']
-    query = Query(
-        # FIXME make a filter
-        '_oai.sets:"{set}"'.format(**kwargs) if 'set' in kwargs else None
-    )[(page-1)*size:page*size]
+    query = Query()[(page-1)*size:page*size]
+
+    body = {}
+    if 'set' in kwargs:
+        body['must'] = [{'match': {'_oai.sets': kwargs['set']}}]
+
+    time_range = {}
+    if 'from_' in kwargs:
+        time_range['gte'] = kwargs['from_']
+    if 'until' in kwargs:
+        time_range['lte'] = kwargs['until']
+    if time_range:
+        body['filter'] = [{'range': {'_oai.updated': time_range}}]
+
+    if body:
+        query.body = {'query': {'bool': body}}
 
     response = current_search_client.search(
         index=current_app.config['OAISERVER_RECORD_INDEX'],
         body=query.body,
-        # version=True,
     )
 
     class Pagination(object):
