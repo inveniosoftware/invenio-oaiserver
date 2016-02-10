@@ -26,6 +26,8 @@
 
 from __future__ import absolute_import, print_function
 
+from datetime import datetime
+
 from six import iteritems
 
 from .models import OAISet
@@ -97,6 +99,6 @@ class OAIServerUpdater(object):
         record.update({
             '_oai': {
                 'sets': get_record_sets(record=record, matcher=self.matcher),
-                'updated': str(record.updated),
+                'updated': datetime.now().isoformat(),
             }
         })

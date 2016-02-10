@@ -88,8 +88,6 @@ def app(request):
 
     with app.app_context():
         db.create_all()
-        search.client.indices.delete_alias('_all', '_all', ignore=[400, 404])
-        search.client.indices.delete('*')
         list(search.create(ignore=[400]))
 
     def teardown():

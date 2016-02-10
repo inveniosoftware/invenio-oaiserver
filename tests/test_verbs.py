@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import
 
+import datetime
 import uuid
 from copy import deepcopy
 from time import sleep
@@ -40,6 +41,8 @@ from invenio_oaiserver.minters import oaiid_minter
 from invenio_oaiserver.models import OAISet
 from invenio_oaiserver.response import NS_DC, NS_OAIDC, NS_OAIPMH, \
     datetime_to_datestamp
+
+NAMESPACES = {'x': NS_OAIPMH, 'y': NS_OAIDC, 'z': NS_DC}
 
 
 def _xpath_errors(body):
@@ -66,43 +69,54 @@ def test_wrong_verb(app):
 
 
 def test_identify(app):
+    """Test Identify verb."""
+    FRIENDS = """<friends xmlns="http://www.openarchives.org/OAI/2.0/friends/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/friends/
+        http://www.openarchives.org/OAI/2.0/friends.xsd">
+        <baseURL>http://example.org/oai2d</baseURL>
+    </friends>"""
+    app.config['OAISERVER_DESCRIPTIONS'] = [FRIENDS, FRIENDS]
+
     with app.test_client() as c:
         result = c.get('/oai2d?verb=Identify')
         assert 200 == result.status_code
 
         tree = etree.fromstring(result.data)
 
-        namespaces = {'x': NS_OAIPMH}
-        assert len(tree.xpath('/x:OAI-PMH', namespaces=namespaces)) == 1
+        assert len(tree.xpath('/x:OAI-PMH', namespaces=NAMESPACES)) == 1
         assert len(tree.xpath('/x:OAI-PMH/x:Identify',
-                              namespaces=namespaces)) == 1
+                              namespaces=NAMESPACES)) == 1
         repository_name = tree.xpath('/x:OAI-PMH/x:Identify/x:repositoryName',
-                                     namespaces=namespaces)
+                                     namespaces=NAMESPACES)
         assert len(repository_name) == 1
         assert repository_name[0].text == 'Invenio-OAIServer'
         base_url = tree.xpath('/x:OAI-PMH/x:Identify/x:baseURL',
-                              namespaces=namespaces)
+                              namespaces=NAMESPACES)
         assert len(base_url) == 1
         assert base_url[0].text == 'http://app/oai2d'
         protocolVersion = tree.xpath('/x:OAI-PMH/x:Identify/x:protocolVersion',
-                                     namespaces=namespaces)
+                                     namespaces=NAMESPACES)
         assert len(protocolVersion) == 1
         assert protocolVersion[0].text == '2.0'
         adminEmail = tree.xpath('/x:OAI-PMH/x:Identify/x:adminEmail',
-                                namespaces=namespaces)
+                                namespaces=NAMESPACES)
         assert len(adminEmail) == 1
         assert adminEmail[0].text == 'info@invenio-software.org'
         earliestDatestamp = tree.xpath(
             '/x:OAI-PMH/x:Identify/x:earliestDatestamp',
-            namespaces=namespaces)
+            namespaces=NAMESPACES)
         assert len(earliestDatestamp) == 1
         deletedRecord = tree.xpath('/x:OAI-PMH/x:Identify/x:deletedRecord',
-                                   namespaces=namespaces)
+                                   namespaces=NAMESPACES)
         assert len(deletedRecord) == 1
         assert deletedRecord[0].text == 'no'
         granularity = tree.xpath('/x:OAI-PMH/x:Identify/x:granularity',
-                                 namespaces=namespaces)
+                                 namespaces=NAMESPACES)
         assert len(granularity) == 1
+        description = tree.xpath('/x:OAI-PMH/x:Identify/x:description',
+                                 namespaces=NAMESPACES)
+        assert len(description) == 2
 
 
 def test_getrecord(app):
@@ -125,31 +139,30 @@ def test_getrecord(app):
         record_updated = record.updated
         with app.test_client() as c:
             result = c.get(
-                "/oai2d?verb=GetRecord&identifier={0}&metadataPrefix=oai_dc"
+                '/oai2d?verb=GetRecord&identifier={0}&metadataPrefix=oai_dc'
                 .format(pid_value))
             assert 200 == result.status_code
 
             tree = etree.fromstring(result.data)
 
-            namespaces = {'x': NS_OAIPMH}
-            assert len(tree.xpath('/x:OAI-PMH', namespaces=namespaces)) == 1
+            assert len(tree.xpath('/x:OAI-PMH', namespaces=NAMESPACES)) == 1
             assert len(tree.xpath('/x:OAI-PMH/x:GetRecord',
-                                  namespaces=namespaces)) == 1
+                                  namespaces=NAMESPACES)) == 1
             assert len(tree.xpath('/x:OAI-PMH/x:GetRecord/x:header',
-                                  namespaces=namespaces)) == 1
+                                  namespaces=NAMESPACES)) == 1
             assert len(tree.xpath(
                 '/x:OAI-PMH/x:GetRecord/x:header/x:identifier',
-                namespaces=namespaces)) == 1
+                namespaces=NAMESPACES)) == 1
             identifier = tree.xpath(
                 '/x:OAI-PMH/x:GetRecord/x:header/x:identifier/text()',
-                namespaces=namespaces)
+                namespaces=NAMESPACES)
             assert identifier == [str(record.id)]
             datestamp = tree.xpath(
                 '/x:OAI-PMH/x:GetRecord/x:header/x:datestamp/text()',
-                namespaces=namespaces)
+                namespaces=NAMESPACES)
             assert datestamp == [datetime_to_datestamp(record_updated)]
             assert len(tree.xpath('/x:OAI-PMH/x:GetRecord/x:metadata',
-                                  namespaces=namespaces)) == 1
+                                  namespaces=NAMESPACES)) == 1
 
 
 def test_getrecord_fail(app):
@@ -157,7 +170,7 @@ def test_getrecord_fail(app):
     with app.test_request_context():
         with app.test_client() as c:
             result = c.get(
-                "/oai2d?verb=GetRecord&identifier={0}&metadataPrefix=oai_dc"
+                '/oai2d?verb=GetRecord&identifier={0}&metadataPrefix=oai_dc'
                 .format('not-exist-pid'))
             assert 422 == result.status_code
 
@@ -168,9 +181,8 @@ def test_getrecord_fail(app):
 
 def _check_xml_error(tree, code):
     """Text xml for a error idDoesNotExist."""
-    namespaces = {'x': NS_OAIPMH}
-    assert len(tree.xpath('/x:OAI-PMH', namespaces=namespaces)) == 1
-    error = tree.xpath('/x:OAI-PMH/x:error', namespaces=namespaces)
+    assert len(tree.xpath('/x:OAI-PMH', namespaces=NAMESPACES)) == 1
+    error = tree.xpath('/x:OAI-PMH/x:error', namespaces=NAMESPACES)
     assert len(error) == 1
     assert error[0].attrib['code'] == code
 
@@ -218,7 +230,7 @@ def test_listmetadataformats_record(app):
 def test_listmetadataformats_record_fail(app):
     """Test ListMetadataFormats for a record that doesn't exist."""
     query = '/oai2d?verb=ListMetadataFormats&identifier={0}'.format(
-            "pid-not-exixts")
+            'pid-not-exixts')
     with app.test_request_context():
         with app.test_client() as c:
             result = c.get(query)
@@ -236,13 +248,12 @@ def _listmetadataformats(app, query):
 
         tree = etree.fromstring(result.data)
 
-        namespaces = {'x': NS_OAIPMH}
-        assert len(tree.xpath('/x:OAI-PMH', namespaces=namespaces)) == 1
+        assert len(tree.xpath('/x:OAI-PMH', namespaces=NAMESPACES)) == 1
         assert len(tree.xpath('/x:OAI-PMH/x:ListMetadataFormats',
-                              namespaces=namespaces)) == 1
+                              namespaces=NAMESPACES)) == 1
         metadataFormats = tree.xpath(
             '/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat',
-            namespaces=namespaces)
+            namespaces=NAMESPACES)
         cfg_metadataFormats = deepcopy(
             app.config.get('OAISERVER_METADATA_FORMATS', {}))
         assert len(metadataFormats) == len(cfg_metadataFormats)
@@ -250,20 +261,20 @@ def _listmetadataformats(app, query):
             # prefix
             prefix = metadataFormat.xpath(
                 '/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/'
-                'x:metadataPrefix', namespaces=namespaces)
+                'x:metadataPrefix', namespaces=NAMESPACES)
             assert len(prefix) == 1
             assert prefix[0].text in cfg_metadataFormats
             # schema
             schema = metadataFormat.xpath(
                 '/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/'
-                'x:schema', namespaces=namespaces)
+                'x:schema', namespaces=NAMESPACES)
             assert len(schema) == 1
             assert schema[0].text in cfg_metadataFormats[
                 prefix[0].text]['schema']
             # metadataNamespace
             metadataNamespace = metadataFormat.xpath(
                 '/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/'
-                'x:metadataNamespace', namespaces=namespaces)
+                'x:metadataNamespace', namespaces=NAMESPACES)
             assert len(metadataNamespace) == 1
             assert metadataNamespace[0].text in cfg_metadataFormats[
                 prefix[0].text]['namespace']
@@ -275,7 +286,7 @@ def test_listsets(app):
     """Test ListSets."""
     with app.test_request_context():
         with db.session.begin_nested():
-            a = OAISet(spec='test', name='Test', description="test desc")
+            a = OAISet(spec='test', name='Test', description='test desc')
             db.session.add(a)
 
         with app.test_client() as c:
@@ -283,34 +294,31 @@ def test_listsets(app):
 
         tree = etree.fromstring(result.data)
 
-        namespaces = {'x': NS_OAIPMH}
-        assert len(tree.xpath('/x:OAI-PMH', namespaces=namespaces)) == 1
+        assert len(tree.xpath('/x:OAI-PMH', namespaces=NAMESPACES)) == 1
 
         assert len(tree.xpath('/x:OAI-PMH/x:ListSets',
-                              namespaces=namespaces)) == 1
+                              namespaces=NAMESPACES)) == 1
         assert len(tree.xpath('/x:OAI-PMH/x:ListSets/x:set',
-                              namespaces=namespaces)) == 1
+                              namespaces=NAMESPACES)) == 1
         assert len(tree.xpath('/x:OAI-PMH/x:ListSets/x:set/x:setSpec',
-                              namespaces=namespaces)) == 1
+                              namespaces=NAMESPACES)) == 1
         assert len(tree.xpath('/x:OAI-PMH/x:ListSets/x:set/x:setName',
-                              namespaces=namespaces)) == 1
+                              namespaces=NAMESPACES)) == 1
         assert len(tree.xpath(
             '/x:OAI-PMH/x:ListSets/x:set/x:setDescription',
-            namespaces=namespaces
+            namespaces=NAMESPACES
         )) == 1
-        namespaces['y'] = NS_OAIDC
         assert len(
             tree.xpath('/x:OAI-PMH/x:ListSets/x:set/x:setDescription/y:dc',
-                       namespaces=namespaces)
+                       namespaces=NAMESPACES)
         ) == 1
-        namespaces['z'] = NS_DC
         assert len(
             tree.xpath('/x:OAI-PMH/x:ListSets/x:set/x:setDescription/y:dc/'
-                       'z:description', namespaces=namespaces)
+                       'z:description', namespaces=NAMESPACES)
         ) == 1
         text = tree.xpath(
             '/x:OAI-PMH/x:ListSets/x:set/x:setDescription/y:dc/'
-            'z:description/text()', namespaces=namespaces)
+            'z:description/text()', namespaces=NAMESPACES)
         assert len(text) == 1
         assert text[0] == 'test desc'
 
@@ -384,28 +392,27 @@ def test_listrecords(app):
         db.session.commit()
 
         indexer.index_by_id(record_id)
-        sleep(1)
+        sleep(2)
 
         with app.test_client() as c:
             result = c.get('/oai2d?verb=ListRecords&metadataPrefix=oai_dc')
 
         tree = etree.fromstring(result.data)
 
-        namespaces = {'x': NS_OAIPMH}
-        assert len(tree.xpath('/x:OAI-PMH', namespaces=namespaces)) == 1
+        assert len(tree.xpath('/x:OAI-PMH', namespaces=NAMESPACES)) == 1
 
         assert len(tree.xpath('/x:OAI-PMH/x:ListRecords',
-                              namespaces=namespaces)) == 1
+                              namespaces=NAMESPACES)) == 1
         assert len(tree.xpath('/x:OAI-PMH/x:ListRecords/x:record',
-                              namespaces=namespaces)) == 1
+                              namespaces=NAMESPACES)) == 1
         assert len(tree.xpath('/x:OAI-PMH/x:ListRecords/x:record/x:header',
-                              namespaces=namespaces)) == 1
+                              namespaces=NAMESPACES)) == 1
         assert len(tree.xpath('/x:OAI-PMH/x:ListRecords/x:record/x:header'
-                              '/x:identifier', namespaces=namespaces)) == 1
+                              '/x:identifier', namespaces=NAMESPACES)) == 1
         assert len(tree.xpath('/x:OAI-PMH/x:ListRecords/x:record/x:header'
-                              '/x:datestamp', namespaces=namespaces)) == 1
+                              '/x:datestamp', namespaces=NAMESPACES)) == 1
         assert len(tree.xpath('/x:OAI-PMH/x:ListRecords/x:record/x:metadata',
-                              namespaces=namespaces)) == 1
+                              namespaces=NAMESPACES)) == 1
 
 
 def test_listidentifiers(app):
@@ -418,6 +425,18 @@ def test_listidentifiers(app):
         },
         'required': ['title'],
     }
+    from invenio_oaiserver.models import OAISet
+
+    with app.app_context():
+        with db.session.begin_nested():
+            db.session.add(OAISet(
+                spec='test0',
+                name='Test0',
+                description='test desc 0',
+                search_pattern='title:Test0',
+            ))
+        db.session.commit()
+
     with app.test_request_context():
         indexer = RecordIndexer()
 
@@ -431,35 +450,53 @@ def test_listidentifiers(app):
         db.session.commit()
 
         indexer.index_by_id(record_id)
-        sleep(1)
+        sleep(2)
 
         pid_value = pid.pid_value
 
         with app.test_client() as c:
             result = c.get(
-                "/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc"
+                '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
             )
 
         tree = etree.fromstring(result.data)
 
-        namespaces = {'x': NS_OAIPMH}
-        assert len(tree.xpath('/x:OAI-PMH', namespaces=namespaces)) == 1
+        assert len(tree.xpath('/x:OAI-PMH', namespaces=NAMESPACES)) == 1
         assert len(tree.xpath('/x:OAI-PMH/x:ListIdentifiers',
-                              namespaces=namespaces)) == 1
+                              namespaces=NAMESPACES)) == 1
         assert len(tree.xpath('/x:OAI-PMH/x:ListIdentifiers/x:header',
-                              namespaces=namespaces)) == 1
+                              namespaces=NAMESPACES)) == 1
         identifier = tree.xpath(
             '/x:OAI-PMH/x:ListIdentifiers/x:header/x:identifier',
-            namespaces=namespaces
+            namespaces=NAMESPACES
         )
         assert len(identifier) == 1
         assert identifier[0].text == str(pid_value)
         datestamp = tree.xpath(
             '/x:OAI-PMH/x:ListIdentifiers/x:header/x:datestamp',
-            namespaces=namespaces
+            namespaces=NAMESPACES
         )
         assert len(datestamp) == 1
         assert datestamp[0].text == datetime_to_datestamp(record.updated)
+
+        # Check from_:until range
+        with app.test_client() as c:
+            result = c.get(
+                '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
+                '&from_={0}&until={1}&set=test0'.format(
+                    datetime_to_datestamp(record.updated - datetime.timedelta(
+                        1)),
+                    datetime_to_datestamp(record.updated + datetime.timedelta(
+                        1)),
+                )
+            )
+
+        tree = etree.fromstring(result.data)
+        identifier = tree.xpath(
+            '/x:OAI-PMH/x:ListIdentifiers/x:header/x:identifier',
+            namespaces=NAMESPACES
+        )
+        assert len(identifier) == 1
 
 
 def test_list_sets_long(app):
@@ -478,18 +515,16 @@ def test_list_sets_long(app):
                 ))
         db.session.commit()
 
-    namespaces = {'x': NS_OAIPMH}
-
     with app.test_client() as c:
         # First page:
         result = c.get('/oai2d?verb=ListSets')
         tree = etree.fromstring(result.data)
 
         assert len(tree.xpath('/x:OAI-PMH/x:ListSets/x:set',
-                              namespaces=namespaces)) == 10
+                              namespaces=NAMESPACES)) == 10
 
         resumption_token = tree.xpath(
-            '/x:OAI-PMH/x:ListSets/x:resumptionToken', namespaces=namespaces
+            '/x:OAI-PMH/x:ListSets/x:resumptionToken', namespaces=NAMESPACES
         )[0]
         assert resumption_token.text
 
@@ -500,10 +535,10 @@ def test_list_sets_long(app):
         tree = etree.fromstring(result.data)
 
         assert len(tree.xpath('/x:OAI-PMH/x:ListSets/x:set',
-                              namespaces=namespaces)) == 10
+                              namespaces=NAMESPACES)) == 10
 
         resumption_token = tree.xpath(
-            '/x:OAI-PMH/x:ListSets/x:resumptionToken', namespaces=namespaces
+            '/x:OAI-PMH/x:ListSets/x:resumptionToken', namespaces=NAMESPACES
         )[0]
         assert resumption_token.text
 
@@ -514,10 +549,10 @@ def test_list_sets_long(app):
         tree = etree.fromstring(result.data)
 
         assert len(tree.xpath('/x:OAI-PMH/x:ListSets/x:set',
-                              namespaces=namespaces)) == 7
+                              namespaces=NAMESPACES)) == 7
 
         resumption_token = tree.xpath(
-            '/x:OAI-PMH/x:ListSets/x:resumptionToken', namespaces=namespaces
+            '/x:OAI-PMH/x:ListSets/x:resumptionToken', namespaces=NAMESPACES
         )[0]
         assert not resumption_token.text
 
