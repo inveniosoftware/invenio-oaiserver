@@ -26,11 +26,9 @@
 
 from __future__ import absolute_import, print_function
 
-from invenio_indexer import signals as indexer_signals
 from invenio_records import signals as records_signals
 
 from . import config
-from .receivers import _set_record_updated
 
 
 class _AppState(object):
@@ -60,14 +58,12 @@ class _AppState(object):
     def register_signals(self):
         """Register signals."""
         from .receivers import OAIServerUpdater
-        # Register Record signals to update record['_oaisets']
+        # Register Record signals to update OAI informations
         self.update_function = OAIServerUpdater(app=self.app)
         records_signals.before_record_insert.connect(self.update_function,
                                                      weak=False)
         records_signals.before_record_update.connect(self.update_function,
                                                      weak=False)
-        # Register Indexer signals to add _updated field
-        indexer_signals.before_record_index.connect(_set_record_updated)
 
     def unregister_signals(self):
         """Unregister signals."""
@@ -77,7 +73,6 @@ class _AppState(object):
                 self.update_function)
             records_signals.before_record_update.disconnect(
                 self.update_function)
-        indexer_signals.before_record_index.disconnect(_set_record_updated)
 
 
 class InvenioOAIServer(object):

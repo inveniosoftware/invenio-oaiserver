@@ -73,43 +73,43 @@ def _try_populate_oaisets():
 
     record0 = Record.create({'title': 'Test0', '$schema': schema})
 
-    assert 'c' in record0['_oaisets']
-    assert len(record0['_oaisets']) == 1
+    assert 'c' in record0['_oai']['sets']
+    assert len(record0['_oai']['sets']) == 1
 
     record = Record.create({'title': 'TestNotFound', '$schema': schema})
 
-    assert record['_oaisets'] == []
+    assert record['_oai']['sets'] == []
 
     record = Record.create({'title': 'Test1', '$schema': schema})
 
-    assert 'd' in record['_oaisets']
-    assert len(record['_oaisets']) == 1
+    assert 'd' in record['_oai']['sets']
+    assert len(record['_oai']['sets']) == 1
 
     record = Record.create({'title': 'Test2', '$schema': schema})
 
-    assert 'e' in record['_oaisets']
-    assert 'f' in record['_oaisets']
-    assert len(record['_oaisets']) == 2
+    assert 'e' in record['_oai']['sets']
+    assert 'f' in record['_oai']['sets']
+    assert len(record['_oai']['sets']) == 2
 
     record3 = Record.create({'title': 'Test3', '$schema': schema})
 
-    assert 'e' in record3['_oaisets']
-    assert 'i' in record3['_oaisets']
-    assert len(record3['_oaisets']) == 2
+    assert 'e' in record3['_oai']['sets']
+    assert 'i' in record3['_oai']['sets']
+    assert len(record3['_oai']['sets']) == 2
 
     record4 = Record.create({'title': 'Test4', '$schema': schema})
 
-    assert 'j' in record4['_oaisets']
-    assert len(record4['_oaisets']) == 1
+    assert 'j' in record4['_oai']['sets']
+    assert len(record4['_oai']['sets']) == 1
 
     # test delete
     db.session.delete(j)
     db.session.commit()
     record4.commit()
 
-    assert 'h' not in record4['_oaisets']
-    assert 'j' not in record4['_oaisets']
-    assert len(record4['_oaisets']) == 0
+    assert 'h' not in record4['_oai']['sets']
+    assert 'j' not in record4['_oai']['sets']
+    assert len(record4['_oai']['sets']) == 0
 
     # test update search_pattern
     i.search_pattern = None
@@ -117,8 +117,8 @@ def _try_populate_oaisets():
     db.session.commit()
     record3.commit()
 
-    assert 'e' in record3['_oaisets']
-    assert len(record3['_oaisets']) == 1
+    assert 'e' in record3['_oai']['sets']
+    assert len(record3['_oai']['sets']) == 1
 
     # test update search_pattern
     i.search_pattern = 'title:Test3'
@@ -126,9 +126,9 @@ def _try_populate_oaisets():
     db.session.commit()
     record3.commit()
 
-    assert 'e' in record3['_oaisets']
-    assert 'i' in record3['_oaisets']
-    assert len(record3['_oaisets']) == 2
+    assert 'e' in record3['_oai']['sets']
+    assert 'i' in record3['_oai']['sets']
+    assert len(record3['_oai']['sets']) == 2
 
     # test update the spec
     a.spec = "new-a"
@@ -136,9 +136,9 @@ def _try_populate_oaisets():
     db.session.commit()
     record3.commit()
 
-    assert 'i' in record3['_oaisets']
-    assert 'e' in record3['_oaisets']
-    assert len(record3['_oaisets']) == 2
+    assert 'i' in record3['_oai']['sets']
+    assert 'e' in record3['_oai']['sets']
+    assert len(record3['_oai']['sets']) == 2
 
     # test update name
     c.spec = "new-c"
@@ -146,5 +146,5 @@ def _try_populate_oaisets():
     db.session.commit()
     record0.commit()
 
-    assert 'new-c' in record0['_oaisets']
-    assert len(record0['_oaisets']) == 1
+    assert 'new-c' in record0['_oai']['sets']
+    assert len(record0['_oai']['sets']) == 1

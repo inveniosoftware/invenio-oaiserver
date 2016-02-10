@@ -62,7 +62,7 @@ OAISERVER_METADATA_FORMATS = {
 }
 
 OAISERVER_REGISTER_RECORD_SIGNALS = True
-"""Catch record insert/update signals and update the `_oaisets` field."""
+"""Catch record insert/update signals and update the `_oai` field."""
 
 OAISERVER_QUERY_PARSER = 'invenio_query_parser.parser:Main'
 

@@ -52,7 +52,7 @@ def get_records(**kwargs):
     size = current_app.config['OAISERVER_PAGE_SIZE']
     query = Query(
         # FIXME make a filter
-        '_oaisets:"{set}"'.format(**kwargs) if 'set' in kwargs else None
+        '_oai.sets:"{set}"'.format(**kwargs) if 'set' in kwargs else None
     )[(page-1)*size:page*size]
 
     response = current_search_client.search(
@@ -76,6 +76,7 @@ def get_records(**kwargs):
                 yield {
                     'id': result['_id'],
                     'json': result['_source'],
+                    # FIXME use ES
                     'updated': RecordMetadata.query.filter_by(
                         id=result['_id']).one().updated,
                 }

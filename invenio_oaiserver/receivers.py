@@ -94,10 +94,9 @@ class OAIServerUpdater(object):
 
     def __call__(self, record, **kwargs):
         """Update sets list."""
-        record['_oaisets'] = get_record_sets(record=record,
-                                             matcher=self.matcher)
-
-
-def _set_record_updated(sender, json, record, **kwargs):
-    """Set _updated field on indexed record."""
-    json['_updated'] = record.updated
+        record.update({
+            '_oai': {
+                'sets': get_record_sets(record=record, matcher=self.matcher),
+                'updated': str(record.updated),
+            }
+        })

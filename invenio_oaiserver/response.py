@@ -254,7 +254,7 @@ def getrecord(**kwargs):
         e_getrecord,
         identifier=str(pid.object_uuid),
         datestamp=record.updated,
-        sets=record.json.get('_oaisets', []),
+        sets=record.json.get('_oai', []).get('sets', []),
     )
     e_metadata = SubElement(e_getrecord,
                             etree.QName(NS_OAIPMH, 'metadata'))
@@ -274,7 +274,7 @@ def listidentifiers(**kwargs):
             e_listidentifiers,
             identifier=pid.pid_value,
             datestamp=record['updated'],
-            sets=record['json'].get('_oaisets', []),
+            sets=record['json'].get('_oai', []).get('sets', []),
         )
 
     token = serialize(has_next=result.has_next, **kwargs)
@@ -301,7 +301,7 @@ def listrecords(**kwargs):
             e_record,
             identifier=pid.pid_value,
             datestamp=record['updated'],
-            sets=record['json'].get('_oaisets', []),
+            sets=record['json'].get('_oai', []).get('sets', []),
         )
         e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, 'metadata'))
         e_metadata.append(record_dumper(record['json']))
