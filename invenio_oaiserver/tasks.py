@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015, 2016 CERN.
+# Copyright (C) 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -22,38 +22,21 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-"""Module tests."""
+"""Task for OAI."""
 
-from __future__ import absolute_import, print_function
+from celery import shared_task
+from flask_celeryext import RequestContextTask
+from invenio_db import db
+from invenio_records.api import Record
 
-from flask import Flask
-
-from invenio_oaiserver import InvenioOAIServer, current_oaiserver
-
-
-def test_version():
-    """Test version import."""
-    from invenio_oaiserver import __version__
-    assert __version__
+from .query import get_affected_records
 
 
-def test_init():
-    """Test extension initialization."""
-    app = Flask('testapp')
-    ext = InvenioOAIServer(app)
-    assert 'invenio-oaiserver' in app.extensions
-
-    app = Flask('testapp')
-    ext = InvenioOAIServer()
-    assert 'invenio-oaiserver' not in app.extensions
-    ext.init_app(app)
-    assert 'invenio-oaiserver' in app.extensions
-    with app.app_context():
-        current_oaiserver.unregister_signals()
-
-
-def test_view(app):
-    """Test view."""
-    with app.test_client() as client:
-        res = client.get("/oai2d?verb=Identify")
-        assert res.status_code == 200
+@shared_task(base=RequestContextTask)
+def update_records_after_change_oaiset(spec=None, search_pattern=None):
+    """Update records after a oaiset is updated, inserted or removed."""
+    for record_id in get_affected_records(spec=spec,
+                                          search_pattern=search_pattern):
+        record = Record.get_record(id=record_id)
+        record.commit()
+        db.session.commit()

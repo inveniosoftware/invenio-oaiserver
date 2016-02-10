@@ -34,6 +34,7 @@ from .models import OAISet
 from .proxies import current_oaiserver
 from .query import Query
 from .response import datetime_to_datestamp
+from .tasks import update_records_after_change_oaiset
 
 try:
     from functools import lru_cache
@@ -108,3 +109,24 @@ class OAIServerUpdater(object):
             'sets': get_record_sets(record=record, matcher=self.matcher),
             'updated': datetime_to_datestamp(datetime.utcnow()),
         })
+
+
+def after_insert_oai_set(mapper, connection, target):
+    """Update records on Set insertion."""
+    update_records_after_change_oaiset.delay(
+        search_pattern=target.search_pattern
+    )
+
+
+def after_update_oai_set(mapper, connection, target):
+    """Update records on Set updated."""
+    update_records_after_change_oaiset.delay(
+        spec=target.spec, search_pattern=target.search_pattern
+    )
+
+
+def after_delete_oai_set(mapper, connection, target):
+    """Update records on Set deletion."""
+    update_records_after_change_oaiset.delay(
+        search_pattern=target.search_pattern
+    )

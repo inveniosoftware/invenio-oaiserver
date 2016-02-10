@@ -27,6 +27,7 @@
 from __future__ import absolute_import, print_function
 
 from invenio_records import signals as records_signals
+from sqlalchemy.event import contains, listen, remove
 
 from . import config
 
@@ -64,6 +65,17 @@ class _AppState(object):
                                                      weak=False)
         records_signals.before_record_update.connect(self.update_function,
                                                      weak=False)
+        if self.app.config['OAISERVER_REGISTER_SET_SIGNALS']:
+            self.register_signals_oaiset()
+
+    def register_signals_oaiset(self):
+        """Register OAISet signals to update records."""
+        from .models import OAISet
+        from .receivers import after_insert_oai_set, \
+            after_update_oai_set, after_delete_oai_set
+        listen(OAISet, 'after_insert', after_insert_oai_set)
+        listen(OAISet, 'after_update', after_update_oai_set)
+        listen(OAISet, 'after_delete', after_delete_oai_set)
 
     def unregister_signals(self):
         """Unregister signals."""
@@ -73,6 +85,17 @@ class _AppState(object):
                 self.update_function)
             records_signals.before_record_update.disconnect(
                 self.update_function)
+        self.unregister_signals_oaiset()
+
+    def unregister_signals_oaiset(self):
+        """Unregister signals oaiset."""
+        from .models import OAISet
+        from .receivers import after_insert_oai_set, \
+            after_update_oai_set, after_delete_oai_set
+        if contains(OAISet, 'after_insert', after_insert_oai_set):
+            remove(OAISet, 'after_insert', after_insert_oai_set)
+            remove(OAISet, 'after_update', after_update_oai_set)
+            remove(OAISet, 'after_delete', after_delete_oai_set)
 
 
 class InvenioOAIServer(object):

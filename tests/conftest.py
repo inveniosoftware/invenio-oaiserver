@@ -27,7 +27,6 @@
 
 from __future__ import absolute_import, print_function
 
-import copy
 import os
 import shutil
 import tempfile
@@ -36,6 +35,7 @@ from time import sleep
 import pytest
 from elasticsearch import Elasticsearch
 from flask import Flask
+from flask_celeryext import FlaskCeleryExt
 from flask_cli import FlaskCLI
 from helpers import load_records, remove_records
 from invenio_db import InvenioDB, db
@@ -46,7 +46,6 @@ from invenio_records import InvenioRecords
 from invenio_search import InvenioSearch
 
 from invenio_oaiserver import InvenioOAIServer
-from invenio_oaiserver.config import OAISERVER_METADATA_FORMATS
 
 
 @pytest.fixture()
@@ -55,6 +54,10 @@ def app(request):
     instance_path = tempfile.mkdtemp()
     app = Flask('testapp', instance_path=instance_path)
     app.config.update(
+        CELERY_ALWAYS_EAGER=True,
+        CELERY_CACHE_BACKEND='memory',
+        CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+        CELERY_RESULT_BACKEND='cache',
         TESTING=True,
         SECRET_KEY='CHANGE_ME',
         SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI',
@@ -62,10 +65,15 @@ def app(request):
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
         SERVER_NAME='app',
         OAISERVER_RECORD_INDEX='_all',
+        # Disable set signals because the celery tasks cannot be run
+        # synchronously
+        OAISERVER_REGISTER_SET_SIGNALS=False,
+        SEARCH_ELASTIC_KEYWORD_MAPPING={None: ['_all']},
     )
 
     FlaskCLI(app)
     InvenioDB(app)
+    FlaskCeleryExt(app)
     InvenioRecords(app)
     InvenioPIDStore(app)
     InvenioMARC21(app)

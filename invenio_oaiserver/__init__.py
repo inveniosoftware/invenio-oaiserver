@@ -42,6 +42,7 @@ version 1.0+):
 >>> from flask_cli import FlaskCLI
 >>> app = Flask('myapp')
 >>> app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+>>> app.config['CELERY_ALWAYS_EAGER'] = True
 >>> ext_cli = FlaskCLI(app)
 
 There are several dependencies that should be initialized in order to make
@@ -52,11 +53,13 @@ OAIServer work correctly.
 >>> from invenio_pidstore import InvenioPIDStore
 >>> from invenio_records import InvenioRecords
 >>> from invenio_search import InvenioSearch
+>>> from flask_celeryext import FlaskCeleryExt
 >>> ext_db = InvenioDB(app)
 >>> ext_indexer = InvenioIndexer(app)
 >>> ext_pidstore = InvenioPIDStore(app)
 >>> ext_records = InvenioRecords(app)
 >>> ext_search = InvenioSearch(app)
+>>> ext_celery = FlaskCeleryExt(app)
 
 Then you can initialize OAIServer like a normal Flask extension, however
 you need to set following configuration options first:

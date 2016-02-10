@@ -373,6 +373,7 @@ def test_listrecords(app):
         db.session.commit()
 
         indexer.index_by_id(record_id)
+
         sleep(2)
 
         with app.test_client() as c:

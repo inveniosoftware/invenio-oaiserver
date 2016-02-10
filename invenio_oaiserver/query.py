@@ -20,10 +20,12 @@
 """Query parser."""
 
 import pypeg2
+from elasticsearch.helpers import scan
 from flask import current_app
 from invenio_query_parser.walkers.match_unit import MatchUnit
 from invenio_search import Query as SearchQuery
 from invenio_search import current_search_client
+from invenio_search.walkers.elasticsearch import ElasticSearchDSL
 from werkzeug.utils import cached_property
 
 from .utils import parser, query_walkers
@@ -43,6 +45,24 @@ class Query(SearchQuery):
     def match(self, record):
         """Return True if record match the query."""
         return self.query.accept(MatchUnit(record))
+
+
+def get_affected_records(spec=None, search_pattern=None):
+    """Get list of affected records."""
+    sets = '_oai.sets:"{0}"'.format(spec) if spec else None
+    search_pattern = search_pattern if search_pattern else None
+
+    query = " OR ".join(filter(None, [sets, search_pattern]))
+    body = {'query': Query(query).query.accept(ElasticSearchDSL())}
+
+    response = scan(
+        client=current_search_client,
+        index=current_app.config['OAISERVER_RECORD_INDEX'],
+        query=body,
+    )
+
+    for result in response:
+        yield result['_id']
 
 
 def get_records(**kwargs):

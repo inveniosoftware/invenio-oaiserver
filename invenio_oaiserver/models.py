@@ -27,8 +27,10 @@
 from flask_babelex import lazy_gettext as _
 from invenio_db import db
 from sqlalchemy.event import listen
+from sqlalchemy.orm import validates
 from sqlalchemy_utils import Timestamp
 
+from .errors import OAISetSpecUpdateError
 from .proxies import current_oaiserver
 
 
@@ -46,7 +48,7 @@ class OAISet(db.Model, Timestamp):
         info=dict(
             label=_('Identifier'),
             description=_('Identifier of the set.'),
-        )
+        ),
     )
     """Set identifier."""
 
@@ -78,6 +80,13 @@ class OAISet(db.Model, Timestamp):
         )
     )
     """Search pattern to get records."""
+
+    @validates('spec')
+    def validate_spec(self, key, value):
+        """Forbit updates of set identifier."""
+        if self.spec and self.spec != value:
+            raise OAISetSpecUpdateError("Updating spec is not allowed.")
+        return value
 
 
 def oaiset_removed_or_inserted(mapper, connection, target):

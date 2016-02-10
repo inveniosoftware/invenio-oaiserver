@@ -24,12 +24,21 @@
 
 """Percolator test cases."""
 
+from time import sleep
+
+import pytest
 from invenio_db import db
+from invenio_indexer.api import RecordIndexer
 from invenio_records.api import Record
 from werkzeug.contrib.cache import SimpleCache
+from invenio_records.models import RecordMetadata
+from mock import patch
 
 from invenio_oaiserver import current_oaiserver
+from invenio_oaiserver.errors import OAISetSpecUpdateError
 from invenio_oaiserver.models import OAISet
+from invenio_oaiserver.receivers import after_delete_oai_set, \
+    after_insert_oai_set, after_update_oai_set
 
 
 def test_without_percolator(app, request):
@@ -44,6 +53,7 @@ def test_without_percolator(app, request):
 
 def _try_populate_oaisets():
     """Try to update collections."""
+    indexer = RecordIndexer()
     schema = {
         'type': 'object',
         'properties': {
@@ -56,14 +66,14 @@ def _try_populate_oaisets():
     a = OAISet(spec='a')
     b = OAISet(spec='b')
     e = OAISet(
-        spec='e', search_pattern='title:Test2 OR title:Test3')
-    c = OAISet(spec='c', search_pattern='title:Test0')
-    d = OAISet(spec='d', search_pattern='title:Test1')
-    f = OAISet(spec='f', search_pattern='title:Test2')
-    g = OAISet(spec='g')
-    h = OAISet(spec='h')
-    i = OAISet(spec='i', search_pattern='title:Test3')
-    j = OAISet(spec='j', search_pattern='title:Test4')
+        spec="e", search_pattern="title:Test2 OR title:Test3")
+    c = OAISet(spec="c", search_pattern="title:Test0")
+    d = OAISet(spec="d", search_pattern="title:Test1")
+    f = OAISet(spec="f", search_pattern="title:Test2")
+    g = OAISet(spec="g")
+    h = OAISet(spec="h")
+    i = OAISet(spec="i", search_pattern="title:Test3")
+    j = OAISet(spec="j with space", search_pattern="title:Test4")
 
     with db.session.begin_nested():
         for oaiset in [a, b, c, d, e, f, g, h, i, j]:
@@ -71,92 +81,137 @@ def _try_populate_oaisets():
 
     db.session.commit()
 
+    a_id = a.id
+    i_id = i.id
+
     # start tests
 
     record0 = Record.create({
         '_oai': {'sets': ['a']}, 'title': 'Test0', '$schema': schema
     })
+    indexer.index(record0)
 
     assert 'a' in record0['_oai']['sets'], 'Keep manually managed set "a".'
     assert 'c' in record0['_oai']['sets']
     assert len(record0['_oai']['sets']) == 2
 
-    record = Record.create({'title': 'TestNotFound', '$schema': schema})
+    record_not_found = Record.create(
+        {'title': 'TestNotFound', '$schema': schema})
+    indexer.index(record_not_found)
 
-    assert record['_oai']['sets'] == []
+    assert record_not_found['_oai']['sets'] == []
 
-    record = Record.create({'title': 'Test1', '$schema': schema})
+    record1 = Record.create({'title': 'Test1', '$schema': schema})
+    indexer.index(record1)
 
-    assert 'd' in record['_oai']['sets']
-    assert len(record['_oai']['sets']) == 1
+    assert 'd' in record1['_oai']['sets']
+    assert len(record1['_oai']['sets']) == 1
 
-    record = Record.create({'title': 'Test2', '$schema': schema})
+    record2 = Record.create({'title': 'Test2', '$schema': schema})
+    record2_id = record2.id
+    indexer.index(record2)
 
-    assert 'e' in record['_oai']['sets']
-    assert 'f' in record['_oai']['sets']
-    assert len(record['_oai']['sets']) == 2
+    assert 'e' in record2['_oai']['sets']
+    assert 'f' in record2['_oai']['sets']
+    assert len(record2['_oai']['sets']) == 2
 
     record3 = Record.create({'title': 'Test3', '$schema': schema})
+    record3_id = record3.id
+    indexer.index(record3)
 
     assert 'e' in record3['_oai']['sets']
     assert 'i' in record3['_oai']['sets']
     assert len(record3['_oai']['sets']) == 2
 
     record4 = Record.create({'title': 'Test4', '$schema': schema})
+    record4_id = record4.id
+    indexer.index(record4)
 
-    assert 'j' in record4['_oai']['sets']
+    assert 'j with space' in record4['_oai']['sets']
     assert len(record4['_oai']['sets']) == 1
 
+    # wait ElasticSearch end to index records
+    sleep(10)
+
     # test delete
-    db.session.delete(j)
-    db.session.commit()
-    record4.commit()
+    current_oaiserver.unregister_signals_oaiset()
+    with patch('invenio_oaiserver.receivers.after_delete_oai_set') as f:
+        current_oaiserver.register_signals_oaiset()
 
-    assert 'h' not in record4['_oai']['sets']
-    assert 'j' not in record4['_oai']['sets']
-    assert len(record4['_oai']['sets']) == 0
+        with db.session.begin_nested():
+            db.session.delete(j)
+        db.session.commit()
+        assert f.called
+        after_delete_oai_set(None, None, j)
+        record4_model = RecordMetadata.query.filter_by(
+            id=record4_id).first().json
 
-    assert current_oaiserver.sets is not None, 'Cache should not be empty.'
+        assert 'j with space' not in record4_model['_oai']['sets']
+        assert len(record4_model['_oai']['sets']) == 0
 
-    # test update search_pattern
-    i.search_pattern = None
-    db.session.add(i)
-    db.session.commit()
-
-    assert current_oaiserver.sets is None, 'Cache should be empty.'
-
-    record3.commit()
-
-    assert 'i' in record3['_oai']['sets'], 'Set "i" is manually managed.'
-    assert 'e' in record3['_oai']['sets']
-    assert len(record3['_oai']['sets']) == 2
+        current_oaiserver.unregister_signals_oaiset()
 
     # test update search_pattern
-    i.search_pattern = 'title:Test3'
-    db.session.add(i)
-    db.session.commit()
-    record3.commit()
+    with patch('invenio_oaiserver.receivers.after_update_oai_set') as f:
+        current_oaiserver.register_signals_oaiset()
+        with db.session.begin_nested():
+            i.search_pattern = None
+            db.session.merge(i)
+        db.session.commit()
+        assert f.called
+        i = OAISet.query.get(i_id)
+        after_update_oai_set(None, None, i)
+        assert current_oaiserver.sets is None, 'Cache should be empty.'
+        record3_model = RecordMetadata.query.filter_by(
+            id=record3_id).first().json
 
-    assert 'e' in record3['_oai']['sets']
-    assert 'i' in record3['_oai']['sets']
-    assert len(record3['_oai']['sets']) == 2
+        assert 'e' in record3_model['_oai']['sets']
+        assert len(record3_model['_oai']['sets']) == 1
+
+        current_oaiserver.unregister_signals_oaiset()
+
+    # test update search_pattern
+    with patch('invenio_oaiserver.receivers.after_update_oai_set') as f:
+        current_oaiserver.register_signals_oaiset()
+
+        with db.session.begin_nested():
+            i.search_pattern = 'title:Test3'
+            db.session.merge(i)
+        db.session.commit()
+        assert f.called
+        i = OAISet.query.get(i_id)
+        after_update_oai_set(None, None, i)
+        record3_model = RecordMetadata.query.filter_by(
+            id=record3_id).first().json
+
+        assert 'e' in record3_model['_oai']['sets']
+        assert 'i' in record3_model['_oai']['sets']
+        assert len(record3_model['_oai']['sets']) == 2
+
+        current_oaiserver.unregister_signals_oaiset()
 
     # test update the spec
-    a.spec = 'new-a'
-    db.session.add(a)
-    db.session.commit()
-    record3.commit()
+    with pytest.raises(OAISetSpecUpdateError) as exc_info:
+        a = OAISet.query.get(a_id)
+        a.spec = 'new-a'
+    assert exc_info.type is OAISetSpecUpdateError
 
-    assert 'i' in record3['_oai']['sets']
-    assert 'e' in record3['_oai']['sets']
-    assert len(record3['_oai']['sets']) == 2
+    # test create new set
+    with patch('invenio_oaiserver.receivers.after_insert_oai_set') as f:
+        current_oaiserver.register_signals_oaiset()
 
-    # test update name
-    c.name = 'new-c'
-    db.session.add(c)
-    db.session.commit()
-    record0.commit()
+        with db.session.begin_nested():
+            k = OAISet(spec="k", search_pattern="title:Test2")
+            db.session.add(k)
+        db.session.commit()
+        assert f.called
+        after_insert_oai_set(None, None, k)
+        record2_model = RecordMetadata.query.filter_by(
+            id=record2_id).first().json
 
-    assert 'a' in record0['_oai']['sets']
-    assert 'c' in record0['_oai']['sets']
-    assert len(record0['_oai']['sets']) == 2
+        assert 'e' in record2_model['_oai']['sets']
+        assert 'f' in record2_model['_oai']['sets']
+        assert 'k' in record2_model['_oai']['sets']
+        assert len(record2_model['_oai']['sets']) == 3
+
+        current_oaiserver.register_signals_oaiset()

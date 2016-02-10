@@ -29,3 +29,10 @@ from __future__ import absolute_import, print_function
 
 class OAIBadMetadataFormatError(Exception):
     """Metadata format required doesn't exist."""
+
+
+class OAISetSpecUpdateError(Exception):
+    """Spec attribute cannot be updated.
+
+    The correct way is to delete the set and create a new one.
+    """

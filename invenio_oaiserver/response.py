@@ -28,7 +28,6 @@ from datetime import MINYEAR, datetime, timedelta
 
 from flask import current_app, url_for
 from invenio_db import db
-from invenio_pidstore.errors import PersistentIdentifierError
 from invenio_records.api import Record
 from invenio_records.models import RecordMetadata
 from lxml import etree

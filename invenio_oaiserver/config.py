@@ -113,7 +113,12 @@ structure.
 """
 
 OAISERVER_REGISTER_RECORD_SIGNALS = True
-"""Catch record insert/update signals and update the `_oai` field."""
+"""Catch record/set insert/update/delete signals and update the `_oai`
+field."""
+
+OAISERVER_REGISTER_SET_SIGNALS = True
+"""Catch set insert/update/delete signals and update the `_oai` record
+field."""
 
 OAISERVER_QUERY_PARSER = 'invenio_query_parser.parser:Main'
 """Define query parser for OIASet definition."""
