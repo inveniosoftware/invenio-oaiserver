@@ -76,9 +76,14 @@ def get_records(**kwargs):
         """Dummy pagination class."""
 
         @property
+        def total(self):
+            """Return number of hits found."""
+            return response['hits']['total']
+
+        @property
         def has_next(self):
             """Return True if there are more results."""
-            return page*size <= response['hits']['total']
+            return page*size <= self.total
 
         @property
         def items(self):

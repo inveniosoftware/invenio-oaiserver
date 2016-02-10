@@ -164,14 +164,33 @@ def identify(**kwargs):
     return e_tree
 
 
+def resumption_token(parent, has_next=False, total=None, **kwargs):
+    """Attach resumption token element to a parent."""
+    page = kwargs.get('resumptionToken', {}).get('page', 1)
+    size = current_app.config['OAISERVER_PAGE_SIZE']
+
+    # Do not add resumptionToken if all results fit to the first page.
+    if page == 1 and not has_next:
+        return
+
+    token = serialize(has_next=has_next, **kwargs)
+    e_resumptionToken = SubElement(parent, etree.QName(NS_OAIPMH,
+                                                       'resumptionToken'))
+    if total:
+        e_resumptionToken.set('cursor', str((page - 1) * size))
+        e_resumptionToken.set('completeListSize', str(total))
+
+    if token:
+        e_resumptionToken.text = token
+
+
 def listsets(**kwargs):
     """Create OAI-PMH response for ListSets verb."""
     e_tree, e_listsets = verb(**kwargs)
 
     page = kwargs.get('resumptionToken', {}).get('page', 1)
-    oai_sets = OAISet.query.paginate(page=page, per_page=10, error_out=False)
-
-    token = serialize(has_next=oai_sets.has_next, **kwargs)
+    size = current_app.config['OAISERVER_PAGE_SIZE']
+    oai_sets = OAISet.query.paginate(page=page, per_page=size, error_out=False)
 
     for oai_set in oai_sets.items:
         e_set = SubElement(e_listsets, etree.QName(NS_OAIPMH, 'set'))
@@ -190,11 +209,8 @@ def listsets(**kwargs):
             e_description = SubElement(e_dc, etree.QName(NS_DC, 'description'))
             e_description.text = oai_set.description
 
-    e_resumptionToken = SubElement(e_listsets, etree.QName(NS_OAIPMH,
-                                                           'resumptionToken'))
-    if token:
-        e_resumptionToken.text = token
-
+    resumption_token(e_listsets, has_next=oai_sets.has_next,
+                     total=oai_sets.total, **kwargs)
     return e_tree
 
 
@@ -277,12 +293,8 @@ def listidentifiers(**kwargs):
             sets=record['json'].get('_oai', {}).get('sets', []),
         )
 
-    token = serialize(has_next=result.has_next, **kwargs)
-    e_resumptionToken = SubElement(e_listidentifiers,
-                                   etree.QName(NS_OAIPMH, 'resumptionToken'))
-    if token:
-        e_resumptionToken.text = token
-
+    resumption_token(e_listidentifiers, has_next=result.has_next,
+                     total=result.total, **kwargs)
     return e_tree
 
 
@@ -306,10 +318,6 @@ def listrecords(**kwargs):
         e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, 'metadata'))
         e_metadata.append(record_dumper(record['json']))
 
-    token = serialize(has_next=result.has_next, **kwargs)
-    e_resumptionToken = SubElement(e_listrecords,
-                                   etree.QName(NS_OAIPMH, 'resumptionToken'))
-    if token:
-        e_resumptionToken.text = token
-
+    resumption_token(e_listrecords, has_next=result.has_next,
+                     total=result.total, **kwargs)
     return e_tree
