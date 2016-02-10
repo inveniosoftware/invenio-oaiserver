@@ -33,6 +33,7 @@ import tempfile
 
 import pkg_resources
 import pytest
+from elasticsearch import Elasticsearch
 from flask import Flask
 from flask_cli import FlaskCLI
 from invenio_db import InvenioDB, db
@@ -81,7 +82,8 @@ def app(request):
     InvenioDB(app)
     InvenioRecords(app)
     InvenioPIDStore(app)
-    search = InvenioSearch(app)
+    client = Elasticsearch(hosts=[os.environ.get('ES_HOST', 'localhost')])
+    search = InvenioSearch(app, client=client)
     search.register_mappings('records', 'data')
     InvenioIndexer(app)
     InvenioOAIServer(app)
