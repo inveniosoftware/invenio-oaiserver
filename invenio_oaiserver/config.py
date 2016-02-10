@@ -24,8 +24,6 @@
 
 """Define default configuration values."""
 
-from __future__ import unicode_literals
-
 import pkg_resources
 
 OAISERVER_PAGE_SIZE = 10
@@ -77,7 +75,7 @@ try:
         SEARCH_QUERY_PARSER as OAISERVER_QUERY_PARSER, \
         SEARCH_QUERY_WALKERS as OAISERVER_QUERY_WALKERS
 except pkg_resources.DistributionNotFound:  # pragma: no cover
-        pass
+    pass
 
 OAISERVER_CACHE_KEY = 'DynamicOAISets::'
 """Key prefix added before all keys in cache server."""
