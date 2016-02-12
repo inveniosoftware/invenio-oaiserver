@@ -93,8 +93,9 @@ def fixtures():
 
 
 @fixtures.command()
-@click.option('-n', 'number', type=click.INT, default=27)
-def oaiserver(number):
+@click.option('-s', 'sets', type=click.INT, default=27)
+@click.option('-r', 'records', type=click.INT, default=27)
+def oaiserver(sets, records):
     """Initialize OAI-PMH server."""
     from invenio_db import db
     from invenio_oaiserver.models import OAISet
@@ -102,7 +103,7 @@ def oaiserver(number):
 
     # create a OAI Set
     with db.session.begin_nested():
-        for i in range(number):
+        for i in range(sets):
             db.session.add(OAISet(
                 spec='test{0}'.format(i),
                 name='Test{0}'.format(i),
@@ -126,7 +127,7 @@ def oaiserver(number):
     with app.app_context():
         indexer = RecordIndexer()
         with db.session.begin_nested():
-            for i in range(number):
+            for i in range(records):
                 record_id = uuid.uuid4()
                 data = {'title': 'Test{0}'.format(i), '$schema': schema}
                 recid_minter(record_id, data)

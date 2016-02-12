@@ -477,7 +477,7 @@ def test_listidentifiers(app):
             namespaces=NAMESPACES
         )
         assert len(datestamp) == 1
-        assert datestamp[0].text == datetime_to_datestamp(record.updated)
+        assert datestamp[0].text == record['_oai']['updated']
 
         # Check from_:until range
         with app.test_client() as c:

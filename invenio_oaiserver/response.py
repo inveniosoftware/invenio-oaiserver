@@ -24,7 +24,7 @@
 
 """OAI-PMH 2.0 response generator."""
 
-from datetime import MINYEAR, datetime
+from datetime import MINYEAR, datetime, timedelta
 
 from flask import current_app, url_for
 from invenio_db import db
@@ -164,21 +164,28 @@ def identify(**kwargs):
     return e_tree
 
 
-def resumption_token(parent, has_next=False, total=None, **kwargs):
+def resumption_token(parent, pagination, **kwargs):
     """Attach resumption token element to a parent."""
-    page = kwargs.get('resumptionToken', {}).get('page', 1)
-    size = current_app.config['OAISERVER_PAGE_SIZE']
-
     # Do not add resumptionToken if all results fit to the first page.
-    if page == 1 and not has_next:
+    if pagination.page == 1 and not pagination.has_next:
         return
 
-    token = serialize(has_next=has_next, **kwargs)
+    token = serialize(pagination, **kwargs)
     e_resumptionToken = SubElement(parent, etree.QName(NS_OAIPMH,
                                                        'resumptionToken'))
-    if total:
-        e_resumptionToken.set('cursor', str((page - 1) * size))
-        e_resumptionToken.set('completeListSize', str(total))
+    if pagination.total:
+        expiration_date = datetime.utcnow() + timedelta(
+            seconds=current_app.config[
+                'OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME'
+            ]
+        )
+        e_resumptionToken.set('expirationDate', datetime_to_datestamp(
+            expiration_date
+        ))
+        e_resumptionToken.set('cursor', str(
+            (pagination.page - 1) * pagination.per_page
+        ))
+        e_resumptionToken.set('completeListSize', str(pagination.total))
 
     if token:
         e_resumptionToken.text = token
@@ -209,8 +216,7 @@ def listsets(**kwargs):
             e_description = SubElement(e_dc, etree.QName(NS_DC, 'description'))
             e_description.text = oai_set.description
 
-    resumption_token(e_listsets, has_next=oai_sets.has_next,
-                     total=oai_sets.total, **kwargs)
+    resumption_token(e_listsets, oai_sets, **kwargs)
     return e_tree
 
 
@@ -293,8 +299,7 @@ def listidentifiers(**kwargs):
             sets=record['json'].get('_oai', {}).get('sets', []),
         )
 
-    resumption_token(e_listidentifiers, has_next=result.has_next,
-                     total=result.total, **kwargs)
+    resumption_token(e_listidentifiers, result, **kwargs)
     return e_tree
 
 
@@ -318,6 +323,5 @@ def listrecords(**kwargs):
         e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, 'metadata'))
         e_metadata.append(record_dumper(record['json']))
 
-    resumption_token(e_listrecords, has_next=result.has_next,
-                     total=result.total, **kwargs)
+    resumption_token(e_listrecords, result, **kwargs)
     return e_tree

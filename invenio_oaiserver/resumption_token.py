@@ -24,32 +24,29 @@
 
 """Implement funtions for managing OAI-PMH resumption token."""
 
+import random
+
 from flask import current_app, request
 from itsdangerous import URLSafeTimedSerializer
 from marshmallow import fields
 
 
-def serialize(has_next=True, **kwargs):
+def serialize(pagination, **kwargs):
     """Return resumtion token serializer."""
-    if not has_next:
+    if not pagination.has_next:
         return
-
-    # TODO completeListSize and cursor
-    page = 2  # first build token for next page
-
-    if 'resumptionToken' in kwargs:
-        page = kwargs['resumptionToken']['page'] + 1
-        del kwargs['resumptionToken']
-
-    for key in ('from_', 'until'):
-        if key in kwargs:
-            kwargs[key] = request.args.get(key)
 
     token_builder = URLSafeTimedSerializer(
         current_app.config['SECRET_KEY'],
         salt=kwargs['verb'],
     )
-    return token_builder.dumps(dict(kwargs=kwargs, page=page))
+
+    data = dict(seed=random.random(), page=pagination.next_num)
+    scroll_id = getattr(pagination, '_scroll_id', None)
+    if scroll_id:
+        data['scroll_id'] = scroll_id
+
+    return token_builder.dumps(data)
 
 
 class ResumptionToken(fields.Field):
@@ -61,6 +58,7 @@ class ResumptionToken(fields.Field):
             current_app.config['SECRET_KEY'],
             salt=data['verb'],
         )
-        data = token_builder.loads(value)
+        data = token_builder.loads(value, max_age=current_app.config[
+            'OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME'])
         data['token'] = value
         return data

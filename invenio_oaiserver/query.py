@@ -48,53 +48,74 @@ class Query(SearchQuery):
 
 def get_records(**kwargs):
     """Get records."""
-    page = kwargs.get('resumptionToken', {}).get('page', 1)
-    size = current_app.config['OAISERVER_PAGE_SIZE']
-    query = Query()[(page-1)*size:page*size]
+    page_ = kwargs.get('resumptionToken', {}).get('page', 1)
+    size_ = current_app.config['OAISERVER_PAGE_SIZE']
+    scroll = current_app.config['OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME']
+    scroll_id = kwargs.get('resumptionToken', {}).get('scroll_id')
 
-    body = {}
-    if 'set' in kwargs:
-        body['must'] = [{'match': {'_oai.sets': kwargs['set']}}]
+    if scroll_id is None:
+        query = Query()
 
-    time_range = {}
-    if 'from_' in kwargs:
-        time_range['gte'] = kwargs['from_']
-    if 'until' in kwargs:
-        time_range['lte'] = kwargs['until']
-    if time_range:
-        body['filter'] = [{'range': {'_oai.updated': time_range}}]
+        body = {}
+        if 'set' in kwargs:
+            body['must'] = [{'match': {'_oai.sets': kwargs['set']}}]
 
-    if body:
-        query.body = {'query': {'bool': body}}
+        time_range = {}
+        if 'from_' in kwargs:
+            time_range['gte'] = kwargs['from_']
+        if 'until' in kwargs:
+            time_range['lte'] = kwargs['until']
+        if time_range:
+            body['filter'] = [{'range': {'_oai.updated': time_range}}]
 
-    response = current_search_client.search(
-        index=current_app.config['OAISERVER_RECORD_INDEX'],
-        body=query.body,
-    )
+        if body:
+            query.body = {'query': {'bool': body}}
+
+        response = current_search_client.search(
+            index=current_app.config['OAISERVER_RECORD_INDEX'],
+            body=query.body,
+            from_=(page_-1)*size_,
+            size=size_,
+            scroll='{0}s'.format(scroll),
+        )
+    else:
+        response = current_search_client.scroll(
+            scroll_id=scroll_id,
+            scroll='{0}s'.format(scroll),
+        )
+        scroll_id = response.get('_scroll_id')
+
+        # clean descriptor on last page
+        if page * per_page > total:
+            response = current_search_client.clear_scroll(
+                scroll_id=scroll_id
+            )
+            scroll_id = None
 
     class Pagination(object):
         """Dummy pagination class."""
 
-        @property
-        def total(self):
-            """Return number of hits found."""
-            return response['hits']['total']
+        # custom property for scrolling
+        _scroll_id = scroll_id
 
-        @property
-        def has_next(self):
-            """Return True if there are more results."""
-            return page*size <= self.total
+        page = page_
+        total = response['hits']['total']
+        per_page = size_
+        has_next = page * per_page <= total
+        next_num = page + 1 if has_next else None
 
         @property
         def items(self):
             """Return iterator."""
+            from datetime import datetime
             for result in response['hits']['hits']:
                 yield {
                     'id': result['_id'],
                     'json': result['_source'],
-                    # FIXME use ES
-                    'updated': RecordMetadata.query.filter_by(
-                        id=result['_id']).one().updated,
+                    'updated': datetime.strptime(
+                        result['_source']['_oai']['updated'],
+                        '%Y-%m-%dT%H:%M:%SZ'
+                    ),
                 }
 
     return Pagination()

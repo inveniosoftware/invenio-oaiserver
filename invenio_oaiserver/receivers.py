@@ -33,6 +33,7 @@ from six import iteritems
 from .models import OAISet
 from .proxies import current_oaiserver
 from .query import Query
+from .response import datetime_to_datestamp
 
 try:
     from functools import lru_cache
@@ -99,6 +100,6 @@ class OAIServerUpdater(object):
         record.update({
             '_oai': {
                 'sets': get_record_sets(record=record, matcher=self.matcher),
-                'updated': datetime.now().isoformat(),
+                'updated': datetime_to_datestamp(datetime.utcnow()),
             }
         })
