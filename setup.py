@@ -109,6 +109,9 @@ setup(
         'invenio_db.models': [
             'invenio_oaiserver = invenio_oaiserver.models',
         ],
+        'invenio_base.blueprints': [
+            'invenio_oaiserver = invenio_oaiserver.views.settings:blueprint',
+        ]
     },
     extras_require=extras_require,
     install_requires=install_requires,

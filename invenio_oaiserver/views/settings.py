@@ -32,36 +32,32 @@ from invenio_search import Query, current_search_client
 
 from invenio_oaiserver.models import OAISet
 from invenio_oaiserver.provider import OAIIDProvider
+from invenio_oaiserver.views.forms.new_set import get_NewSetForm
 
 blueprint = Blueprint(
     'oaiserver_settings',
     __name__,
     url_prefix='/settings/oaiserver',
     static_folder='../static',
-    template_folder='../templates',
+    template_folder='../templates/invenio_oaiserver/settings/',
 )
 
 
 @blueprint.route('/')
 def index():
     """Index."""
-    return render_template('invenio_oaiserver/settings/index.html')
-
-
-@blueprint.route('/sets')
-def manage_sets():
-    """Manage sets."""
     sets = OAISet.query.filter()
-    return render_template('sets.html', sets=sets)
+    return render_template('index.html', sets=sets)
 
 
-@blueprint.route('/sets/new')
+
+@blueprint.route('/set/new')
 def new_set():
     """Manage sets."""
     return render_template('make_set.html', new_set_form=get_NewSetForm())
 
 
-@blueprint.route('/sets/edit/<spec>')
+@blueprint.route('/set/edit/<spec>')
 def edit_set(spec):
     """Manage sets."""
     set_to_edit = OAISet.query.filter(OAISet.spec == spec).one()
@@ -69,7 +65,7 @@ def edit_set(spec):
                            edit_set_form=get_NewSetForm(obj=set_to_edit))
 
 
-@blueprint.route('/sets/new', methods=['POST'])
+@blueprint.route('/set/new', methods=['POST'])
 def submit_set():
     """Insert a new set."""
     form = get_NewSetForm(request.form)
@@ -77,31 +73,30 @@ def submit_set():
         new_set = OAISet(spec=form.spec.data,
                          name=form.name.data,
                          description=form.description.data,
-                         search_pattern=form.search_pattern.data,
-                         parent=form.parent.data)
+                         search_pattern=form.search_pattern.data)
         db.session.add(new_set)
 
         # this shoul be moved to UPDATER (celery task) and it sould always
         # take care of adding records to sets.
         ##########
-        query = Query(form.query.data)
-        response = current_search_client.search(
-            index='records',  # make configurable PER SET
-            doc_type='record',  # make configurable PER SET
-            body=query.body,
-            fields='_id, oaiid'  # path to oaiid as a configurable
-        )
-        ids = [(a['_id'], a['oaiid']) for a in response['hits']['hits']]
-        add_records_to_set(ids)
+        # query = Query(form.query.data)
+        # response = current_search_client.search(
+        #     index='records',  # make configurable PER SET
+        #     doc_type='record',  # make configurable PER SET
+        #     body=query.body,
+        #     fields='_id, oaiid'  # path to oaiid as a configurable
+        # )
+        # ids = [(a['_id'], a['oaiid']) for a in response['hits']['hits']]
+        # add_records_to_set(ids)
         #########
 
         db.session.commit()
-        flash(_('New set %(spec)s was added.', spec=new_set.spec))
-        return redirect(url_for('.manage_sets'))
+        flash('New set %s was added.' % (new_set.spec,))
+        return redirect(url_for('.index'))
     return render_template('make_set.html', new_set_form=form)
 
 
-@blueprint.route('/sets/edit/<spec>', methods=['POST'])
+@blueprint.route('/set/edit/<spec>', methods=['POST'])
 def submit_edit_set(spec):
     """Insert a new set."""
     form = get_NewSetForm(request.form)
@@ -154,7 +149,7 @@ def add_records_to_set(ids):
 # TODO: what happens when we delete a set
 
 
-@blueprint.route('/sets/<spec>/delete')
+@blueprint.route('/set/delete/<spec>')
 def delete_set(spec):
     """Manage sets."""
     # SetRecord.query.filter(SetRecord.set_spec==spec).delete()
