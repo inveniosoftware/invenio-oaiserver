@@ -33,15 +33,13 @@
         {{ macros.render_field(form.email, placeholder='Input email', type='email') }}
 #}
 {% macro render_field(field, label_visible=true) -%}
-    <div class="form-group row {{ kwargs.pop('class_', '') }}">
+    <div class="form-group">
         {% if (field.type != 'HiddenField' and field.type !='CSRFTokenField') and label_visible %}
-            <label class='col-md-3' for="{{ field.id }}" class="control-label">{{ field.label }}</label>
+            <label for="{{ field.id }}">{{ field.label }}</label>
         {% endif %}
-        <div class={{ kwargs.pop('field_class', '') }}>
-            {{ field(class_='form-control', **kwargs) }}
-        </div>
+        {{ field(class_='form-control', **kwargs) }}
         {% if field.errors %}
-            <div class="col-md-2 bg-warning validation-error" data-field-id="{{ field.id }}">
+            <div class="alert alert-danger validation-error" data-field-id="{{ field.id }}">
                 <ul class=errors>
                     {% for error in field.errors %}
                         <li>{{ error }}</li>
@@ -62,11 +60,11 @@
         {{ macros.render_checkbox_field(form.remember_me) }}
  #}
 {% macro render_checkbox_field(field) -%}
-    <div class="form-group row">
-        <label class='col-md-3' for="{{ field.id }}" class="control-label">{{ field.label }}</label>
-        <div class={{ kwargs.pop('field_class', '') }}>
+    <div class="form-group">
+        <label>
             {{ field(type='checkbox', **kwargs) }}
-        </div>
+            {{ field.label }}
+        </label>
     </div>
 {%- endmacro %}
 
@@ -117,11 +115,11 @@
         {% else %}
             {% for f in form %}
                 {% if f.type == 'BooleanField' %}
-                    {{ render_checkbox_field(f, field_class='col-md-7') }}
+                    {{ render_checkbox_field(f) }}
                 {% elif f.type == 'RadioField' %}
-                    {{ render_radio_field(f, field_class='col-md-7') }}
+                    {{ render_radio_field(f) }}
                 {% else %}
-                    {{ render_field(f, field_class='col-md-7') }}
+                    {{ render_field(f, placeholder=f.description) }}
                 {% endif %}
             {% endfor %}
         {% endif %}
