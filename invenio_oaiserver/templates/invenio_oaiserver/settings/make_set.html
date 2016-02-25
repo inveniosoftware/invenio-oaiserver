@@ -2,11 +2,11 @@
 
 {% block page_body %}
 <div class="container">
-  <h1>Create new sets</h1>
+  <h1>{{ action }}</h1>
   {% import 'macros_bootstrap.html' as bt %}
 
-  {{ bt.render_form(new_set_form,
-                    action_url=url_for(".submit_set"),
+  {{ bt.render_form(form,
+                    action_url=action_url,
                     action_text='Save set',
                     id_='new_set_form',
                     class_='form-horizontal',

@@ -48,12 +48,12 @@ class OAISetForm(ModelForm):
 
         model = OAISet
 
-    parent = QuerySelectField(
-        query_factory=OAISet.query.all,
-        get_pk=lambda a: a.spec,
-        get_label=lambda a: a.name,
-        allow_blank=True,
-        blank_text=_('No parent set.'),
-    )
+    # parent = QuerySelectField(
+    #     query_factory=OAISet.query.all,
+    #     get_pk=lambda a: a.spec,
+    #     get_label=lambda a: a.name,
+    #     allow_blank=True,
+    #     blank_text=_('No parent set.'),
+    # )
 
 __all__ = ('OAISetForm', )

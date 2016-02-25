@@ -7,11 +7,11 @@
                 {{ loop.index }}
             {% endif %}
         </td>
-        <td>{{ indent*"-" }}<a href="{{ url_for(".edit_set", spec=set.spec)}}">{{ set.spec }}</td>
+        <td>{{ indent*"-" }}<a href="{{ url_for(".edit_set", spec=set.spec) }}">{{ set.spec }}</td>
         <td>{{ set.name }}</td>
         <td>{{ set.description }}</td>
         <td>{{ set.search_pattern }}</td>
-        <td><a class="btn btn-xs btn-danger" href="/oaisettings/sets/{{ set.spec }}/delete">Delete</a></td>
+        <td><a class="btn btn-xs btn-danger" href="{{ url_for(".delete_set", spec=set.spec) }}">Delete</a></td>
     </tr>
     {% if set.oaiset %}
         {% for subset in set.oaiset %}
@@ -21,17 +21,6 @@
 {%- endmacro %}
 
 {% block page_body%}
-<div id="alert-message">
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul class=flashes>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-</div>
 <div class="container">
     <h1>OAI-PMH</h1>
     <h2>List of sets</h2>
