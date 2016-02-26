@@ -28,10 +28,8 @@ from __future__ import absolute_import
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from invenio_db import db
-from invenio_search import Query, current_search_client
 
 from invenio_oaiserver.models import OAISet
-from invenio_oaiserver.provider import OAIIDProvider
 from invenio_oaiserver.forms import OAISetForm
 
 blueprint = Blueprint(
@@ -50,7 +48,6 @@ def index():
     return render_template('index.html', sets=sets)
 
 
-
 @blueprint.route('/set/new')
 def new_set():
     """Manage sets."""
@@ -66,7 +63,7 @@ def edit_set(spec):
     set_to_edit = OAISet.query.filter(OAISet.spec == spec).one()
     return render_template('make_set.html',
                            form=OAISetForm(obj=set_to_edit),
-                           action="Edit %s" % (spec,),
+                           action="Edit {0}".format(spec),
                            action_url=url_for(".submit_edit_set", spec=spec))
 
 
@@ -81,7 +78,7 @@ def submit_set():
                          search_pattern=form.search_pattern.data)
         db.session.add(new_set)
         db.session.commit()
-        flash('New set %s was created.' % (new_set.spec,))
+        flash('New set {0} was created.'.format(new_set.spec))
         return redirect(url_for('.index'))
     return render_template('make_set.html', form=form, action="Create new set")
 
@@ -98,15 +95,18 @@ def submit_edit_set(spec):
         oaiset.search_pattern = form.search_pattern.data
         db.session.add(oaiset)
         db.session.commit()
-        flash('Set %s was updated' % (oaiset.spec,))
+        flash('Set {0} was updated'.format(oaiset.spec))
         return redirect(url_for('.index'))
-    return render_template('make_set.html', form=form, action="Edit %s" % (spec,))
+    return render_template('make_set.html',
+                           form=form,
+                           action="Edit {0}".format(spec))
 
-@blueprint.route('/set/delete/<spec>')
-def delete_set(spec):
-    """Manage sets."""
-    # SetRecord.query.filter(SetRecord.set_spec==spec).delete()
-    OAISet.query.filter(OAISet.spec == spec).delete()
-    db.session.commit()
-    flash('Set %s was deleted.' % spec)
-    return redirect(url_for('.index'))
+
+# @blueprint.route('/set/delete/<spec>')
+# def delete_set(spec):
+#     """Manage sets."""
+#     # SetRecord.query.filter(SetRecord.set_spec==spec).delete()
+#     OAISet.query.filter(OAISet.spec == spec).delete()
+#     db.session.commit()
+#     flash('Set %s was deleted.' % spec)
+#     return redirect(url_for('.index'))
