@@ -109,6 +109,9 @@ setup(
         'invenio_db.models': [
             'invenio_oaiserver = invenio_oaiserver.models',
         ],
+        'invenio_admin.views': [
+            'invenio_oaiserver = invenio_oaiserver.admin:set_adminview',
+        ],
     },
     extras_require=extras_require,
     install_requires=install_requires,
