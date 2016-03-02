@@ -1,35 +1,41 @@
-{%- extends config.OAISERVER_BASE_TEMPLATE %}
+{# -*- coding: utf-8 -*-
+#
+# This file is part of Invenio.
+# Copyright (C) 2016 CERN.
+#
+# Invenio is free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# Invenio is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Invenio; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA 02111-1307, USA.
+#
+# In applying this license, CERN does not
+# waive the privileges and immunities granted to it by virtue of its status
+# as an Intergovernmental Organization or submit itself to any jurisdiction.
+#}
 
-{% block body %}
-<h1>Create new sets</h1>
-<!-- <form>
-  <div class="form-group">
-    <label for="setName">Set name</label>
-    <input type="text" class="form-control" id="setName" placeholder="mysetname">
-  </div>
-  <div class="form-group">
-    <label for="setDescription">Description</label>
-    <input type="password" class="form-control" id="setDescription" placeholder="Short description of the set">
-  </div>
-  <div class="form-group">
-    <label for="setQuery">Query</label>
-    <input type="text" class="form-control" id="setQuery" placeholder="country:Canada">
-    <p class="help-block">Example block-leveel help text here.</p>
-  </div>
-    <div class="form-group">
-    <label for="setCollection">Collection</label>
-    <input type="text" class="form-control" id="setCollection" placeholder="mysetname">
-  </div>
-  <button type="submit" class="btn btn-default">Submit</button>
-</form> -->
 
-{% import 'macros_bootstrap.html' as bt %}
+{%- extends 'invenio_theme/page.html' %}
 
-{{ bt.render_form(new_set_form,
-                  action_url=url_for(".submit_set"),
-                  action_text='Save set',
-                  id_='new_set_form',
-                  class_='form-horizontal',
-                  btn_class='btn btn-success') }}
+{% block page_body %}
+<div class="container">
+  <h1>{{ action }}</h1>
+  {% import 'macros_bootstrap.html' as bt %}
 
+  {{ bt.render_form(form,
+                    action_url=action_url,
+                    action_text='Save set',
+                    id_='new_set_form',
+                    class_='form-horizontal',
+                    btn_class='btn btn-success') }}
+</div>
 {% endblock %}

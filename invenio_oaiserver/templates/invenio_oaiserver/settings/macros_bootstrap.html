@@ -1,21 +1,28 @@
-{#
-# This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+{# -*- coding: utf-8 -*-
 #
-# Invenio is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
+# This file is part of Invenio.
+# Copyright (C) 2016 CERN.
+#
+# Invenio is free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; either version 2 of the
 # License, or (at your option) any later version.
 #
-# Invenio is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
+# Invenio is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Invenio; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+# along with Invenio; if not, write to the
+# Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA 02111-1307, USA.
+#
+# In applying this license, CERN does not
+# waive the privileges and immunities granted to it by virtue of its status
+# as an Intergovernmental Organization or submit itself to any jurisdiction.
 #}
+
 
 {#
     These macros derived from here:
@@ -33,15 +40,13 @@
         {{ macros.render_field(form.email, placeholder='Input email', type='email') }}
 #}
 {% macro render_field(field, label_visible=true) -%}
-    <div class="form-group row {{ kwargs.pop('class_', '') }}">
+    <div class="form-group">
         {% if (field.type != 'HiddenField' and field.type !='CSRFTokenField') and label_visible %}
-            <label class='col-md-3' for="{{ field.id }}" class="control-label">{{ field.label }}</label>
+            <label for="{{ field.id }}">{{ field.label }}</label>
         {% endif %}
-        <div class={{ kwargs.pop('field_class', '') }}>
-            {{ field(class_='form-control', **kwargs) }}
-        </div>
+        {{ field(class_='form-control', **kwargs) }}
         {% if field.errors %}
-            <div class="col-md-2 bg-warning validation-error" data-field-id="{{ field.id }}">
+            <div class="alert alert-danger validation-error" data-field-id="{{ field.id }}">
                 <ul class=errors>
                     {% for error in field.errors %}
                         <li>{{ error }}</li>
@@ -62,11 +67,11 @@
         {{ macros.render_checkbox_field(form.remember_me) }}
  #}
 {% macro render_checkbox_field(field) -%}
-    <div class="form-group row">
-        <label class='col-md-3' for="{{ field.id }}" class="control-label">{{ field.label }}</label>
-        <div class={{ kwargs.pop('field_class', '') }}>
+    <div class="form-group">
+        <label>
             {{ field(type='checkbox', **kwargs) }}
-        </div>
+            {{ field.label }}
+        </label>
     </div>
 {%- endmacro %}
 
@@ -117,11 +122,11 @@
         {% else %}
             {% for f in form %}
                 {% if f.type == 'BooleanField' %}
-                    {{ render_checkbox_field(f, field_class='col-md-7') }}
+                    {{ render_checkbox_field(f) }}
                 {% elif f.type == 'RadioField' %}
-                    {{ render_radio_field(f, field_class='col-md-7') }}
+                    {{ render_radio_field(f) }}
                 {% else %}
-                    {{ render_field(f, field_class='col-md-7') }}
+                    {{ render_field(f, placeholder=f.description) }}
                 {% endif %}
             {% endfor %}
         {% endif %}
