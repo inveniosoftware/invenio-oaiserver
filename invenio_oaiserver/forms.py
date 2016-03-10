@@ -24,10 +24,8 @@
 
 """Define forms for manipulation of OAI sets."""
 
-from flask_babelex import gettext as _
 from flask_wtf import Form
 from invenio_db import db
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms_alchemy import model_form_factory
 
 from .models import OAISet
@@ -47,13 +45,5 @@ class OAISetForm(ModelForm):
         """Form configuration."""
 
         model = OAISet
-
-    parent = QuerySelectField(
-        query_factory=OAISet.query.all,
-        get_pk=lambda a: a.spec,
-        get_label=lambda a: a.name,
-        allow_blank=True,
-        blank_text=_('No parent set.'),
-    )
 
 __all__ = ('OAISetForm', )
