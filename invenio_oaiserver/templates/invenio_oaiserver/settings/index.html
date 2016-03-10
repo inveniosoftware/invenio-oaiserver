@@ -36,7 +36,7 @@
         <td>{{ set.name }}</td>
         <td>{{ set.description }}</td>
         <td>{{ set.search_pattern }}</td>
-        <td><a class="btn btn-xs btn-danger" href="{{ url_for(".delete_set", spec=set.spec) }}">Delete</a></td>
+        <td><a class="btn btn-xs btn-danger disabled" href="#">Delete</a></td>
     </tr>
     {% if set.oaiset %}
         {% for subset in set.oaiset %}

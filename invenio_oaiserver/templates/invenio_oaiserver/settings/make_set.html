@@ -29,7 +29,7 @@
 {% block page_body %}
 <div class="container">
   <h1>{{ action }}</h1>
-  {% import 'macros_bootstrap.html' as bt %}
+  {% import 'invenio_oaiserver/settings/macros_bootstrap.html' as bt %}
 
   {{ bt.render_form(form,
                     action_url=action_url,

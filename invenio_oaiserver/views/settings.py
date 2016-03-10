@@ -37,7 +37,7 @@ blueprint = Blueprint(
     __name__,
     url_prefix='/settings/oaiserver',
     static_folder='../static',
-    template_folder='../templates/invenio_oaiserver/settings/',
+    template_folder='../templates',
 )
 
 
@@ -45,13 +45,13 @@ blueprint = Blueprint(
 def index():
     """Index."""
     sets = OAISet.query.filter()
-    return render_template('index.html', sets=sets)
+    return render_template('invenio_oaiserver/settings/index.html', sets=sets)
 
 
 @blueprint.route('/set/new')
 def new_set():
     """Manage sets."""
-    return render_template('make_set.html',
+    return render_template('invenio_oaiserver/settings/make_set.html',
                            form=OAISetForm(),
                            action_url=url_for(".submit_set"),
                            action="Create new set")
@@ -61,7 +61,7 @@ def new_set():
 def edit_set(spec):
     """Manage sets."""
     set_to_edit = OAISet.query.filter(OAISet.spec == spec).one()
-    return render_template('make_set.html',
+    return render_template('invenio_oaiserver/settings/make_set.html',
                            form=OAISetForm(obj=set_to_edit),
                            action="Edit {0}".format(spec),
                            action_url=url_for(".submit_edit_set", spec=spec))
@@ -80,24 +80,22 @@ def submit_set():
         db.session.commit()
         flash('New set {0} was created.'.format(new_set.spec))
         return redirect(url_for('.index'))
-    return render_template('make_set.html', form=form, action="Create new set")
+    return render_template('invenio_oaiserver/settings/make_set.html',
+                           form=form,
+                           action="Create new set")
 
 
 @blueprint.route('/set/edit/<spec>', methods=['POST'])
 def submit_edit_set(spec):
     """Insert a new set."""
-    form = OAISetForm(request.form)
+    oaiset = OAISet.query.filter(OAISet.spec == str(spec)).one()
+    form = OAISetForm(request.form, obj=oaiset)
     if request.method == 'POST' and form.validate():
-        oaiset = OAISet.query.filter(OAISet.spec == str(spec)).one()
-        oaiset.spec = form.spec.data
-        oaiset.name = form.name.data
-        oaiset.description = form.description.data
-        oaiset.search_pattern = form.search_pattern.data
-        db.session.add(oaiset)
+        form.populate_obj(oaiset)
         db.session.commit()
         flash('Set {0} was updated'.format(oaiset.spec))
         return redirect(url_for('.index'))
-    return render_template('make_set.html',
+    return render_template('invenio_oaiserver/settings/make_set.html',
                            form=form,
                            action="Edit {0}".format(spec))
 
