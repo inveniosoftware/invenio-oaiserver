@@ -86,7 +86,7 @@ def get_records(**kwargs):
         scroll_id = response.get('_scroll_id')
 
         # clean descriptor on last page
-        if page * per_page > total:
+        if page_ * per_page > total:
             response = current_search_client.clear_scroll(
                 scroll_id=scroll_id
             )
