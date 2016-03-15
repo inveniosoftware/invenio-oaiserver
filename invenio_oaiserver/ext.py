@@ -89,9 +89,8 @@ class InvenioOAIServer(object):
 
         state = _AppState(app=app, cache=kwargs.get('cache'))
 
-        from .views import server  # , settings
+        from .views import server
         app.register_blueprint(server.blueprint)
-        # app.register_blueprint(settings.blueprint)
 
         app.extensions['invenio-oaiserver'] = state
 
