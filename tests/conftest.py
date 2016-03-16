@@ -27,6 +27,7 @@
 
 from __future__ import absolute_import, print_function
 
+import copy
 import os
 import shutil
 import tempfile
@@ -46,18 +47,29 @@ from invenio_records import InvenioRecords
 from invenio_search import InvenioSearch
 
 from invenio_oaiserver import InvenioOAIServer
+from invenio_oaiserver.config import OAISERVER_METADATA_FORMATS
 
 
 def dump_etree(record, **kwargs):
     """Test dumper."""
+    from dojson.contrib.to_marc21 import to_marc21
     from dojson.contrib.to_marc21.utils import dumps_etree
-    return dumps_etree({'245__': {'a': record['title']}}, **kwargs)
+
+    if 'title' in record:
+        return dumps_etree({'245__': {'a': record['title']}}, **kwargs)
+    return dumps_etree(to_marc21.do(record), **kwargs)
 
 
 @pytest.fixture()
 def app(request):
     """Flask application fixture."""
     instance_path = tempfile.mkdtemp()
+    metadata_formats = copy.deepcopy(OAISERVER_METADATA_FORMATS)
+    metadata_formats['marcxml']['serializer'] = 'conftest:dump_etree'
+    metadata_formats['oai_dc']['serializer'] = (
+        'conftest:dump_etree', metadata_formats['oai_dc']['serializer'][1]
+    )
+
     app = Flask('testapp', instance_path=instance_path)
     app.config.update(
         TESTING=True,
@@ -66,21 +78,10 @@ def app(request):
                                                'sqlite://'),
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
         SERVER_NAME='app',
-        OAISERVER_RECORD_INDEX='records-record-v1.0.0',
-        OAISERVER_METADATA_FORMATS={
-            'oai_dc': {
-                'serializer': (
-                    'conftest:dump_etree',
-                    {
-                        'xslt_filename': pkg_resources.resource_filename(
-                            'invenio_oaiserver', 'static/xsl/oai2.v1.0.xsl')
-                    }
-                ),
-                'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
-                'namespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
-            }
-        },
+        OAISERVER_RECORD_INDEX='_all',
+        OAISERVER_METADATA_FORMATS=metadata_formats,
     )
+
     FlaskCLI(app)
     InvenioDB(app)
     InvenioRecords(app)
@@ -117,11 +118,11 @@ def authority_data(app):
     """Test indexation using authority data."""
     schema = 'http://localhost:5000/marc21/authority/ad-v1.0.0.json'
     with app.test_request_context():
-        r_ids = load_records(app=app, filename='data/marc21/authority.xml',
-                             schema=schema)
-    yield r_ids
+        records = load_records(app=app, filename='data/marc21/authority.xml',
+                               schema=schema)
+    yield records
     with app.test_request_context():
-        remove_records(app, r_ids)
+        remove_records(app, records)
 
 
 @pytest.yield_fixture
@@ -129,9 +130,9 @@ def bibliographic_data(app):
     """Test indexation using bibliographic data."""
     schema = 'http://localhost:5000/marc21/bibliographic/bd-v1.0.0.json'
     with app.test_request_context():
-        r_ids = load_records(app=app,
-                             filename='data/marc21/bibliographic.xml',
-                             schema=schema)
-    yield r_ids
+        records = load_records(app=app,
+                               filename='data/marc21/bibliographic.xml',
+                               schema=schema)
+    yield records
     with app.test_request_context():
-        remove_records(app, r_ids)
+        remove_records(app, records)

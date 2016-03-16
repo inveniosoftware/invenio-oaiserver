@@ -257,29 +257,26 @@ def _listmetadataformats(app, query):
         cfg_metadataFormats = deepcopy(
             app.config.get('OAISERVER_METADATA_FORMATS', {}))
         assert len(metadataFormats) == len(cfg_metadataFormats)
-        for metadataFormat in metadataFormats:
-            # prefix
-            prefix = metadataFormat.xpath(
-                '/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/'
-                'x:metadataPrefix', namespaces=NAMESPACES)
-            assert len(prefix) == 1
-            assert prefix[0].text in cfg_metadataFormats
-            # schema
-            schema = metadataFormat.xpath(
-                '/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/'
-                'x:schema', namespaces=NAMESPACES)
-            assert len(schema) == 1
-            assert schema[0].text in cfg_metadataFormats[
-                prefix[0].text]['schema']
-            # metadataNamespace
-            metadataNamespace = metadataFormat.xpath(
-                '/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/'
-                'x:metadataNamespace', namespaces=NAMESPACES)
-            assert len(metadataNamespace) == 1
-            assert metadataNamespace[0].text in cfg_metadataFormats[
-                prefix[0].text]['namespace']
-            # remove tested format
-            del cfg_metadataFormats[prefix[0].text]
+
+        prefixes = tree.xpath(
+            '/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/'
+            'x:metadataPrefix', namespaces=NAMESPACES)
+        assert len(prefixes) == len(cfg_metadataFormats)
+        assert all(pfx.text in cfg_metadataFormats for pfx in prefixes)
+
+        schemas = tree.xpath(
+            '/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/'
+            'x:schema', namespaces=NAMESPACES)
+        assert len(schemas) == len(cfg_metadataFormats)
+        assert all(sch.text in cfg_metadataFormats[pfx.text]['schema']
+                   for sch, pfx in zip(schemas, prefixes))
+
+        metadataNamespaces = tree.xpath(
+            '/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/'
+            'x:metadataNamespace', namespaces=NAMESPACES)
+        assert len(metadataNamespaces) == len(cfg_metadataFormats)
+        assert all(nsp.text in cfg_metadataFormats[pfx.text]['namespace']
+                   for nsp, pfx in zip(metadataNamespaces, prefixes))
 
 
 def test_listsets(app):
