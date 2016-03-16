@@ -22,7 +22,6 @@
 import pypeg2
 from flask import current_app
 from invenio_query_parser.walkers.match_unit import MatchUnit
-from invenio_records.models import RecordMetadata
 from invenio_search import Query as SearchQuery
 from invenio_search import current_search_client
 from werkzeug.utils import cached_property
@@ -83,32 +82,41 @@ def get_records(**kwargs):
             scroll_id=scroll_id,
             scroll='{0}s'.format(scroll),
         )
-        scroll_id = response.get('_scroll_id')
-
-        # clean descriptor on last page
-        if page_ * per_page > total:
-            response = current_search_client.clear_scroll(
-                scroll_id=scroll_id
-            )
-            scroll_id = None
 
     class Pagination(object):
         """Dummy pagination class."""
 
-        # custom property for scrolling
-        _scroll_id = scroll_id
-
         page = page_
-        total = response['hits']['total']
         per_page = size_
-        has_next = page * per_page <= total
-        next_num = page + 1 if has_next else None
+
+        def __init__(self, response):
+            """Initilize pagination."""
+            self.response = response
+            self.total = response['hits']['total']
+            self._scroll_id = response.get('_scroll_id')
+
+            # clean descriptor on last page
+            if not self.has_next:
+                current_search_client.clear_scroll(
+                    scroll_id=self._scroll_id
+                )
+                self._scroll_id = None
+
+        @cached_property
+        def has_next(self):
+            """Return True if there is next page."""
+            return self.page * self.per_page <= self.total
+
+        @cached_property
+        def next_num(self):
+            """Return next page number."""
+            return self.page + 1 if self.has_next else None
 
         @property
         def items(self):
             """Return iterator."""
             from datetime import datetime
-            for result in response['hits']['hits']:
+            for result in self.response['hits']['hits']:
                 yield {
                     'id': result['_id'],
                     'json': result['_source'],
@@ -118,4 +126,4 @@ def get_records(**kwargs):
                     ),
                 }
 
-    return Pagination()
+    return Pagination(response)
