@@ -55,6 +55,11 @@ NSMAP_DESCRIPTION = {
     'xsi': NS_XSI,
 }
 
+DATETIME_FORMATS = {
+    'YYYY-MM-DDThh:mm:ssZ': '%Y-%m-%dT%H:%M:%SZ',
+    'YYYY-MM-DD': '%Y-%m-%d',
+}
+
 
 def datetime_to_datestamp(dt, day_granularity=False):
     """Transform datetime to datestamp."""
@@ -144,10 +149,10 @@ def identify(**kwargs):
                                  etree.QName(NS_OAIPMH, 'deletedRecord'))
     e_deletedRecord.text = 'no'  # FIXME
 
-    e_granularity = SubElement(
-        e_identify, etree.QName(
-            NS_OAIPMH, 'granularity'))
-    e_granularity.text = ''  # FIXME identify.granularity()
+    e_granularity = SubElement(e_identify,
+                               etree.QName(NS_OAIPMH, 'granularity'))
+    assert cfg['OAISERVER_GRANULARITY'] in DATETIME_FORMATS
+    e_granularity.text = cfg['OAISERVER_GRANULARITY']
 
     compressions = cfg['OAISERVER_COMPRESSIONS']
     if compressions != ['identity']:

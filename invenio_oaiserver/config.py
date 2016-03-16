@@ -52,6 +52,13 @@ OAISERVER_COMPRESSIONS = [
     'identity',
 ]
 
+OAISERVER_GRANULARITY = 'YYYY-MM-DDThh:mm:ssZ'
+"""The finest harvesting granularity supported by the repository.
+
+The legitimate values are ``YYYY-MM-DD`` and ``YYYY-MM-DDThh:mm:ssZ``
+with meanings as defined in ISO8601.
+"""
+
 OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME = 1 * 60
 """The expiration time of a resuption token in seconds.
 
