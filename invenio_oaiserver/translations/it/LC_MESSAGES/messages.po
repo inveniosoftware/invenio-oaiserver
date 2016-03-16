@@ -1,0 +1,57 @@
+# Italian translations for invenio-oaiserver.
+# Copyright (C) 2016 CERN
+# This file is distributed under the same license as the invenio-oaiserver
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: invenio-oaiserver 1.0.0.dev20160208\n"
+"Report-Msgid-Bugs-To: wziolek@cern.ch\n"
+"POT-Creation-Date: 2016-03-16 14:55+0100\n"
+"PO-Revision-Date: 2016-03-16 14:55+0100\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: it\n"
+"Language-Team: it <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.2.0\n"
+
+#: invenio_oaiserver/admin.py:55
+msgid "OAI Sets"
+msgstr ""
+
+#: invenio_oaiserver/models.py:44
+msgid "Identifier"
+msgstr ""
+
+#: invenio_oaiserver/models.py:45
+msgid "Identifier of the set."
+msgstr ""
+
+#: invenio_oaiserver/models.py:53
+msgid "Long name"
+msgstr ""
+
+#: invenio_oaiserver/models.py:54
+msgid "Long name of the set."
+msgstr ""
+
+#: invenio_oaiserver/models.py:63
+msgid "Description"
+msgstr ""
+
+#: invenio_oaiserver/models.py:64
+msgid "Description of the set."
+msgstr ""
+
+#: invenio_oaiserver/models.py:73
+msgid "Search pattern"
+msgstr ""
+
+#: invenio_oaiserver/models.py:74
+msgid "Search pattern to select records"
+msgstr ""
+

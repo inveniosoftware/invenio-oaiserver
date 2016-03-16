@@ -69,15 +69,14 @@ setup_requires = [
 ]
 
 install_requires = [
-    #  'invenio-assets>=1.0.0a4',
     'Flask-BabelEx>=0.9.2',
+    'dojson>=1.1.0',
     'invenio-db>=1.0.0a9',
     'invenio-indexer>=1.0.0a1',
-    'invenio-pidstore>=1.0.0a4',
-    'invenio-query-parser>=0.4.1',
-    'invenio-records>=1.0.0a8',
-    'invenio-search>=1.0.0a2',
-    'dojson>=1.0.1',
+    'invenio-pidstore>=1.0.0a7',
+    'invenio-query-parser>=0.5.0',
+    'invenio-records>=1.0.0a9',
+    'invenio-search>=1.0.0a4',
     'lxml>=3.5.0',
     'marshmallow>=2.5.0',
     'webargs>=1.1.0',
