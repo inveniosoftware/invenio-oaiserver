@@ -41,7 +41,7 @@
         :target: https://github.com/inveniosoftware/invenio-oaiserver/blob/master/LICENSE
 
 
-Invenio module that adds more fun to the platform.
+Invenio module that implements OAI-PMH server.
 
 *This is an experimental developer preview release.*
 

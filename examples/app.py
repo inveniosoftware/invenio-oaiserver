@@ -56,7 +56,6 @@ import uuid
 import click
 from flask import Flask
 from flask_cli import FlaskCLI
-from invenio_assets import InvenioAssets
 from invenio_db import InvenioDB
 from invenio_indexer import InvenioIndexer
 from invenio_indexer.api import RecordIndexer
@@ -78,7 +77,6 @@ app.config.update(
                                       'sqlite:///app.db'),
 )
 FlaskCLI(app)
-InvenioAssets(app)
 InvenioDB(app)
 InvenioRecords(app)
 InvenioPIDStore(app)

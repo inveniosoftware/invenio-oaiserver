@@ -52,7 +52,7 @@ class OAISchema(Schema):
 
     @validates_schema
     def validate(self, data):
-        """Check range between from_ and until."""
+        """Check range between dates under keys ``from_`` and ``until``."""
         if 'verb' in data and data['verb'] != self.__class__.__name__:
             raise ValidationError(
                 # FIXME encode data

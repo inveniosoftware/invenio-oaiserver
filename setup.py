@@ -48,6 +48,9 @@ extras_require = {
     ':python_version=="2.7"': [
         'functools32>=3.2.3',
     ],
+    'admin': [
+        'Flask-Admin>=1.3.0',
+    ],
     'docs': [
         'Sphinx>=1.3',
     ],

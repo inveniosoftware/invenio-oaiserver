@@ -22,13 +22,19 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-"""Define default configuration values."""
+"""The details of the configuration options for OAI-PMH server."""
 
 import pkg_resources
 
 OAISERVER_PAGE_SIZE = 10
+"""Define maximum length of list responses.
+
+Request with verbs ``ListRecords``, ``ListIdentifiers``, and ``ListSets``
+are affected by this option.
+"""
 
 OAISERVER_RECORD_INDEX = 'records'
+"""Specify an Elastic index with records that should be exposed via OAI-PMH."""
 
 # The version of the OAI-PMH supported by the repository.
 OAISERVER_PROTOCOL_VERSION = '2.0'
@@ -36,14 +42,28 @@ OAISERVER_PROTOCOL_VERSION = '2.0'
 OAISERVER_ADMIN_EMAILS = [
     'info@invenio-software.org',
 ]
+"""The e-mail addresses of administrators of the repository.
 
+It **must** include one or more instances.
+"""
+
+# TODO Add support for compressions.
 OAISERVER_COMPRESSIONS = [
     'identity',
 ]
 
-OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME = 1 * 60  # time in seconds = 1 minute
+OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME = 1 * 60
+"""The expiration time of a resuption token in seconds.
 
-OAISERVER_SETS_MAX_LENGTH = 3
+**Default: 60 seconds = 1 minute**.
+
+.. note::
+
+    Setting longer expiration time may have a negative impact on your
+    Elastic search cluster as it might need to keep open cursors.
+
+    https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
+"""
 
 OAISERVER_METADATA_FORMATS = {
     'oai_dc': {
@@ -56,17 +76,36 @@ OAISERVER_METADATA_FORMATS = {
         ),
         'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
         'namespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
+    },
+    'marcxml': {
+        'serializer': (
+            'dojson.contrib.to_marc21.utils:dumps_etree',
+        ),
+        'schema': 'http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd',
+        'namespace': 'http://www.loc.gov/MARC21/slim',
     }
 }
+"""Define the metadata formats available from a repository.
+
+Every key represents a ``metadataPrefix`` and its value has a following
+structure.
+
+* ``schema`` - the location of an XML Schema describing the format;
+* ``namespace`` - the namespace of serialized document;
+* ``serializer`` - the importable string or tuple with the importable string
+  and keyword arguments.
+"""
 
 OAISERVER_REGISTER_RECORD_SIGNALS = True
 """Catch record insert/update signals and update the `_oai` field."""
 
 OAISERVER_QUERY_PARSER = 'invenio_query_parser.parser:Main'
+"""Define query parser for OIASet definition."""
 
 OAISERVER_QUERY_WALKERS = [
     'invenio_query_parser.walkers.pypeg_to_ast:PypegConverter',
 ]
+"""List of query AST walkers."""
 
 try:
     pkg_resources.get_distribution('invenio_search')
