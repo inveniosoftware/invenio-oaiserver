@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -30,14 +30,17 @@ from __future__ import absolute_import, print_function
 import os
 import shutil
 import tempfile
+from time import sleep
 
 import pkg_resources
 import pytest
 from elasticsearch import Elasticsearch
 from flask import Flask
 from flask_cli import FlaskCLI
+from helpers import load_records, remove_records
 from invenio_db import InvenioDB, db
 from invenio_indexer import InvenioIndexer
+from invenio_marc21 import InvenioMARC21
 from invenio_pidstore import InvenioPIDStore
 from invenio_records import InvenioRecords
 from invenio_search import InvenioSearch
@@ -82,6 +85,7 @@ def app(request):
     InvenioDB(app)
     InvenioRecords(app)
     InvenioPIDStore(app)
+    InvenioMARC21(app)
     client = Elasticsearch(hosts=[os.environ.get('ES_HOST', 'localhost')])
     search = InvenioSearch(app, client=client)
     search.register_mappings('records', 'data')
@@ -91,6 +95,7 @@ def app(request):
     with app.app_context():
         db.create_all()
         list(search.create(ignore=[400]))
+        sleep(5)
 
     def teardown():
         with app.app_context():
@@ -100,3 +105,33 @@ def app(request):
 
     request.addfinalizer(teardown)
     return app
+
+
+def mock_record_validate(self):
+    """Mock validation."""
+    pass
+
+
+@pytest.yield_fixture
+def authority_data(app):
+    """Test indexation using authority data."""
+    schema = 'http://localhost:5000/marc21/authority/ad-v1.0.0.json'
+    with app.test_request_context():
+        r_ids = load_records(app=app, filename='data/marc21/authority.xml',
+                             schema=schema)
+    yield r_ids
+    with app.test_request_context():
+        remove_records(app, r_ids)
+
+
+@pytest.yield_fixture
+def bibliographic_data(app):
+    """Test indexation using bibliographic data."""
+    schema = 'http://localhost:5000/marc21/bibliographic/bd-v1.0.0.json'
+    with app.test_request_context():
+        r_ids = load_records(app=app,
+                             filename='data/marc21/bibliographic.xml',
+                             schema=schema)
+    yield r_ids
+    with app.test_request_context():
+        remove_records(app, r_ids)
