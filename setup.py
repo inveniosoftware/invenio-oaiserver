@@ -114,6 +114,12 @@ setup(
         'invenio_admin.views': [
             'invenio_oaiserver = invenio_oaiserver.admin:set_adminview',
         ],
+        'invenio_pidstore.minters': [
+            'oaiid = invenio_oaiserver.minters:oaiid_minter',
+        ],
+        'invenio_pidstore.fetchers': [
+            'oaiid = invenio_oaiserver.fetchers:oaiid_fetcher',
+        ],
     },
     extras_require=extras_require,
     install_requires=install_requires,
