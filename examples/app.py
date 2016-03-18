@@ -64,8 +64,6 @@ Download javascript and css libraries:
     $ flask -a app.py npm
     $ cd static
     $ npm install
-    $ cd ..
-    $ npm install -g node-sass clean-css requirejs uglify-js
 
 
 Collect static files and build bundles
@@ -83,8 +81,7 @@ Run the development server:
    $ flask -a app.py --debug run
 
 
-Visit the following URL to see the admin interface - log in with previously
-created user: "info@invenio-software.org"
+Visit the following URL to see the admin interface
 
     http://localhost:5000/admin/oaiset
 
