@@ -76,6 +76,7 @@ def get_records(**kwargs):
             from_=(page_-1)*size_,
             size=size_,
             scroll='{0}s'.format(scroll),
+            version=True,
         )
     else:
         response = current_search_client.scroll(
@@ -117,13 +118,14 @@ def get_records(**kwargs):
             """Return iterator."""
             from datetime import datetime
             for result in self.response['hits']['hits']:
-                yield {
-                    'id': result['_id'],
-                    'json': result['_source'],
-                    'updated': datetime.strptime(
-                        result['_source']['_oai']['updated'],
-                        '%Y-%m-%dT%H:%M:%SZ'
-                    ),
-                }
+                if '_oai' in result['_source']:
+                    yield {
+                        'id': result['_id'],
+                        'json': result,
+                        'updated': datetime.strptime(
+                            result['_source']['_oai']['updated'],
+                            '%Y-%m-%dT%H:%M:%SZ'
+                        ),
+                    }
 
     return Pagination(response)
