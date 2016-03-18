@@ -24,28 +24,52 @@
 
 r"""Minimal Flask application example for development.
 
-Create database and tables:
+Install requrements for this example app by running:
 
 .. code-block:: console
 
     $ cd examples
-    $ flask -a app.py db init
-    $ flask -a app.py db create
+    $ pip install -r requirements.txt
 
-Load demo records from invenio-records (see
-invenio_records/data/marc21/bibliographic.xml):
+Create database and tables:
 
 .. code-block:: console
 
-    $ dojson -i data/marc21/bibliographic.xml -l marcxml do marc21 | \
-        flask -a app.py records create
+    $ flask -a app.py db init
+    $ flask -a app.py db create
 
-Mint the records:
+You can find the database in `examples/app.db`.
+
+Create example records and OAI sets:
 
 .. code-block:: console
 
     $ flask -a app.py fixtures oaiserver
 
+Download javascript and css libraries:
+
+.. code-block:: console
+
+    $ flask -a app.py npm
+    $ cd static
+    $ npm install
+    $ cd ..
+
+Collect static files and build bundles:
+
+.. code-block:: console
+
+    $ flask -a app.py collect -v
+    $ flask -a app.py assets build
+
+
+Run the development server:
+
+.. code-block:: console
+
+   $ flask -a app.py --debug run
+
+Visit http://localhost:5000/admin/oaiset to see the admin interface.
 """
 
 from __future__ import absolute_import, print_function
@@ -55,8 +79,9 @@ import uuid
 
 import click
 from flask import Flask
+from flask_admin import Admin
 from flask_cli import FlaskCLI
-from invenio_db import InvenioDB
+from invenio_db import InvenioDB, db
 from invenio_indexer import InvenioIndexer
 from invenio_indexer.api import RecordIndexer
 from invenio_pidstore import InvenioPIDStore
@@ -65,6 +90,7 @@ from invenio_records import InvenioRecords
 from invenio_search import InvenioSearch
 
 from invenio_oaiserver import InvenioOAIServer
+from invenio_oaiserver.admin import set_adminview
 from invenio_oaiserver.minters import oaiid_minter
 
 # Create Flask application
@@ -83,6 +109,11 @@ InvenioPIDStore(app)
 search = InvenioSearch(app)
 InvenioIndexer(app)
 InvenioOAIServer(app)
+
+admin = Admin(app, name='Test')
+model = set_adminview.pop('model')
+view = set_adminview.pop('modelview')
+admin.add_view(view(model, db.session, **set_adminview))
 
 
 @app.cli.group()
