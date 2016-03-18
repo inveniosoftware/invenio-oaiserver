@@ -49,7 +49,7 @@ from invenio_oaiserver import InvenioOAIServer
 from invenio_oaiserver.config import OAISERVER_METADATA_FORMATS
 
 
-def dump_etree(record, **kwargs):
+def dump_etree(pid, record, **kwargs):
     """Test dumper."""
     from dojson.contrib.to_marc21 import to_marc21
     from dojson.contrib.to_marc21.utils import dumps_etree

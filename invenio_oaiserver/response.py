@@ -28,6 +28,8 @@ from datetime import MINYEAR, datetime, timedelta
 
 from flask import current_app, url_for
 from invenio_db import db
+from invenio_pidstore.errors import PersistentIdentifierError
+from invenio_records.api import Record
 from invenio_records.models import RecordMetadata
 from lxml import etree
 from lxml.etree import Element, ElementTree, SubElement
@@ -147,7 +149,7 @@ def identify(**kwargs):
 
     e_deletedRecord = SubElement(e_identify,
                                  etree.QName(NS_OAIPMH, 'deletedRecord'))
-    e_deletedRecord.text = 'no'  # FIXME
+    e_deletedRecord.text = 'no'
 
     e_granularity = SubElement(e_identify,
                                etree.QName(NS_OAIPMH, 'granularity'))
@@ -273,7 +275,7 @@ def getrecord(**kwargs):
     """Create OAI-PMH response for verb Identify."""
     record_dumper = serializer(kwargs['metadataPrefix'])
     pid = OAIIDProvider.get(pid_value=kwargs['identifier']).pid
-    record = RecordMetadata.query.get(pid.object_uuid)
+    record = Record.get_record(pid.object_uuid)
 
     e_tree, e_getrecord = verb(**kwargs)
 
@@ -281,11 +283,11 @@ def getrecord(**kwargs):
         e_getrecord,
         identifier=str(pid.object_uuid),
         datestamp=record.updated,
-        sets=record.json.get('_oai', []).get('sets', []),
+        sets=record.get('_oai', {}).get('sets', []),
     )
     e_metadata = SubElement(e_getrecord,
                             etree.QName(NS_OAIPMH, 'metadata'))
-    e_metadata.append(record_dumper(record.json))
+    e_metadata.append(record_dumper(pid, record))
 
     return e_tree
 
@@ -296,12 +298,12 @@ def listidentifiers(**kwargs):
     result = get_records(**kwargs)
 
     for record in result.items:
-        pid = oaiid_fetcher(record['id'], record['json'])
+        pid = oaiid_fetcher(record['id'], record['json']['_source'])
         header(
             e_listidentifiers,
             identifier=pid.pid_value,
             datestamp=record['updated'],
-            sets=record['json'].get('_oai', {}).get('sets', []),
+            sets=record['json']['_source'].get('_oai', {}).get('sets', []),
         )
 
     resumption_token(e_listidentifiers, result, **kwargs)
@@ -316,17 +318,18 @@ def listrecords(**kwargs):
     result = get_records(**kwargs)
 
     for record in result.items:
-        pid = oaiid_fetcher(record['id'], record['json'])
+        pid = oaiid_fetcher(record['id'], record['json']['_source'])
         e_record = SubElement(e_listrecords,
                               etree.QName(NS_OAIPMH, 'record'))
         header(
             e_record,
             identifier=pid.pid_value,
             datestamp=record['updated'],
-            sets=record['json'].get('_oai', {}).get('sets', []),
+            sets=record['json']['_source'].get('_oai', {}).get('sets', []),
         )
-        e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, 'metadata'))
-        e_metadata.append(record_dumper(record['json']))
+        e_metadata = SubElement(
+            e_record, etree.QName(NS_OAIPMH, 'metadata'))
+        e_metadata.append(record_dumper(pid, record['json']))
 
     resumption_token(e_listrecords, result, **kwargs)
     return e_tree
