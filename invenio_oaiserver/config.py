@@ -84,7 +84,7 @@ OAISERVER_METADATA_FORMATS = {
         'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
         'namespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
     },
-    'marcxml': {
+    'marc21': {
         'serializer': (
             'invenio_oaiserver.utils:dumps_etree',
         ),
