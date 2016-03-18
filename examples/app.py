@@ -24,6 +24,12 @@
 
 r"""Minimal Flask application example for development.
 
+Install requrements for this example app by running:
+.. code-block:: console
+    $ cd examples
+    $ pip install -r requirements.txt
+
+
 Create database and tables:
 
 .. code-block:: console
@@ -31,6 +37,9 @@ Create database and tables:
     $ cd examples
     $ flask -a app.py db init
     $ flask -a app.py db create
+
+You can find the database in `examples/app.db`.
+
 
 Load demo records from invenio-records (see
 invenio_records/data/marc21/bibliographic.xml):
@@ -40,11 +49,44 @@ invenio_records/data/marc21/bibliographic.xml):
     $ dojson -i data/marc21/bibliographic.xml -l marcxml do marc21 | \
         flask -a app.py records create
 
+
 Mint the records:
 
 .. code-block:: console
 
     $ flask -a app.py fixtures oaiserver
+
+
+Download javascript and css libraries:
+
+.. code-block:: console
+
+    $ flask -a app.py npm
+    $ cd static
+    $ npm install
+    $ cd ..
+    $ npm install -g node-sass clean-css requirejs uglify-js
+
+
+Collect static files and build bundles
+
+.. code-block:: console
+
+    $ flask -a app.py collect -v
+    $ flask -a app.py assets build
+
+
+Run the development server:
+
+.. code-block:: console
+
+   $ flask -a app.py --debug run
+
+
+Visit the following URL to see the admin interface - log in with previously
+created user: "info@invenio-software.org"
+
+    http://localhost:5000/admin/oaiset
 
 """
 
