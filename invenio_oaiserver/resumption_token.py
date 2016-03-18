@@ -26,7 +26,7 @@
 
 import random
 
-from flask import current_app, request
+from flask import current_app
 from itsdangerous import URLSafeTimedSerializer
 from marshmallow import Schema, fields
 

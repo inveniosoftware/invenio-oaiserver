@@ -26,8 +26,6 @@
 
 from __future__ import absolute_import
 
-from copy import deepcopy
-
 import pytest
 from flask import url_for
 from lxml import etree

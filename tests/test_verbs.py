@@ -60,6 +60,7 @@ def test_no_verb(app):
 
 
 def test_wrong_verb(app):
+    """Test wrong verb."""
     with app.test_client() as c:
         result = c.get('/oai2d?verb=Aaa')
         tree = etree.fromstring(result.data)
@@ -120,6 +121,7 @@ def test_identify(app):
 
 
 def test_getrecord(app):
+    """Test get record verb."""
     schema = {
         'type': 'object',
         'properties': {
@@ -188,6 +190,7 @@ def _check_xml_error(tree, code):
 
 
 def test_identify_with_additional_args(app):
+    """Test identify with additional arguments."""
     with app.test_client() as c:
         result = c.get('/oai2d?verb=Identify&notAValidArg=True')
         tree = etree.fromstring(result.data)
@@ -384,7 +387,7 @@ def test_listrecords(app):
             data = {'title': 'Test0', '$schema': schema}
             recid_minter(record_id, data)
             oaiid_minter(record_id, data)
-            record = Record.create(data, id_=record_id)
+            Record.create(data, id_=record_id)
 
         db.session.commit()
 
@@ -555,4 +558,5 @@ def test_list_sets_long(app):
 
 
 def test_list_sets_with_resumption_token_and_other_args(app):
+    """Test list sets with resumption tokens."""
     pass

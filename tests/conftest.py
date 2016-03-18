@@ -33,7 +33,6 @@ import shutil
 import tempfile
 from time import sleep
 
-import pkg_resources
 import pytest
 from elasticsearch import Elasticsearch
 from flask import Flask
