@@ -64,7 +64,7 @@ def app(request):
     """Flask application fixture."""
     instance_path = tempfile.mkdtemp()
     metadata_formats = copy.deepcopy(OAISERVER_METADATA_FORMATS)
-    metadata_formats['marcxml']['serializer'] = 'conftest:dump_etree'
+    metadata_formats['marc21']['serializer'] = 'conftest:dump_etree'
     metadata_formats['oai_dc']['serializer'] = (
         'conftest:dump_etree', metadata_formats['oai_dc']['serializer'][1]
     )
