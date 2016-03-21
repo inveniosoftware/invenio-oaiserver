@@ -75,7 +75,7 @@ OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME = 1 * 60
 OAISERVER_METADATA_FORMATS = {
     'oai_dc': {
         'serializer': (
-            'dojson.contrib.to_marc21.utils:dumps_etree',
+            'invenio_oaiserver.utils:dumps_etree',
             {
                 'xslt_filename': pkg_resources.resource_filename(
                     'invenio_oaiserver', 'static/xsl/oai2.v1.0.xsl')
@@ -84,9 +84,9 @@ OAISERVER_METADATA_FORMATS = {
         'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
         'namespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
     },
-    'marcxml': {
+    'marc21': {
         'serializer': (
-            'dojson.contrib.to_marc21.utils:dumps_etree',
+            'invenio_oaiserver.utils:dumps_etree',
         ),
         'schema': 'http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd',
         'namespace': 'http://www.loc.gov/MARC21/slim',

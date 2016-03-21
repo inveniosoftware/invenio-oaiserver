@@ -85,7 +85,7 @@ def pid_error(exception):
 
 
 @blueprint.errorhandler(BadSignature)
-def pid_error(exception):
+def resumptiontoken_error(exception):
     """Handle resumption token exceptions."""
     return (etree.tostring(xml.error([(
         'badResumptionToken',

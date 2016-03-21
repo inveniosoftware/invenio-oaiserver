@@ -26,9 +26,9 @@
 
 import random
 
-from flask import current_app, request
+from flask import current_app
 from itsdangerous import URLSafeTimedSerializer
-from marshmallow import fields
+from marshmallow import Schema, fields
 
 
 def serialize(pagination, **kwargs):
@@ -41,7 +41,9 @@ def serialize(pagination, **kwargs):
         salt=kwargs['verb'],
     )
 
-    data = dict(seed=random.random(), page=pagination.next_num)
+    data = dict(seed=random.random(), page=pagination.next_num,
+                kwargs={key: value for key, value in kwargs.items()
+                        if key not in {'verb', 'resumptionToken'}})
     scroll_id = getattr(pagination, '_scroll_id', None)
     if scroll_id:
         data['scroll_id'] = scroll_id
@@ -62,3 +64,17 @@ class ResumptionToken(fields.Field):
             'OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME'])
         data['token'] = value
         return data
+
+
+class ResumptionTokenSchema(Schema):
+    """Schema with resumption token."""
+
+    resumptionToken = ResumptionToken(required=True)
+
+    def load(self, data, many=None, partial=None):
+        """Deserialize a data structure to an object."""
+        result = super(ResumptionTokenSchema, self).load(
+            data, many=many, partial=partial
+        )
+        result.data.update(result.data['resumptionToken'].get('kwargs', {}))
+        return result
