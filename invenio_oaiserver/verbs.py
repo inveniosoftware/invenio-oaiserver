@@ -29,7 +29,7 @@ from __future__ import absolute_import
 from flask import current_app
 from marshmallow import Schema, ValidationError, fields, validates_schema
 
-from .resumption_token import ResumptionToken
+from .resumption_token import ResumptionTokenSchema
 
 
 def validate_metadata_prefix(value):
@@ -119,20 +119,14 @@ class Verbs(object):
 class ResumptionVerbs(Verbs):
     """List valid verbs when resumtion token is defined."""
 
-    class ListIdentifiers(OAISchema):
+    class ListIdentifiers(OAISchema, ResumptionTokenSchema):
         """Arguments for ListIdentifiers verb."""
 
-        resumptionToken = ResumptionToken(required=True)
-
-    class ListRecords(OAISchema):
+    class ListRecords(OAISchema, ResumptionTokenSchema):
         """Arguments for ListRecords verb."""
 
-        resumptionToken = ResumptionToken(required=True)
-
-    class ListSets(OAISchema):
+    class ListSets(OAISchema, ResumptionTokenSchema):
         """Arguments for ListSets verb."""
-
-        resumptionToken = ResumptionToken(required=True)
 
 
 def make_request_validator(request):

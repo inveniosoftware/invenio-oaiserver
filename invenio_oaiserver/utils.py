@@ -63,3 +63,11 @@ def serializer(metadata_prefix):
     if isinstance(serializer_, tuple):
         return partial(import_string(serializer_[0]), **serializer_[1])
     return import_string(serializer_)
+
+
+def dump_etree(record, **kwargs):
+    """Dump MARC21 compatible record."""
+    from dojson.contrib.to_marc21 import to_marc21
+    from dojson.contrib.to_marc21.utils import dumps_etree
+
+    return dumps_etree(to_marc21.do(record), **kwargs)
