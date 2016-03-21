@@ -96,7 +96,7 @@ from invenio_oaiserver.minters import oaiid_minter
 # Create Flask application
 app = Flask(__name__)
 app.config.update(
-    OAISERVER_RECORD_INDEX='records-record-v1.0.0',
+    OAISERVER_RECORD_INDEX='_all',
     OAISERVER_ID_PREFIX='oai:localhost:recid/',
     SECRET_KEY='CHANGE_ME',
     SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI',
@@ -144,10 +144,16 @@ def oaiserver(sets, records):
     schema = {
         'type': 'object',
         'properties': {
-            'title': {'type': 'string'},
+            'title_statement': {
+                'type': 'object',
+                'properties': {
+                    'title': {
+                        'type': 'string',
+                    },
+                },
+            },
             'field': {'type': 'boolean'},
         },
-        'required': ['title'],
     }
 
     search.client.indices.delete_alias('_all', '_all', ignore=[400, 404])
@@ -158,7 +164,10 @@ def oaiserver(sets, records):
         with db.session.begin_nested():
             for i in range(records):
                 record_id = uuid.uuid4()
-                data = {'title': 'Test{0}'.format(i), '$schema': schema}
+                data = {
+                    'title_statement': {'title': 'Test{0}'.format(i)},
+                    '$schema': schema,
+                }
                 recid_minter(record_id, data)
                 oaiid_minter(record_id, data)
                 record = Record.create(data, id_=record_id)

@@ -122,19 +122,13 @@ def test_identify(app):
 
 def test_getrecord(app):
     """Test get record verb."""
-    schema = {
-        'type': 'object',
-        'properties': {
-            'title': {'type': 'string'},
-            'field': {'type': 'boolean'},
-        },
-        'required': ['title'],
-    }
     with app.test_request_context():
         with db.session.begin_nested():
-            record = Record.create({'title': 'Test0', '$schema': schema}).model
-            recid_minter(record.id, record.json)
-            pid = oaiid_minter(record.id, record.json)
+            record_id = uuid.uuid4()
+            data = {'title_statement': {'title': 'Test0'}}
+            recid_minter(record_id, data)
+            pid = oaiid_minter(record_id, data)
+            record = Record.create(data, id_=record_id)
 
         db.session.commit()
         pid_value = pid.pid_value
@@ -205,18 +199,10 @@ def test_listmetadataformats(app):
 
 def test_listmetadataformats_record(app):
     """Test ListMetadataFormats for a record."""
-    schema = {
-        'type': 'object',
-        'properties': {
-            'title': {'type': 'string'},
-            'field': {'type': 'boolean'},
-        },
-        'required': ['title'],
-    }
     with app.test_request_context():
         with db.session.begin_nested():
             record_id = uuid.uuid4()
-            data = {'title': 'Test0', '$schema': schema}
+            data = {'title_statement': {'title': 'Test0'}}
             recid_minter(record_id, data)
             pid = oaiid_minter(record_id, data)
             Record.create(data, id_=record_id)
@@ -371,20 +357,12 @@ def test_listrecords_fail_missing_metadataPrefix(app):
 
 def test_listrecords(app):
     """Test ListRecords."""
-    schema = {
-        'type': 'object',
-        'properties': {
-            'title': {'type': 'string'},
-            'field': {'type': 'boolean'},
-        },
-        'required': ['title'],
-    }
     with app.test_request_context():
         indexer = RecordIndexer()
 
         with db.session.begin_nested():
             record_id = uuid.uuid4()
-            data = {'title': 'Test0', '$schema': schema}
+            data = {'title_statement': {'title': 'Test0'}}
             recid_minter(record_id, data)
             oaiid_minter(record_id, data)
             Record.create(data, id_=record_id)
@@ -417,14 +395,6 @@ def test_listrecords(app):
 
 def test_listidentifiers(app):
     """Test verb ListIdentifiers."""
-    schema = {
-        'type': 'object',
-        'properties': {
-            'title': {'type': 'string'},
-            'field': {'type': 'boolean'},
-        },
-        'required': ['title'],
-    }
     from invenio_oaiserver.models import OAISet
 
     with app.app_context():
@@ -433,7 +403,7 @@ def test_listidentifiers(app):
                 spec='test0',
                 name='Test0',
                 description='test desc 0',
-                search_pattern='title:Test0',
+                search_pattern='title_statement.title:Test0',
             ))
         db.session.commit()
 
@@ -442,7 +412,7 @@ def test_listidentifiers(app):
 
         with db.session.begin_nested():
             record_id = uuid.uuid4()
-            data = {'title': 'Test0', '$schema': schema}
+            data = {'title_statement': {'title': 'Test0'}}
             recid_minter(record_id, data)
             pid = oaiid_minter(record_id, data)
             record = Record.create(data, id_=record_id)
@@ -511,7 +481,7 @@ def test_list_sets_long(app):
                     spec='test{0}'.format(i),
                     name='Test{0}'.format(i),
                     description='test desc {0}'.format(i),
-                    search_pattern='title:Test{0}'.format(i),
+                    search_pattern='title_statement.title:Test{0}'.format(i),
                 ))
         db.session.commit()
 

@@ -287,7 +287,7 @@ def getrecord(**kwargs):
     )
     e_metadata = SubElement(e_getrecord,
                             etree.QName(NS_OAIPMH, 'metadata'))
-    e_metadata.append(record_dumper(pid, record))
+    e_metadata.append(record_dumper(pid, {'_source': record}))
 
     return e_tree
 
@@ -327,8 +327,7 @@ def listrecords(**kwargs):
             datestamp=record['updated'],
             sets=record['json']['_source'].get('_oai', {}).get('sets', []),
         )
-        e_metadata = SubElement(
-            e_record, etree.QName(NS_OAIPMH, 'metadata'))
+        e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, 'metadata'))
         e_metadata.append(record_dumper(pid, record['json']))
 
     resumption_token(e_listrecords, result, **kwargs)

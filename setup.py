@@ -70,7 +70,7 @@ setup_requires = [
 
 install_requires = [
     'Flask-BabelEx>=0.9.2',
-    'dojson>=1.1.0',
+    'dojson>=1.2.0',
     'invenio-db>=1.0.0a9',
     'invenio-indexer>=1.0.0a1',
     'invenio-pidstore>=1.0.0a7',

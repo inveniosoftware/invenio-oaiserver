@@ -49,26 +49,10 @@ from invenio_oaiserver import InvenioOAIServer
 from invenio_oaiserver.config import OAISERVER_METADATA_FORMATS
 
 
-def dump_etree(pid, record, **kwargs):
-    """Test dumper."""
-    from dojson.contrib.to_marc21 import to_marc21
-    from dojson.contrib.to_marc21.utils import dumps_etree
-
-    if 'title' in record:
-        return dumps_etree({'245__': {'a': record['title']}}, **kwargs)
-    return dumps_etree(to_marc21.do(record), **kwargs)
-
-
 @pytest.fixture()
 def app(request):
     """Flask application fixture."""
     instance_path = tempfile.mkdtemp()
-    metadata_formats = copy.deepcopy(OAISERVER_METADATA_FORMATS)
-    metadata_formats['marc21']['serializer'] = 'conftest:dump_etree'
-    metadata_formats['oai_dc']['serializer'] = (
-        'conftest:dump_etree', metadata_formats['oai_dc']['serializer'][1]
-    )
-
     app = Flask('testapp', instance_path=instance_path)
     app.config.update(
         TESTING=True,
@@ -78,7 +62,6 @@ def app(request):
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
         SERVER_NAME='app',
         OAISERVER_RECORD_INDEX='_all',
-        OAISERVER_METADATA_FORMATS=metadata_formats,
     )
 
     FlaskCLI(app)
