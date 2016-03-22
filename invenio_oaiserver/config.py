@@ -103,6 +103,13 @@ structure.
 * ``namespace`` - the namespace of serialized document;
 * ``serializer`` - the importable string or tuple with the importable string
   and keyword arguments.
+
+.. note::
+
+    If you are migrating an instance running older versions of Invenio<=2.1,
+    you might want to copy settings from ``'marc21'`` key to ``'marcxml'``
+    in order to ensure compatibility for all your OAI-PMH clients.
+
 """
 
 OAISERVER_REGISTER_RECORD_SIGNALS = True
