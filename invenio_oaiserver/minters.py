@@ -33,13 +33,15 @@ from .provider import OAIIDProvider
 
 def oaiid_minter(record_uuid, data):
     """Mint record identifiers."""
-    assert 'control_number' in data
-    # TODO shall we mint the control number if it is not set?
-    pid_value = current_app.config.get('OAISERVER_ID_PREFIX', '') + str(
-        data['control_number'])
+    pid_value = data.get('_oai', {}).get('id')
+    if pid_value is None:
+        assert 'control_number' in data
+        pid_value = current_app.config.get('OAISERVER_ID_PREFIX', '') + str(
+            data['control_number']
+        )
     provider = OAIIDProvider.create(
         object_type='rec', object_uuid=record_uuid,
-        pid_value=pid_value
+        pid_value=str(pid_value)
     )
     data.setdefault('_oai', {})
     data['_oai']['id'] = provider.pid.pid_value

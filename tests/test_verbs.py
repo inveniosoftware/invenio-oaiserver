@@ -123,15 +123,18 @@ def test_identify(app):
 def test_getrecord(app):
     """Test get record verb."""
     with app.test_request_context():
+        pid_value = 'oai:legacy:1'
         with db.session.begin_nested():
             record_id = uuid.uuid4()
-            data = {'title_statement': {'title': 'Test0'}}
-            recid_minter(record_id, data)
+            data = {
+                '_oai': {'id': pid_value},
+                'title_statement': {'title': 'Test0'},
+            }
             pid = oaiid_minter(record_id, data)
             record = Record.create(data, id_=record_id)
 
         db.session.commit()
-        pid_value = pid.pid_value
+        assert pid_value == pid.pid_value
         record_updated = record.updated
         with app.test_client() as c:
             result = c.get(
