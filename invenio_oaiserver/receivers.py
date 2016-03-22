@@ -27,6 +27,7 @@
 from __future__ import absolute_import, print_function
 
 from datetime import datetime
+from flask import current_app
 
 from six import iteritems
 
@@ -76,7 +77,7 @@ def get_record_sets(record, matcher):
     :return: list of set names
     """
     sets = current_oaiserver.sets
-    if sets is None:
+    if sets is None or _compare_cache_hash():
         # build sets cache
         sets = current_oaiserver.sets = dict(_build_cache())
 
@@ -86,6 +87,15 @@ def get_record_sets(record, matcher):
         output |= sets
 
     return list(output)
+
+
+def _compare_cache_hash():
+    if current_oaiserver.cache:
+        remote_cache_hash = current_oaiserver.cache.get('OAISERVER_CACHE_HASH')
+    else:
+        return False
+
+    return current_oaiserver.cache_hash != remote_cache_hash
 
 
 class OAIServerUpdater(object):

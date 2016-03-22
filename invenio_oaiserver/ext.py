@@ -38,6 +38,7 @@ class _AppState(object):
         """Initialize state."""
         self.app = app
         self.cache = cache
+        self.cache_hash = ''
         if self.app.config['OAISERVER_REGISTER_RECORD_SIGNALS']:
             self.register_signals()
 
