@@ -97,9 +97,8 @@ class OAIServerUpdater(object):
 
     def __call__(self, record, **kwargs):
         """Update sets list."""
-        record.update({
-            '_oai': {
-                'sets': get_record_sets(record=record, matcher=self.matcher),
-                'updated': datetime_to_datestamp(datetime.utcnow()),
-            }
+        record.setdefault('_oai', {})
+        record['_oai'].update({
+            'sets': get_record_sets(record=record, matcher=self.matcher),
+            'updated': datetime_to_datestamp(datetime.utcnow()),
         })

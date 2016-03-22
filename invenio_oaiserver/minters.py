@@ -41,5 +41,6 @@ def oaiid_minter(record_uuid, data):
         object_type='rec', object_uuid=record_uuid,
         pid_value=pid_value
     )
-    data['_oaiid'] = provider.pid.pid_value
+    data.setdefault('_oai', {})
+    data['_oai']['id'] = provider.pid.pid_value
     return provider.pid
