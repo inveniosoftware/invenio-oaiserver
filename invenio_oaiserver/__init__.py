@@ -62,7 +62,7 @@ Then you can initialize OAIServer like a normal Flask extension, however
 you need to set following configuration options first:
 
 >>> app.config['OAISERVER_RECORD_INDEX'] = 'records-record-v1.0.0',
->>> app.config['OAISERVER_ID_PREFIX'] = 'oai:localhost:recid/',
+>>> app.config['OAISERVER_ID_PREFIX'] = 'oai:example:',
 >>> from invenio_oaiserver import InvenioOAIServer
 >>> ext_oaiserver = InvenioOAIServer(app)
 
@@ -102,6 +102,35 @@ We can now see the set by using verb ``ListSets``:
 True
 
 .. [OAISet] https://www.openarchives.org/OAI/openarchivesprotocol.html#Set
+
+Data model
+----------
+Response serializer, indexer and search expect ``_oai`` key in record data
+with following structure.
+
+.. code-block:: text
+
+    {
+        "_oai": {
+            "id": "oai:example:1",
+            "sets": ["higgs", "demo"],
+            "updated": "2012-07-04T15:00:00Z"
+        }
+    }
+
+There **must** exist a ``id`` key with not null value otherwise the record
+is not exposed via OAI-PHM interface (``listIdentifiers``, ``listRecords``).
+The value of this field should be regitered in PID store. We provide default
+:func:`~invenio_oaiserver.minters.oaiid_minter` that can register existing
+value or mint new one by concatenating a configuration option
+``OAISERVER_ID_PREFIX`` and record value from ``control_number`` field.
+
+All values in ``sets`` must exist in ``spec`` column in ``oaiserver_set``
+table or they will be removed when record updater is executed. The last
+field ``updated`` contains ISO8601 datetime of the last record metadata
+modification acording to following rules for `selective harvesting`_.
+
+.. _selective harvesting: https://www.openarchives.org/OAI/openarchivesprotocol.html#SelectiveHarvestingandDatestamps
 """
 
 from __future__ import absolute_import, print_function

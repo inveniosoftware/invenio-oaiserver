@@ -55,9 +55,9 @@ def get_records(**kwargs):
     if scroll_id is None:
         query = Query()
 
-        body = {}
+        body = {'must': [{'exists': {'field': '_oai.id'}}]}
         if 'set' in kwargs:
-            body['must'] = [{'match': {'_oai.sets': kwargs['set']}}]
+            body['must'].append({'match': {'_oai.sets': kwargs['set']}})
 
         time_range = {}
         if 'from_' in kwargs:
