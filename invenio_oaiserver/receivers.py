@@ -113,21 +113,21 @@ class OAIServerUpdater(object):
 
 
 def after_insert_oai_set(mapper, connection, target):
-    """Update records on Set insertion."""
+    """Update records on OAISet insertion."""
     update_affected_records.delay(
         search_pattern=target.search_pattern
     )
 
 
 def after_update_oai_set(mapper, connection, target):
-    """Update records on Set updated."""
+    """Update records on OAISet update."""
     update_affected_records.delay(
         spec=target.spec, search_pattern=target.search_pattern
     )
 
 
 def after_delete_oai_set(mapper, connection, target):
-    """Update records on Set deletion."""
+    """Update records on OAISet deletion."""
     update_affected_records.delay(
-        search_pattern=target.search_pattern
+        spec=target.spec
     )

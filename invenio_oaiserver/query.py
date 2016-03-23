@@ -49,10 +49,23 @@ class Query(SearchQuery):
 
 def get_affected_records(spec=None, search_pattern=None):
     """Get list of affected records."""
-    sets = '_oai.sets:"{0}"'.format(spec) if spec else None
-    search_pattern = search_pattern if search_pattern else None
+    # spec       pattern    query
+    # ---------- ---------- -------
+    # None       None       None
+    # None       Y          Y
+    # X          None       X
+    # X          ''         X
+    # X          Y          X OR Y
 
-    query = " OR ".join(filter(None, [sets, search_pattern]))
+    if spec is None and search_pattern is None:
+        raise StopIteration
+    elif spec is None:
+        query = search_pattern
+    elif search_pattern is None or search_pattern == '':
+        query = '_oai.sets:"{0}"'.format(spec)
+    else:
+        query = '_oai.sets:"{0}" OR {1}'.format(spec, search_pattern)
+
     body = {'query': Query(query).query.accept(ElasticSearchDSL())}
 
     response = scan(
