@@ -48,9 +48,15 @@ class OAISetModelView(ModelView):
     column_default_sort = ('updated', True)
     page_size = 25
 
+    def edit_form(self, obj):
+        """Customize edit form."""
+        form = super(OAISetModelView, self).edit_form(obj)
+        del form.spec
+        return form
 
 set_adminview = dict(
     modelview=OAISetModelView,
     model=OAISet,
-    category=_('OAI Sets'),
+    category=_('OAI-PMH'),
+    name=_('Sets'),
 )
