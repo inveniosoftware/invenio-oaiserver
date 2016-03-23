@@ -53,30 +53,33 @@ def _try_populate_oaisets():
         'required': ['title'],
     }
 
-    a = OAISet(spec="a")
-    b = OAISet(spec="b")
+    a = OAISet(spec='a')
+    b = OAISet(spec='b')
     e = OAISet(
-        spec="e", search_pattern="title:Test2 OR title:Test3")
-    c = OAISet(spec="c", search_pattern="title:Test0")
-    d = OAISet(spec="d", search_pattern="title:Test1")
-    f = OAISet(spec="f", search_pattern="title:Test2")
-    g = OAISet(spec="g")
-    h = OAISet(spec="h")
-    i = OAISet(spec="i", search_pattern="title:Test3")
-    j = OAISet(spec="j", search_pattern="title:Test4")
+        spec='e', search_pattern='title:Test2 OR title:Test3')
+    c = OAISet(spec='c', search_pattern='title:Test0')
+    d = OAISet(spec='d', search_pattern='title:Test1')
+    f = OAISet(spec='f', search_pattern='title:Test2')
+    g = OAISet(spec='g')
+    h = OAISet(spec='h')
+    i = OAISet(spec='i', search_pattern='title:Test3')
+    j = OAISet(spec='j', search_pattern='title:Test4')
 
     with db.session.begin_nested():
-        for coll in [a, b, c, d, e, f, g, h, i, j]:
-            db.session.add(coll)
+        for oaiset in [a, b, c, d, e, f, g, h, i, j]:
+            db.session.add(oaiset)
 
     db.session.commit()
 
     # start tests
 
-    record0 = Record.create({'title': 'Test0', '$schema': schema})
+    record0 = Record.create({
+        '_oai': {'sets': ['a']}, 'title': 'Test0', '$schema': schema
+    })
 
+    assert 'a' in record0['_oai']['sets'], 'Keep manually managed set "a".'
     assert 'c' in record0['_oai']['sets']
-    assert len(record0['_oai']['sets']) == 1
+    assert len(record0['_oai']['sets']) == 2
 
     record = Record.create({'title': 'TestNotFound', '$schema': schema})
 
@@ -124,8 +127,9 @@ def _try_populate_oaisets():
 
     record3.commit()
 
+    assert 'i' in record3['_oai']['sets'], 'Set "i" is manually managed.'
     assert 'e' in record3['_oai']['sets']
-    assert len(record3['_oai']['sets']) == 1
+    assert len(record3['_oai']['sets']) == 2
 
     # test update search_pattern
     i.search_pattern = 'title:Test3'
@@ -138,7 +142,7 @@ def _try_populate_oaisets():
     assert len(record3['_oai']['sets']) == 2
 
     # test update the spec
-    a.spec = "new-a"
+    a.spec = 'new-a'
     db.session.add(a)
     db.session.commit()
     record3.commit()
@@ -148,10 +152,11 @@ def _try_populate_oaisets():
     assert len(record3['_oai']['sets']) == 2
 
     # test update name
-    c.name = "new-c"
+    c.name = 'new-c'
     db.session.add(c)
     db.session.commit()
     record0.commit()
 
+    assert 'a' in record0['_oai']['sets']
     assert 'c' in record0['_oai']['sets']
-    assert len(record0['_oai']['sets']) == 1
+    assert len(record0['_oai']['sets']) == 2
