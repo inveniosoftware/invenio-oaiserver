@@ -50,13 +50,14 @@ def test_admin(app):
 
     # Check if generated admin menu contains the correct items
     menu_items = {str(item.name): item for item in admin.menu()}
-    assert 'OAI Sets' in menu_items
-    assert menu_items['OAI Sets'].is_category()
+    assert 'OAI-PMH' in menu_items
+    assert menu_items['OAI-PMH'].is_category()
 
     submenu_items = {
-        str(item.name): item for item in menu_items['OAI Sets'].get_children()}
-    assert 'O A I Set' in submenu_items
-    assert isinstance(submenu_items['O A I Set'], menu.MenuView)
+        str(item.name): item for item in menu_items['OAI-PMH'].get_children()
+    }
+    assert 'Sets' in submenu_items
+    assert isinstance(submenu_items['Sets'], menu.MenuView)
 
     # Create a test set.
     with app.app_context():
