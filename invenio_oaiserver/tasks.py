@@ -24,16 +24,36 @@
 
 """Task for OAI."""
 
-from celery import shared_task
+from celery import group, shared_task
+from flask import current_app
 from flask_celeryext import RequestContextTask
 from invenio_db import db
 from invenio_records.api import Record
 
+from .query import get_affected_records
+
+try:
+    from itertools import zip_longest
+except ImportError:  # pragma: no cover
+    from itertools import izip_longest as zip_longest
+
 
 @shared_task(base=RequestContextTask)
-def update_records_after_change_oaiset(record_ids):
-    """Update records after a oaiset is updated, inserted or removed."""
+def update_records_sets(record_ids):
+    """Update records sets."""
     for record_id in record_ids:
         record = Record.get_record(id=record_id)
         record.commit()
     db.session.commit()
+
+
+@shared_task(base=RequestContextTask)
+def update_affected_records(spec=None, search_pattern=None):
+    """Update all affected records by OAISet change."""
+    chunk_size = current_app.config['OAISERVER_CELERY_TASK_CHUNK_SIZE']
+    record_ids = get_affected_records(spec=spec, search_pattern=search_pattern)
+
+    group(
+        update_records_sets.s(filter(None, chunk))
+        for chunk in zip_longest(*[iter(record_ids)] * chunk_size)
+    )()
