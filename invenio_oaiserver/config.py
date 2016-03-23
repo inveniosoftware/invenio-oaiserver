@@ -139,3 +139,6 @@ except pkg_resources.DistributionNotFound:  # pragma: no cover
 
 OAISERVER_CACHE_KEY = 'DynamicOAISets::'
 """Key prefix added before all keys in cache server."""
+
+OAISERVER_CELERY_TASK_CHUNK_SIZE = 100
+"""Specify the maximum number of records each task will update."""

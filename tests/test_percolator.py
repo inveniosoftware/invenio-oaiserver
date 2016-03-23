@@ -30,9 +30,9 @@ import pytest
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_records.api import Record
-from werkzeug.contrib.cache import SimpleCache
 from invenio_records.models import RecordMetadata
 from mock import patch
+from werkzeug.contrib.cache import SimpleCache
 
 from invenio_oaiserver import current_oaiserver
 from invenio_oaiserver.errors import OAISetSpecUpdateError
@@ -156,17 +156,18 @@ def _try_populate_oaisets():
         current_oaiserver.register_signals_oaiset()
         with db.session.begin_nested():
             i.search_pattern = None
+            assert current_oaiserver.sets is None, 'Cache should be empty.'
             db.session.merge(i)
         db.session.commit()
         assert f.called
         i = OAISet.query.get(i_id)
         after_update_oai_set(None, None, i)
-        assert current_oaiserver.sets is None, 'Cache should be empty.'
         record3_model = RecordMetadata.query.filter_by(
             id=record3_id).first().json
 
+        assert 'i' in record3['_oai']['sets'], 'Set "i" is manually managed.'
         assert 'e' in record3_model['_oai']['sets']
-        assert len(record3_model['_oai']['sets']) == 1
+        assert len(record3_model['_oai']['sets']) == 2
 
         current_oaiserver.unregister_signals_oaiset()
 

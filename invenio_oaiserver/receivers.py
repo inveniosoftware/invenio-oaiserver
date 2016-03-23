@@ -28,11 +28,12 @@ from __future__ import absolute_import, print_function
 
 from datetime import datetime
 
+from flask import current_app
 from six import iteritems
 
 from .models import OAISet
 from .proxies import current_oaiserver
-from .query import Query
+from .query import Query, get_affected_records
 from .response import datetime_to_datestamp
 from .tasks import update_records_after_change_oaiset
 
@@ -113,20 +114,32 @@ class OAIServerUpdater(object):
 
 def after_insert_oai_set(mapper, connection, target):
     """Update records on Set insertion."""
-    update_records_after_change_oaiset.delay(
+    update_affected_records_after_change_oaiset(
         search_pattern=target.search_pattern
     )
 
 
 def after_update_oai_set(mapper, connection, target):
     """Update records on Set updated."""
-    update_records_after_change_oaiset.delay(
+    update_affected_records_after_change_oaiset(
         spec=target.spec, search_pattern=target.search_pattern
     )
 
 
 def after_delete_oai_set(mapper, connection, target):
     """Update records on Set deletion."""
-    update_records_after_change_oaiset.delay(
+    update_affected_records_after_change_oaiset(
         search_pattern=target.search_pattern
     )
+
+
+def update_affected_records_after_change_oaiset(spec=None,
+                                                search_pattern=None):
+    """Update all affected records by OAISet change."""
+    chunk_size = current_app.config['OAISERVER_CELERY_TASK_CHUNK_SIZE']
+    record_ids = list(get_affected_records(
+        spec=spec, search_pattern=search_pattern))
+    id_chunks = [record_ids[i:i+chunk_size]
+                 for i in range(0, len(record_ids), chunk_size)]
+    for id_chunk in id_chunks:
+        update_records_after_change_oaiset.delay(id_chunk)

@@ -29,14 +29,11 @@ from flask_celeryext import RequestContextTask
 from invenio_db import db
 from invenio_records.api import Record
 
-from .query import get_affected_records
-
 
 @shared_task(base=RequestContextTask)
-def update_records_after_change_oaiset(spec=None, search_pattern=None):
+def update_records_after_change_oaiset(record_ids):
     """Update records after a oaiset is updated, inserted or removed."""
-    for record_id in get_affected_records(spec=spec,
-                                          search_pattern=search_pattern):
+    for record_id in record_ids:
         record = Record.get_record(id=record_id)
         record.commit()
-        db.session.commit()
+    db.session.commit()

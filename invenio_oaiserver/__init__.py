@@ -64,7 +64,7 @@ OAIServer work correctly.
 Then you can initialize OAIServer like a normal Flask extension, however
 you need to set following configuration options first:
 
->>> app.config['OAISERVER_RECORD_INDEX'] = 'records-record-v1.0.0',
+>>> app.config['OAISERVER_RECORD_INDEX'] = 'marc21',
 >>> app.config['OAISERVER_ID_PREFIX'] = 'oai:example:',
 >>> from invenio_oaiserver import InvenioOAIServer
 >>> ext_oaiserver = InvenioOAIServer(app)
@@ -80,6 +80,12 @@ in this example we use an in-memory SQLite database):
 
 >>> from invenio_db import db
 >>> db.create_all()
+
+And create the indices on Elasticsearch.
+
+>>> indices = list(ext_search.create(ignore=[400]))
+>>> from time import sleep
+>>> sleep(5)
 
 Creating OAI sets
 -----------------
