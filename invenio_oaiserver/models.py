@@ -26,7 +26,10 @@
 
 from flask_babelex import lazy_gettext as _
 from invenio_db import db
+from sqlalchemy.event import listen
 from sqlalchemy_utils import Timestamp
+
+from .proxies import current_oaiserver
 
 
 class OAISet(db.Model, Timestamp):
@@ -76,5 +79,21 @@ class OAISet(db.Model, Timestamp):
     )
     """Search pattern to get records."""
 
+
+def oaiset_removed_or_inserted(mapper, connection, target):
+    """Invalidate cache on collection insert or delete."""
+    current_oaiserver.sets = None
+
+
+def oaiset_attribute_changed(target, value, oldvalue, initiator):
+    """Invalidate cache if dbquery change."""
+    if value != oldvalue:
+        current_oaiserver.sets = None
+
+
+# update cache with list of collections
+listen(OAISet, 'after_insert', oaiset_removed_or_inserted)
+listen(OAISet, 'after_delete', oaiset_removed_or_inserted)
+listen(OAISet.search_pattern, 'set', oaiset_attribute_changed)
 
 __all__ = ('OAISet', )

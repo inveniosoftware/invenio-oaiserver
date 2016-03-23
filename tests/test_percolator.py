@@ -26,6 +26,7 @@
 
 from invenio_db import db
 from invenio_records.api import Record
+from werkzeug.contrib.cache import SimpleCache
 
 from invenio_oaiserver import current_oaiserver
 from invenio_oaiserver.models import OAISet
@@ -36,6 +37,7 @@ def test_without_percolator(app, request):
     with app.test_request_context():
         current_oaiserver.unregister_signals()
         current_oaiserver.register_signals()
+        current_oaiserver.cache = SimpleCache()
 
         _try_populate_oaisets()
 
@@ -111,10 +113,15 @@ def _try_populate_oaisets():
     assert 'j' not in record4['_oai']['sets']
     assert len(record4['_oai']['sets']) == 0
 
+    assert current_oaiserver.sets is not None, 'Cache should not be empty.'
+
     # test update search_pattern
     i.search_pattern = None
     db.session.add(i)
     db.session.commit()
+
+    assert current_oaiserver.sets is None, 'Cache should be empty.'
+
     record3.commit()
 
     assert 'e' in record3['_oai']['sets']
@@ -141,10 +148,10 @@ def _try_populate_oaisets():
     assert len(record3['_oai']['sets']) == 2
 
     # test update name
-    c.spec = "new-c"
+    c.name = "new-c"
     db.session.add(c)
     db.session.commit()
     record0.commit()
 
-    assert 'new-c' in record0['_oai']['sets']
+    assert 'c' in record0['_oai']['sets']
     assert len(record0['_oai']['sets']) == 1
