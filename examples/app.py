@@ -137,7 +137,7 @@ def oaiserver(sets, records):
                 spec='test{0}'.format(i),
                 name='Test{0}'.format(i),
                 description='test desc {0}'.format(i),
-                search_pattern='title:Test{0}'.format(i),
+                search_pattern='title_statement.title:Test{0}'.format(i),
             ))
 
     # create a record
