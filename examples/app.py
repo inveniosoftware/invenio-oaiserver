@@ -58,6 +58,7 @@ import uuid
 import click
 from flask import Flask
 from flask_admin import Admin
+from flask_celeryext import FlaskCeleryExt
 from invenio_db import InvenioDB, db
 from invenio_indexer import InvenioIndexer
 from invenio_indexer.api import RecordIndexer
@@ -73,12 +74,15 @@ from invenio_oaiserver.minters import oaiid_minter
 # Create Flask application
 app = Flask(__name__)
 app.config.update(
+    CELERY_ALWAYS_EAGER=True,
+    OAISERVER_REGISTER_SET_SIGNALS=False,
     OAISERVER_RECORD_INDEX='_all',
     OAISERVER_ID_PREFIX='oai:localhost:recid/',
     SECRET_KEY='CHANGE_ME',
     SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI',
                                       'sqlite:///app.db'),
 )
+FlaskCeleryExt(app)
 InvenioDB(app)
 InvenioRecords(app)
 InvenioPIDStore(app)

@@ -75,9 +75,6 @@ def app():
         OAISERVER_REGISTER_SET_SIGNALS=False,
         SEARCH_ELASTIC_KEYWORD_MAPPING={None: ['_all']},
     )
-    if not hasattr(app, 'cli'):
-        from flask_cli import FlaskCLI
-        FlaskCLI(app)
     InvenioDB(app)
     FlaskCeleryExt(app)
     InvenioJSONSchemas(app)
