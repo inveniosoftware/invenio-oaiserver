@@ -42,7 +42,7 @@ class OAISet(db.Model, Timestamp):
     id = db.Column(db.Integer, primary_key=True)
 
     spec = db.Column(
-        db.String(40),
+        db.String(255),
         nullable=False,
         unique=True,
         info=dict(
@@ -53,7 +53,7 @@ class OAISet(db.Model, Timestamp):
     """Set identifier."""
 
     name = db.Column(
-        db.String(40),
+        db.String(255),
         info=dict(
             label=_('Long name'),
             description=_('Long name of the set.'),
