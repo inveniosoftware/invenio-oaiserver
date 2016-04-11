@@ -33,6 +33,8 @@ from marshmallow import Schema, fields
 
 def serialize(pagination, **kwargs):
     """Return resumtion token serializer."""
+    from .verbs import Verbs
+
     if not pagination.has_next:
         return
 
@@ -40,10 +42,9 @@ def serialize(pagination, **kwargs):
         current_app.config['SECRET_KEY'],
         salt=kwargs['verb'],
     )
-
+    schema = getattr(Verbs, kwargs['verb'])(partial=False)
     data = dict(seed=random.random(), page=pagination.next_num,
-                kwargs={key: value for key, value in kwargs.items()
-                        if key not in {'verb', 'resumptionToken'}})
+                kwargs=schema.dumps(kwargs))
     scroll_id = getattr(pagination, '_scroll_id', None)
     if scroll_id:
         data['scroll_id'] = scroll_id
@@ -63,18 +64,21 @@ class ResumptionToken(fields.Field):
         data = token_builder.loads(value, max_age=current_app.config[
             'OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME'])
         data['token'] = value
+        data['kwargs'] = self.root.load(data['kwargs'], partial=True).data
         return data
 
 
 class ResumptionTokenSchema(Schema):
     """Schema with resumption token."""
 
-    resumptionToken = ResumptionToken(required=True)
+    resumptionToken = ResumptionToken(required=True, load_only=True)
 
     def load(self, data, many=None, partial=None):
         """Deserialize a data structure to an object."""
         result = super(ResumptionTokenSchema, self).load(
             data, many=many, partial=partial
         )
-        result.data.update(result.data['resumptionToken'].get('kwargs', {}))
+        result.data.update(
+            result.data.get('resumptionToken', {}).get('kwargs', {})
+        )
         return result

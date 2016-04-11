@@ -43,7 +43,7 @@ def validate_metadata_prefix(value):
 class OAISchema(Schema):
     """Base OAI argument schema."""
 
-    verb = fields.Str(required=True)
+    verb = fields.Str(required=True, load_only=True)
 
     class Meta:
         """Schema configuration."""
@@ -92,7 +92,7 @@ class Verbs(object):
     class ListIdentifiers(OAISchema):
         """Arguments for ListIdentifiers verb."""
 
-        from_ = fields.DateTime()
+        from_ = fields.DateTime(load_from='from', dumpt_to='from')
         until = fields.DateTime()
         set = fields.Str()
         metadataPrefix = fields.Str(required=True,
@@ -106,7 +106,7 @@ class Verbs(object):
     class ListRecords(OAISchema):
         """Arguments for ListRecords verb."""
 
-        from_ = fields.DateTime()
+        from_ = fields.DateTime(load_from='from', dump_to='from')
         until = fields.DateTime()
         set = fields.Str()
         metadataPrefix = fields.Str(required=True,
