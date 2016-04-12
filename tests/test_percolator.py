@@ -24,9 +24,11 @@
 
 """Percolator test cases."""
 
+from datetime import datetime
 from time import sleep
 
 import pytest
+from dateutil.parser import parse as iso2dt
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_records.api import Record
@@ -216,3 +218,15 @@ def _try_populate_oaisets():
         assert len(record2_model['_oai']['sets']) == 3
 
         current_oaiserver.register_signals_oaiset()
+
+
+def test_oaiset_add_record(app):
+    """Test the API method for manual record adding."""
+    with app.app_context():
+        oaiset1 = OAISet(spec='abc')
+        rec1 = Record.create({'title': 'Test1'})
+        oaiset1.add_record(rec1, commit_record=False)
+        assert 'abc' in rec1['_oai']['sets']
+        assert 'updated' in rec1['_oai']
+        dt = iso2dt(rec1['_oai']['updated'])
+        assert dt.year == datetime.now().year  # Test if parsed OK

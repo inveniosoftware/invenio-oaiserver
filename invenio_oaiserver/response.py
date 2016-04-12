@@ -38,7 +38,7 @@ from .models import OAISet
 from .provider import OAIIDProvider
 from .query import get_records
 from .resumption_token import serialize
-from .utils import serializer
+from .utils import datetime_to_datestamp, serializer
 
 NS_OAIPMH = 'http://www.openarchives.org/OAI/2.0/'
 NS_OAIPMH_XSD = 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd'
@@ -60,17 +60,6 @@ DATETIME_FORMATS = {
     'YYYY-MM-DDThh:mm:ssZ': '%Y-%m-%dT%H:%M:%SZ',
     'YYYY-MM-DD': '%Y-%m-%d',
 }
-
-
-def datetime_to_datestamp(dt, day_granularity=False):
-    """Transform datetime to datestamp."""
-    # assert dt.tzinfo is None  # only accept timezone naive datetimes
-    # ignore microseconds
-    dt = dt.replace(microsecond=0)
-    result = dt.isoformat() + 'Z'
-    if day_granularity:
-        result = result[:-10]
-    return result
 
 
 def envelope(**kwargs):

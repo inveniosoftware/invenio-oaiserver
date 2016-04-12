@@ -24,6 +24,8 @@
 
 """Models for storing information about OAIServer state."""
 
+from datetime import datetime
+
 from flask_babelex import lazy_gettext as _
 from invenio_db import db
 from sqlalchemy.event import listen
@@ -32,6 +34,7 @@ from sqlalchemy_utils import Timestamp
 
 from .errors import OAISetSpecUpdateError
 from .proxies import current_oaiserver
+from .utils import datetime_to_datestamp
 
 
 class OAISet(db.Model, Timestamp):
@@ -87,6 +90,17 @@ class OAISet(db.Model, Timestamp):
         if self.spec and self.spec != value:
             raise OAISetSpecUpdateError("Updating spec is not allowed.")
         return value
+
+    def add_record(self, record, commit_record=True):
+        """Add a record to the OAISet.
+
+        :param record: Record to be added.
+        :type record: `invenio_record.api.Record`
+        """
+        record.setdefault('_oai', {}).setdefault('sets', []).append(self.spec)
+        record['_oai']['updated'] = datetime_to_datestamp(datetime.utcnow())
+        if commit_record:
+            record.commit()
 
 
 def oaiset_removed_or_inserted(mapper, connection, target):

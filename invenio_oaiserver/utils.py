@@ -71,3 +71,14 @@ def dumps_etree(pid, record, **kwargs):
     from dojson.contrib.to_marc21.utils import dumps_etree
 
     return dumps_etree(to_marc21.do(record['_source']), **kwargs)
+
+
+def datetime_to_datestamp(dt, day_granularity=False):
+    """Transform datetime to datestamp."""
+    # assert dt.tzinfo is None  # only accept timezone naive datetimes
+    # ignore microseconds
+    dt = dt.replace(microsecond=0)
+    result = dt.isoformat() + 'Z'
+    if day_granularity:
+        result = result[:-10]
+    return result
