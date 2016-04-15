@@ -1,8 +1,8 @@
 ============================
- Invenio-OAIServer v1.0.0a2
+ Invenio-OAIServer v1.0.0a3
 ============================
 
-Invenio-OAIServer v1.0.0a2 was released on March 24, 2016.
+Invenio-OAIServer v1.0.0a3 was released on April 15, 2016.
 
 About
 -----
@@ -19,7 +19,7 @@ What's new
 Installation
 ------------
 
-   $ pip install invenio-oaiserver==1.0.0a2
+   $ pip install invenio-oaiserver==1.0.0a3
 
 Documentation
 -------------
