@@ -220,13 +220,18 @@ def _try_populate_oaisets():
         current_oaiserver.register_signals_oaiset()
 
 
-def test_oaiset_add_record(app):
+def test_oaiset_add_remove_record(app):
     """Test the API method for manual record adding."""
     with app.app_context():
         oaiset1 = OAISet(spec='abc')
         rec1 = Record.create({'title': 'Test1'})
-        oaiset1.add_record(rec1, commit_record=False)
+        oaiset1.add_record(rec1)
         assert 'abc' in rec1['_oai']['sets']
         assert 'updated' in rec1['_oai']
-        dt = iso2dt(rec1['_oai']['updated'])
-        assert dt.year == datetime.now().year  # Test if parsed OK
+        dt1 = iso2dt(rec1['_oai']['updated'])
+        assert dt1.year == datetime.utcnow().year  # Test if parsed OK
+
+        oaiset1.remove_record(rec1)
+        assert 'abc' not in rec1['_oai']['sets']
+        dt2 = iso2dt(rec1['_oai']['updated'])
+        assert dt2 >= dt1

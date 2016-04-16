@@ -91,16 +91,28 @@ class OAISet(db.Model, Timestamp):
             raise OAISetSpecUpdateError("Updating spec is not allowed.")
         return value
 
-    def add_record(self, record, commit_record=True):
+    def add_record(self, record):
         """Add a record to the OAISet.
 
         :param record: Record to be added.
-        :type record: `invenio_record.api.Record`
         """
-        record.setdefault('_oai', {}).setdefault('sets', []).append(self.spec)
+        record.setdefault('_oai', {}).setdefault('sets', [])
+
+        assert self.spec not in record['_oai']['sets']
+
+        record['_oai']['sets'].append(self.spec)
         record['_oai']['updated'] = datetime_to_datestamp(datetime.utcnow())
-        if commit_record:
-            record.commit()
+
+    def remove_record(self, record):
+        """Remove a record from the OAISet.
+
+        :param record: Record to be removed.
+        """
+        assert self.spec in record.get('_oai', {}).get('sets', [])
+
+        record['_oai']['sets'] = [
+            s for s in record['_oai']['sets'] if s != self.spec]
+        record['_oai']['updated'] = datetime_to_datestamp(datetime.utcnow())
 
 
 def oaiset_removed_or_inserted(mapper, connection, target):
