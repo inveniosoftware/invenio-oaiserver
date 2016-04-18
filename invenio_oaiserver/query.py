@@ -21,30 +21,38 @@
 
 import pypeg2
 from elasticsearch.helpers import scan
+from elasticsearch_dsl import Q
 from flask import current_app
 from invenio_query_parser.walkers.match_unit import MatchUnit
-from invenio_search import Query as SearchQuery
-from invenio_search import current_search_client
+from invenio_search import RecordsSearch, current_search_client
 from invenio_search.walkers.elasticsearch import ElasticSearchDSL
 from werkzeug.utils import cached_property
 
 from .utils import parser, query_walkers
 
 
-class Query(SearchQuery):
+class Query(object):
     """Query object."""
 
-    @cached_property
-    def query(self):
+    def __init__(self, query=None):
         """Parse query string using given grammar."""
-        tree = pypeg2.parse(self._query, parser(), whitespace='')
+        tree = pypeg2.parse(query or '', parser(), whitespace='')
         for walker in query_walkers():
             tree = tree.accept(walker)
-        return tree
+        self.query = tree
 
     def match(self, record):
         """Return True if record match the query."""
         return self.query.accept(MatchUnit(record))
+
+
+class OAIServerSearch(RecordsSearch):
+    """Define default filter for quering OAI server."""
+
+    class Meta:
+        """Configuration for OAI server search."""
+
+        default_filter = Q('exists', field='_oai.id')
 
 
 def get_affected_records(spec=None, search_pattern=None):
@@ -59,23 +67,21 @@ def get_affected_records(spec=None, search_pattern=None):
 
     if spec is None and search_pattern is None:
         raise StopIteration
-    elif spec is None:
-        query = search_pattern
-    elif search_pattern is None or search_pattern == '':
-        query = '_oai.sets:"{0}"'.format(spec)
-    else:
-        query = '_oai.sets:"{0}" OR {1}'.format(spec, search_pattern)
 
-    body = {'query': Query(query).query.accept(ElasticSearchDSL())}
+    queries = []
 
-    response = scan(
-        client=current_search_client,
+    if spec is not None:
+        queries.append(Q('match', **{'_oai.sets': spec}))
+
+    if search_pattern:
+        queries.append(Query(search_pattern).query.accept(ElasticSearchDSL()))
+
+    search = OAIServerSearch(
         index=current_app.config['OAISERVER_RECORD_INDEX'],
-        query=body,
-    )
+    ).query(Q('bool', should=queries))
 
-    for result in response:
-        yield result['_id']
+    for result in search.scan():
+        yield result.meta.id
 
 
 def get_records(**kwargs):
@@ -86,11 +92,16 @@ def get_records(**kwargs):
     scroll_id = kwargs.get('resumptionToken', {}).get('scroll_id')
 
     if scroll_id is None:
-        query = Query()
+        search = OAIServerSearch(
+            index=current_app.config['OAISERVER_RECORD_INDEX'],
+        ).params(
+            scroll='{0}s'.format(scroll),
+        ).extra(
+            version=True,
+        )[(page_-1)*size_:page_*size_]
 
-        body = {'must': [{'exists': {'field': '_oai.id'}}]}
         if 'set' in kwargs:
-            body['must'].append({'match': {'_oai.sets': kwargs['set']}})
+            search = search.query('match', **{'_oai.sets': kwargs['set']})
 
         time_range = {}
         if 'from_' in kwargs:
@@ -98,19 +109,9 @@ def get_records(**kwargs):
         if 'until' in kwargs:
             time_range['lte'] = kwargs['until']
         if time_range:
-            body['filter'] = [{'range': {'_oai.updated': time_range}}]
+            search = search.filter('range', **{'_oai.updated': time_range})
 
-        if body:
-            query.body = {'query': {'bool': body}}
-
-        response = current_search_client.search(
-            index=current_app.config['OAISERVER_RECORD_INDEX'],
-            body=query.body,
-            from_=(page_-1)*size_,
-            size=size_,
-            scroll='{0}s'.format(scroll),
-            version=True,
-        )
+        response = search.execute().to_dict()
     else:
         response = current_search_client.scroll(
             scroll_id=scroll_id,

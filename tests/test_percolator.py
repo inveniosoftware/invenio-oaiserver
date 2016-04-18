@@ -24,6 +24,8 @@
 
 """Percolator test cases."""
 
+import uuid
+
 from datetime import datetime
 from time import sleep
 
@@ -31,13 +33,15 @@ import pytest
 from dateutil.parser import parse as iso2dt
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
-from invenio_records.api import Record
+from invenio_pidstore.minters import recid_minter
+from invenio_records.api import Record, before_record_insert
 from invenio_records.models import RecordMetadata
 from mock import patch
 from werkzeug.contrib.cache import SimpleCache
 
 from invenio_oaiserver import current_oaiserver
 from invenio_oaiserver.errors import OAISetSpecUpdateError
+from invenio_oaiserver.minters import oaiid_minter
 from invenio_oaiserver.models import OAISet
 from invenio_oaiserver.receivers import after_delete_oai_set, \
     after_insert_oai_set, after_update_oai_set
@@ -65,6 +69,15 @@ def _try_populate_oaisets():
         'required': ['title'],
     }
 
+    def create_record(item_dict):
+        """Create test record."""
+        record_id = uuid.uuid4()
+        recid_minter(record_id, item_dict)
+        oaiid_minter(record_id, item_dict)
+        record = Record.create(item_dict, id_=record_id)
+        indexer.index(record)
+        return record
+
     a = OAISet(spec='a')
     b = OAISet(spec='b')
     e = OAISet(
@@ -88,46 +101,41 @@ def _try_populate_oaisets():
 
     # start tests
 
-    record0 = Record.create({
+    record0 = create_record({
         '_oai': {'sets': ['a']}, 'title': 'Test0', '$schema': schema
     })
-    indexer.index(record0)
 
     assert 'a' in record0['_oai']['sets'], 'Keep manually managed set "a".'
     assert 'c' in record0['_oai']['sets']
     assert len(record0['_oai']['sets']) == 2
 
-    record_not_found = Record.create(
-        {'title': 'TestNotFound', '$schema': schema})
-    indexer.index(record_not_found)
+    record_not_found = create_record(
+        {'title': 'TestNotFound', '$schema': schema}
+    )
 
     assert record_not_found['_oai']['sets'] == []
 
-    record1 = Record.create({'title': 'Test1', '$schema': schema})
-    indexer.index(record1)
+    record1 = create_record({'title': 'Test1', '$schema': schema})
 
     assert 'd' in record1['_oai']['sets']
     assert len(record1['_oai']['sets']) == 1
 
-    record2 = Record.create({'title': 'Test2', '$schema': schema})
+    record2 = create_record({'title': 'Test2', '$schema': schema})
     record2_id = record2.id
-    indexer.index(record2)
 
     assert 'e' in record2['_oai']['sets']
     assert 'f' in record2['_oai']['sets']
     assert len(record2['_oai']['sets']) == 2
 
-    record3 = Record.create({'title': 'Test3', '$schema': schema})
+    record3 = create_record({'title': 'Test3', '$schema': schema})
     record3_id = record3.id
-    indexer.index(record3)
 
     assert 'e' in record3['_oai']['sets']
     assert 'i' in record3['_oai']['sets']
     assert len(record3['_oai']['sets']) == 2
 
-    record4 = Record.create({'title': 'Test4', '$schema': schema})
+    record4 = create_record({'title': 'Test4', '$schema': schema})
     record4_id = record4.id
-    indexer.index(record4)
 
     assert 'j with space' in record4['_oai']['sets']
     assert len(record4['_oai']['sets']) == 1

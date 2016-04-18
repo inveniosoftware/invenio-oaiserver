@@ -128,15 +128,6 @@ OAISERVER_QUERY_WALKERS = [
 ]
 """List of query AST walkers."""
 
-try:
-    pkg_resources.get_distribution('invenio_search')
-
-    from invenio_search.config import \
-        SEARCH_QUERY_PARSER as OAISERVER_QUERY_PARSER, \
-        SEARCH_QUERY_WALKERS as OAISERVER_QUERY_WALKERS
-except pkg_resources.DistributionNotFound:  # pragma: no cover
-    pass
-
 OAISERVER_CACHE_KEY = 'DynamicOAISets::'
 """Key prefix added before all keys in cache server."""
 
