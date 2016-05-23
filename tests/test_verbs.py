@@ -147,20 +147,20 @@ def test_getrecord(app):
             assert len(tree.xpath('/x:OAI-PMH', namespaces=NAMESPACES)) == 1
             assert len(tree.xpath('/x:OAI-PMH/x:GetRecord',
                                   namespaces=NAMESPACES)) == 1
-            assert len(tree.xpath('/x:OAI-PMH/x:GetRecord/x:header',
+            assert len(tree.xpath('/x:OAI-PMH/x:GetRecord/x:record/x:header',
                                   namespaces=NAMESPACES)) == 1
             assert len(tree.xpath(
-                '/x:OAI-PMH/x:GetRecord/x:header/x:identifier',
+                '/x:OAI-PMH/x:GetRecord/x:record/x:header/x:identifier',
                 namespaces=NAMESPACES)) == 1
             identifier = tree.xpath(
-                '/x:OAI-PMH/x:GetRecord/x:header/x:identifier/text()',
+                '/x:OAI-PMH/x:GetRecord/x:record/x:header/x:identifier/text()',
                 namespaces=NAMESPACES)
             assert identifier == [str(record.id)]
             datestamp = tree.xpath(
-                '/x:OAI-PMH/x:GetRecord/x:header/x:datestamp/text()',
+                '/x:OAI-PMH/x:GetRecord/x:record/x:header/x:datestamp/text()',
                 namespaces=NAMESPACES)
             assert datestamp == [datetime_to_datestamp(record_updated)]
-            assert len(tree.xpath('/x:OAI-PMH/x:GetRecord/x:metadata',
+            assert len(tree.xpath('/x:OAI-PMH/x:GetRecord/x:record/x:metadata',
                                   namespaces=NAMESPACES)) == 1
 
 

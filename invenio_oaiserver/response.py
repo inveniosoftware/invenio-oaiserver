@@ -266,14 +266,15 @@ def getrecord(**kwargs):
     record = Record.get_record(pid.object_uuid)
 
     e_tree, e_getrecord = verb(**kwargs)
+    e_record = SubElement(e_getrecord, etree.QName(NS_OAIPMH, 'record'))
 
     header(
-        e_getrecord,
+        e_record,
         identifier=str(pid.object_uuid),
         datestamp=record.updated,
         sets=record.get('_oai', {}).get('sets', []),
     )
-    e_metadata = SubElement(e_getrecord,
+    e_metadata = SubElement(e_record,
                             etree.QName(NS_OAIPMH, 'metadata'))
     e_metadata.append(record_dumper(pid, {'_source': record}))
 
