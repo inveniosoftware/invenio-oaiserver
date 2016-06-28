@@ -103,7 +103,7 @@ def test_identify(app):
         adminEmail = tree.xpath('/x:OAI-PMH/x:Identify/x:adminEmail',
                                 namespaces=NAMESPACES)
         assert len(adminEmail) == 1
-        assert adminEmail[0].text == 'info@invenio-software.org'
+        assert adminEmail[0].text == 'info@inveniosoftware.org'
         earliestDatestamp = tree.xpath(
             '/x:OAI-PMH/x:Identify/x:earliestDatestamp',
             namespaces=NAMESPACES)

@@ -40,7 +40,7 @@ OAISERVER_RECORD_INDEX = 'records'
 OAISERVER_PROTOCOL_VERSION = '2.0'
 
 OAISERVER_ADMIN_EMAILS = [
-    'info@invenio-software.org',
+    'info@inveniosoftware.org',
 ]
 """The e-mail addresses of administrators of the repository.
 
