@@ -71,7 +71,7 @@ def envelope(**kwargs):
 
     e_oaipmh.addprevious(etree.ProcessingInstruction(
         'xml-stylesheet', 'type="text/xsl" href="{0}"'.format(url_for(
-            'static', filename='xsl/oai2.v1.0.xsl'))))
+            'invenio_oaiserver.static', filename='xsl/oai2.v1.0.xsl'))))
 
     e_responseDate = SubElement(
         e_oaipmh, etree.QName(
