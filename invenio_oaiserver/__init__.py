@@ -39,11 +39,12 @@ First create a Flask application (Flask-CLI is not needed for Flask
 version 1.0+):
 
 >>> from flask import Flask
->>> from flask_cli import FlaskCLI
 >>> app = Flask('myapp')
 >>> app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
 >>> app.config['CELERY_ALWAYS_EAGER'] = True
->>> ext_cli = FlaskCLI(app)
+>>> if not hasattr(app, 'cli'):
+...     from flask_cli import FlaskCLI
+...     ext_cli = FlaskCLI(app)
 
 There are several dependencies that should be initialized in order to make
 OAIServer work correctly.

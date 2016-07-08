@@ -36,7 +36,6 @@ import pytest
 from elasticsearch import Elasticsearch
 from flask import Flask
 from flask_celeryext import FlaskCeleryExt
-from flask_cli import FlaskCLI
 from helpers import load_records, remove_records
 from invenio_db import InvenioDB, db
 from invenio_indexer import InvenioIndexer
@@ -72,8 +71,9 @@ def app(request):
         OAISERVER_REGISTER_SET_SIGNALS=False,
         SEARCH_ELASTIC_KEYWORD_MAPPING={None: ['_all']},
     )
-
-    FlaskCLI(app)
+    if not hasattr(app, 'cli'):
+        from flask_cli import FlaskCLI
+        FlaskCLI(app)
     InvenioDB(app)
     FlaskCeleryExt(app)
     InvenioJSONSchemas(app)

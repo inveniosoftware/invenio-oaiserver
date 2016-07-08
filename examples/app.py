@@ -30,13 +30,14 @@ Install requrements for this example app by running:
 
     $ cd examples
     $ pip install -r requirements.txt
+    $ export FLASK_APP=app.py
 
 Create database and tables:
 
 .. code-block:: console
 
-    $ flask -a app.py db init
-    $ flask -a app.py db create
+    $ flask db init
+    $ flask db create
 
 You can find the database in `examples/app.db`.
 
@@ -44,13 +45,13 @@ Create example records and OAI sets:
 
 .. code-block:: console
 
-    $ flask -a app.py fixtures oaiserver
+    $ flask fixtures oaiserver
 
 Download javascript and css libraries:
 
 .. code-block:: console
 
-    $ flask -a app.py npm
+    $ flask npm
     $ cd static
     $ npm install
     $ cd ..
@@ -59,15 +60,15 @@ Collect static files and build bundles:
 
 .. code-block:: console
 
-    $ flask -a app.py collect -v
-    $ flask -a app.py assets build
+    $ flask collect -v
+    $ flask assets build
 
 
 Run the development server:
 
 .. code-block:: console
 
-   $ flask -a app.py --debug run
+   $ FLASK_DEBUG=1 flask run
 
 Visit http://localhost:5000/admin/oaiset to see the admin interface.
 """
@@ -80,7 +81,6 @@ import uuid
 import click
 from flask import Flask
 from flask_admin import Admin
-from flask_cli import FlaskCLI
 from invenio_db import InvenioDB, db
 from invenio_indexer import InvenioIndexer
 from invenio_indexer.api import RecordIndexer
@@ -102,7 +102,9 @@ app.config.update(
     SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI',
                                       'sqlite:///app.db'),
 )
-FlaskCLI(app)
+if not hasattr(app, 'cli'):
+    from flask_cli import FlaskCLI
+    FlaskCLI(app)
 InvenioDB(app)
 InvenioRecords(app)
 InvenioPIDStore(app)
