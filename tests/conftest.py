@@ -40,6 +40,7 @@ from flask_cli import FlaskCLI
 from helpers import load_records, remove_records
 from invenio_db import InvenioDB, db
 from invenio_indexer import InvenioIndexer
+from invenio_jsonschemas import InvenioJSONSchemas
 from invenio_marc21 import InvenioMARC21
 from invenio_pidstore import InvenioPIDStore
 from invenio_records import InvenioRecords
@@ -58,6 +59,7 @@ def app(request):
         CELERY_CACHE_BACKEND='memory',
         CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
         CELERY_RESULT_BACKEND='cache',
+        JSONSCHEMAS_HOST='inveniosoftware.org',
         TESTING=True,
         SECRET_KEY='CHANGE_ME',
         SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI',
@@ -74,6 +76,7 @@ def app(request):
     FlaskCLI(app)
     InvenioDB(app)
     FlaskCeleryExt(app)
+    InvenioJSONSchemas(app)
     InvenioRecords(app)
     InvenioPIDStore(app)
     InvenioMARC21(app)

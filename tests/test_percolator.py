@@ -61,12 +61,17 @@ def _try_populate_oaisets():
     """Try to update collections."""
     indexer = RecordIndexer()
     schema = {
-        'type': 'object',
-        'properties': {
+        'allOf': [{
+            'type': 'object',
+            'properties': {
                 'title': {'type': 'string'},
                 'field': {'type': 'boolean'},
             },
-        'required': ['title'],
+            'required': ['title'],
+        }, {
+            '$ref': 'http://inveniosoftware.org/schemas/'
+                    'oaiserver/internal-v1.0.0.json',
+        }]
     }
 
     def create_record(item_dict):

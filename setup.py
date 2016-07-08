@@ -34,6 +34,7 @@ history = open('CHANGES.rst').read()
 tests_require = [
     'check-manifest>=0.25',
     'coverage>=4.0',
+    'invenio-jsonschemas>=1.0.0a3',
     'invenio-marc21>=1.0.0a2',
     'isort>=4.2.2',
     'mock>=1.3.0',
@@ -114,6 +115,9 @@ setup(
         ],
         'invenio_admin.views': [
             'invenio_oaiserver = invenio_oaiserver.admin:set_adminview',
+        ],
+        'invenio_jsonschemas.schemas': [
+            'oaiserver = invenio_oaiserver.schemas',
         ],
         'invenio_pidstore.minters': [
             'oaiid = invenio_oaiserver.minters:oaiid_minter',
