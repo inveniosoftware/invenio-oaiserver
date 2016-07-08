@@ -60,7 +60,8 @@ class OAISet(db.Model, Timestamp):
         info=dict(
             label=_('Long name'),
             description=_('Long name of the set.'),
-        )
+        ),
+        index=True,
     )
     """Human readable name of the set."""
 

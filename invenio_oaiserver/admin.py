@@ -44,7 +44,7 @@ class OAISetModelView(ModelView):
     column_list = ('id', 'spec', 'updated', 'created',)
     column_details_list = ('id', 'spec', 'name', 'description',
                            'search_pattern', 'updated', 'created')
-    column_filters = ('created', 'updated')
+    column_filters = ('name', 'created', 'updated')
     column_default_sort = ('updated', True)
     page_size = 25
 
