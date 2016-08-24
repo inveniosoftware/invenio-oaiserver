@@ -42,7 +42,7 @@ except ImportError:  # pragma: no cover
 def update_records_sets(record_ids):
     """Update records sets."""
     for record_id in record_ids:
-        record = Record.get_record(id=record_id)
+        record = Record.get_record(record_id)
         record.commit()
     db.session.commit()
 
