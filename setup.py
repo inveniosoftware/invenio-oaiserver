@@ -70,6 +70,7 @@ setup_requires = [
 ]
 
 install_requires = [
+    'Flask>=0.11.1',
     'Flask-BabelEx>=0.9.2',
     'dojson>=1.2.0',
     'elasticsearch-dsl>=2.0.0',
