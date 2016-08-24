@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015 CERN.
+# Copyright (C) 2015, 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -138,8 +138,8 @@ html_theme_options = {
     'github_banner': True,
     'show_powered_by': False,
     'extra_nav_links': {
-        'invenio-oaiserver@GitHub': 'http://github.com/inveniosoftware/invenio-oaiserver',
-        'invenio-oaiserver@PyPI': 'http://pypi.python.org/pypi/invenio-oaiserver/',
+        'invenio-oaiserver@GitHub': 'https://github.com/inveniosoftware/invenio-oaiserver',
+        'invenio-oaiserver@PyPI': 'https://pypi.python.org/pypi/invenio-oaiserver/',
     }
 }
 
@@ -335,3 +335,6 @@ intersphinx_mapping = {
     'invenio_pidstore': ('http://pythonhosted.org/invenio-pidstore', None),
     'invenio_records': ('http://pythonhosted.org/invenio-records', None),
 }
+
+# Autodoc configuraton.
+autoclass_content = 'both'
