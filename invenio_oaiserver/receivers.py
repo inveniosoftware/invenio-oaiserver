@@ -28,7 +28,6 @@ from __future__ import absolute_import, print_function
 
 from datetime import datetime
 
-from flask import current_app
 from six import iteritems
 
 from .models import OAISet
@@ -45,7 +44,11 @@ except ImportError:  # pragma: no cover
 
 @lru_cache(maxsize=1000)
 def _build_query(search_pattern):
-    """Build ``Query`` object for given set query."""
+    """Build ``Query`` object for given set query.
+
+    :param search_pattern: Search pattern.
+    :returns: A :class:`invenio_oaiserver.query.Query` instance.
+    """
     return Query(search_pattern)
 
 
@@ -81,7 +84,8 @@ def get_record_sets(record, matcher):
     """Return list of sets to which record belongs to.
 
     :param record: Record instance
-    :return: list of set names
+    :param matcher: Function that matches available sets with the record.
+    :returns: list of set names
     """
     sets = current_oaiserver.sets
     if sets is None:
@@ -104,7 +108,10 @@ class OAIServerUpdater(object):
         self.matcher = _find_matching_sets_internally
 
     def __call__(self, record, **kwargs):
-        """Update sets list."""
+        """Update sets list.
+
+        :param record: The record data.
+        """
         record.setdefault('_oai', {})
         record['_oai'].update({
             'sets': get_record_sets(record=record, matcher=self.matcher),

@@ -36,7 +36,10 @@ class _AppState(object):
     """State for Invenio-OAIServer."""
 
     def __init__(self, app, cache=None):
-        """Initialize state."""
+        """Initialize state.
+
+        :param app: An instance of :class:`flask.Flask`.
+        """
         self.app = app
         self.cache = cache
         if self.app.config['OAISERVER_REGISTER_RECORD_SIGNALS']:
@@ -102,12 +105,18 @@ class InvenioOAIServer(object):
     """Invenio-OAIServer extension."""
 
     def __init__(self, app=None, **kwargs):
-        """Extension initialization."""
+        """Extension initialization.
+
+        :param app: An instance of :class:`flask.Flask`. (Default: ``None``)
+        """
         if app:
             self.init_app(app, **kwargs)
 
     def init_app(self, app, **kwargs):
-        """Flask application initialization."""
+        """Flask application initialization.
+
+        :param app: An instance of :class:`flask.Flask`.
+        """
         self.init_config(app)
 
         state = _AppState(app=app, cache=kwargs.get('cache'))
@@ -118,7 +127,10 @@ class InvenioOAIServer(object):
         app.extensions['invenio-oaiserver'] = state
 
     def init_config(self, app):
-        """Initialize configuration."""
+        """Initialize configuration.
+
+        :param app: An instance of :class:`flask.Flask`.
+        """
         app.config.setdefault(
             'OAISERVER_BASE_TEMPLATE',
             app.config.get('BASE_TEMPLATE',

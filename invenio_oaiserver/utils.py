@@ -57,7 +57,11 @@ def query_walkers():
 
 @lru_cache(maxsize=100)
 def serializer(metadata_prefix):
-    """Return etree_dumper instances."""
+    """Return etree_dumper instances.
+
+    :param metadata_prefix: One of the metadata identifiers configured in
+        ``OAISERVER_METADATA_FORMATS``.
+    """
     metadataFormats = current_app.config['OAISERVER_METADATA_FORMATS']
     serializer_ = metadataFormats[metadata_prefix]['serializer']
     if isinstance(serializer_, tuple):
@@ -66,7 +70,13 @@ def serializer(metadata_prefix):
 
 
 def dumps_etree(pid, record, **kwargs):
-    """Dump MARC21 compatible record."""
+    """Dump MARC21 compatible record.
+
+    :param pid: The :class:`invenio_pidstore.models.PersistentIdentifier`
+        instance.
+    :param record: The :class:`invenio_records.api.Record` instance.
+    :returns: A LXML Element instance.
+    """
     from dojson.contrib.to_marc21 import to_marc21
     from dojson.contrib.to_marc21.utils import dumps_etree
 
@@ -74,7 +84,12 @@ def dumps_etree(pid, record, **kwargs):
 
 
 def datetime_to_datestamp(dt, day_granularity=False):
-    """Transform datetime to datestamp."""
+    """Transform datetime to datestamp.
+
+    :param dt: The datetime to convert.
+    :param day_granularity: Set day granularity on datestamp.
+    :returns: The datestamp.
+    """
     # assert dt.tzinfo is None  # only accept timezone naive datetimes
     # ignore microseconds
     dt = dt.replace(microsecond=0)

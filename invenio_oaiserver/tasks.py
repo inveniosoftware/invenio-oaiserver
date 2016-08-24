@@ -40,7 +40,10 @@ except ImportError:  # pragma: no cover
 
 @shared_task(base=RequestContextTask)
 def update_records_sets(record_ids):
-    """Update records sets."""
+    """Update records sets.
+
+    :param record_ids: List of record UUID.
+    """
     for record_id in record_ids:
         record = Record.get_record(record_id)
         record.commit()
@@ -49,7 +52,11 @@ def update_records_sets(record_ids):
 
 @shared_task(base=RequestContextTask)
 def update_affected_records(spec=None, search_pattern=None):
-    """Update all affected records by OAISet change."""
+    """Update all affected records by OAISet change.
+
+    :param spec: The record spec.
+    :param search_pattern: The search pattern.
+    """
     chunk_size = current_app.config['OAISERVER_CELERY_TASK_CHUNK_SIZE']
     record_ids = get_affected_records(spec=spec, search_pattern=search_pattern)
 

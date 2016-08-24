@@ -33,7 +33,11 @@ from .resumption_token import ResumptionTokenSchema
 
 
 def validate_metadata_prefix(value):
-    """Check metadataPrefix."""
+    """Check metadataPrefix.
+
+    :param value: One of the metadata identifiers configured in
+        ``OAISERVER_METADATA_FORMATS``.
+    """
     metadataFormats = current_app.config['OAISERVER_METADATA_FORMATS']
     if value not in metadataFormats:
         raise ValidationError('metadataPrefix does not exist',

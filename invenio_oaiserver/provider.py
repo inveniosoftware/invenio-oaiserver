@@ -44,7 +44,11 @@ class OAIIDProvider(BaseProvider):
 
     @classmethod
     def create(cls, object_type=None, object_uuid=None, **kwargs):
-        """Create a new record identifier."""
+        """Create a new record identifier.
+
+        :param object_type: The object type. (Default: ``None``)
+        :param object_uuid: The object UUID. (Default: ``None``)
+        """
         assert 'pid_value' in kwargs
 
         kwargs.setdefault('status', cls.default_status)

@@ -32,7 +32,12 @@ from .provider import OAIIDProvider
 
 
 def oaiid_minter(record_uuid, data):
-    """Mint record identifiers."""
+    """Mint record identifiers.
+
+    :param record_uuid: The record UUID.
+    :param data: The record data.
+    :returns: A :class:`invenio_pidstore.models.PersistentIdentifier` instance.
+    """
     pid_value = data.get('_oai', {}).get('id')
     if pid_value is None:
         assert 'control_number' in data

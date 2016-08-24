@@ -96,7 +96,7 @@ def resumptiontoken_error(exception):
 @blueprint.route('/oai2d', methods=['GET', 'POST'])
 @use_args(make_request_validator)
 def response(args):
-    """Response."""
+    """Response endpoint."""
     e_tree = getattr(xml, args['verb'].lower())(**args)
 
     response = make_response(etree.tostring(

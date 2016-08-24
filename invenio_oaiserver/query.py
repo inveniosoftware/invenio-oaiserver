@@ -20,7 +20,6 @@
 """Query parser."""
 
 import pypeg2
-from elasticsearch.helpers import scan
 from elasticsearch_dsl import Q
 from flask import current_app
 from invenio_query_parser.walkers.match_unit import MatchUnit
@@ -35,14 +34,20 @@ class Query(object):
     """Query object."""
 
     def __init__(self, query=None):
-        """Parse query string using given grammar."""
+        """Parse query string using given grammar.
+
+        :param query: The query to parse. (Default: ``None``)
+        """
         tree = pypeg2.parse(query or '', parser(), whitespace='')
         for walker in query_walkers():
             tree = tree.accept(walker)
         self.query = tree
 
     def match(self, record):
-        """Return True if record match the query."""
+        """Return True if record match the query.
+
+        :param record: The record in which to look for matches.
+        """
         return self.query.accept(MatchUnit(record))
 
 
@@ -56,7 +61,12 @@ class OAIServerSearch(RecordsSearch):
 
 
 def get_affected_records(spec=None, search_pattern=None):
-    """Get list of affected records."""
+    """Get list of affected records.
+
+    :param spec: The record spec.
+    :param search_pattern: The search pattern.
+    :returns: An iterator to lazily find results.
+    """
     # spec       pattern    query
     # ---------- ---------- -------
     # None       None       None
@@ -85,7 +95,7 @@ def get_affected_records(spec=None, search_pattern=None):
 
 
 def get_records(**kwargs):
-    """Get records."""
+    """Get recordsi paginated."""
     page_ = kwargs.get('resumptionToken', {}).get('page', 1)
     size_ = current_app.config['OAISERVER_PAGE_SIZE']
     scroll = current_app.config['OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME']
