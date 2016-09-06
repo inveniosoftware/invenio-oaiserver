@@ -22,11 +22,8 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
--e ..[all]
-invenio-assets>=1.0.0a4
-invenio-db>=1.0.0a9
-invenio-indexer>=1.0.0a1
-invenio-pidstore>=1.0.0a6
-invenio-records>=1.0.0a9
-invenio-search>=1.0.0a3
-invenio-theme>=1.0.0a7
+invenio-db>=1.0.0b2
+invenio-indexer>=1.0.0a7
+invenio-pidstore>=1.0.0a9
+invenio-records>=1.0.0a17
+invenio-search>=1.0.0a7

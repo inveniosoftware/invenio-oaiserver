@@ -24,53 +24,30 @@
 
 r"""Minimal Flask application example for development.
 
-Install requrements for this example app by running:
-
-.. code-block:: console
-
-    $ cd examples
-    $ pip install -r requirements.txt
-    $ export FLASK_APP=app.py
-
-Create database and tables:
-
-.. code-block:: console
-
-    $ flask db init
-    $ flask db create
-
-You can find the database in `examples/app.db`.
-
-Create example records and OAI sets:
-
-.. code-block:: console
-
-    $ flask fixtures oaiserver
-
-Download javascript and css libraries:
-
-.. code-block:: console
-
-    $ flask npm
-    $ cd static
-    $ npm install
-    $ cd ..
-
-Collect static files and build bundles:
-
-.. code-block:: console
-
-    $ flask collect -v
-    $ flask assets build
-
+Run ElasticSearch and RabbitMQ servers.
 
 Run the development server:
 
 .. code-block:: console
 
-   $ FLASK_DEBUG=1 flask run
+   $ pip install -e .[all]
+   $ cd examples
+   $ ./app-setup.sh
+   $ ./app-fixtures.sh
+
+Run the server:
+
+.. code-block:: console
+
+   $ FLASK_APP=app.py flask run --debugger -p 5000
 
 Visit http://localhost:5000/admin/oaiset to see the admin interface.
+
+To be able to uninstall the example app:
+
+.. code-block:: console
+
+    $ ./app-teardown.sh
 """
 
 from __future__ import absolute_import, print_function
@@ -102,9 +79,6 @@ app.config.update(
     SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI',
                                       'sqlite:///app.db'),
 )
-if not hasattr(app, 'cli'):
-    from flask_cli import FlaskCLI
-    FlaskCLI(app)
 InvenioDB(app)
 InvenioRecords(app)
 InvenioPIDStore(app)

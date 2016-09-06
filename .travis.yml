@@ -28,6 +28,9 @@ notifications:
 
 sudo: false
 
+services:
+  - rabbitmq
+
 language: python
 
 cache:
