@@ -26,7 +26,7 @@
 
 from __future__ import absolute_import
 
-from flask import current_app
+from flask import current_app, request
 from marshmallow import Schema, ValidationError, fields, validates_schema
 
 from .resumption_token import ResumptionTokenSchema
@@ -66,9 +66,11 @@ class OAISchema(Schema):
 
         if 'from_' in data and 'until' in data and \
                 data['from_'] > data['until']:
-            raise ValidationError('Date from_ must be before until.')
+            raise ValidationError('Date "from" must be before "until".')
 
-        extra = set(data.keys()) - set(self.fields.keys())
+        extra = set(request.values.keys()) - set([
+            f.load_from or f.name for f in self.fields.values()
+        ])
         if extra:
             raise ValidationError('You have passed too many arguments.')
 
@@ -96,7 +98,7 @@ class Verbs(object):
     class ListIdentifiers(OAISchema):
         """Arguments for ListIdentifiers verb."""
 
-        from_ = fields.DateTime(load_from='from', dumpt_to='from')
+        from_ = fields.DateTime(load_from='from', dump_to='from')
         until = fields.DateTime()
         set = fields.Str()
         metadataPrefix = fields.Str(required=True,
@@ -139,7 +141,4 @@ def make_request_validator(request):
     resumption_token = request.values.get('resumptionToken', None)
 
     schema = Verbs if resumption_token is None else ResumptionVerbs
-    validator = getattr(schema, verb, OAISchema)(partial=False)
-    # Force schema validation.
-    validator.validate(request.args)
-    return validator
+    return getattr(schema, verb, OAISchema)(partial=False)

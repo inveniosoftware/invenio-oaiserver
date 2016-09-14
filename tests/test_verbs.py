@@ -453,11 +453,11 @@ def test_listidentifiers(app):
         assert len(datestamp) == 1
         assert datestamp[0].text == record['_oai']['updated']
 
-        # Check from_:until range
+        # Check from:until range
         with app.test_client() as c:
             result = c.get(
                 '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
-                '&from_={0}&until={1}&set=test0'.format(
+                '&from={0}&until={1}&set=test0'.format(
                     datetime_to_datestamp(record.updated - datetime.timedelta(
                         1)),
                     datetime_to_datestamp(record.updated + datetime.timedelta(
