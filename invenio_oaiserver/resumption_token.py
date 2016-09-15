@@ -31,10 +31,14 @@ from itsdangerous import URLSafeTimedSerializer
 from marshmallow import Schema, fields
 
 
+def _schema_from_verb(verb, partial=False):
+    """Return an instance of schema for given verb."""
+    from .verbs import Verbs
+    return getattr(Verbs, verb)(partial=partial)
+
+
 def serialize(pagination, **kwargs):
     """Return resumtion token serializer."""
-    from .verbs import Verbs
-
     if not pagination.has_next:
         return
 
@@ -42,9 +46,9 @@ def serialize(pagination, **kwargs):
         current_app.config['SECRET_KEY'],
         salt=kwargs['verb'],
     )
-    schema = getattr(Verbs, kwargs['verb'])(partial=False)
+    schema = _schema_from_verb(kwargs['verb'], partial=False)
     data = dict(seed=random.random(), page=pagination.next_num,
-                kwargs=schema.dumps(kwargs))
+                kwargs=schema.dump(kwargs).data)
     scroll_id = getattr(pagination, '_scroll_id', None)
     if scroll_id:
         data['scroll_id'] = scroll_id
@@ -61,11 +65,11 @@ class ResumptionToken(fields.Field):
             current_app.config['SECRET_KEY'],
             salt=data['verb'],
         )
-        data = token_builder.loads(value, max_age=current_app.config[
+        result = token_builder.loads(value, max_age=current_app.config[
             'OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME'])
-        data['token'] = value
-        data['kwargs'] = self.root.load(data['kwargs'], partial=True).data
-        return data
+        result['token'] = value
+        result['kwargs'] = self.root.load(result['kwargs'], partial=True).data
+        return result
 
 
 class ResumptionTokenSchema(Schema):
