@@ -25,7 +25,7 @@
 Changes
 =======
 
-Version 1.0.0a7 (released 2016-09-16)
+Version 1.0.0a8 (released 2016-09-23)
 -------------------------------------
 
 - Initial public release.
