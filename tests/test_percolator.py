@@ -34,7 +34,7 @@ from dateutil.parser import parse as iso2dt
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_pidstore.minters import recid_minter
-from invenio_records.api import Record, before_record_insert
+from invenio_records.api import Record
 from invenio_records.models import RecordMetadata
 from mock import patch
 from werkzeug.contrib.cache import SimpleCache
@@ -238,13 +238,16 @@ def test_oaiset_add_remove_record(app):
     with app.app_context():
         oaiset1 = OAISet(spec='abc')
         rec1 = Record.create({'title': 'Test1'})
+        assert not oaiset1.has_record(rec1)
         oaiset1.add_record(rec1)
         assert 'abc' in rec1['_oai']['sets']
         assert 'updated' in rec1['_oai']
+        assert oaiset1.has_record(rec1)
         dt1 = iso2dt(rec1['_oai']['updated'])
         assert dt1.year == datetime.utcnow().year  # Test if parsed OK
 
         oaiset1.remove_record(rec1)
         assert 'abc' not in rec1['_oai']['sets']
+        assert not oaiset1.has_record(rec1)
         dt2 = iso2dt(rec1['_oai']['updated'])
         assert dt2 >= dt1

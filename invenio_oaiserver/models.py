@@ -96,10 +96,11 @@ class OAISet(db.Model, Timestamp):
         """Add a record to the OAISet.
 
         :param record: Record to be added.
+        :type record: `invenio_records.api.Record` or derivative.
         """
         record.setdefault('_oai', {}).setdefault('sets', [])
 
-        assert self.spec not in record['_oai']['sets']
+        assert not self.has_record(record)
 
         record['_oai']['sets'].append(self.spec)
         record['_oai']['updated'] = datetime_to_datestamp(datetime.utcnow())
@@ -108,12 +109,21 @@ class OAISet(db.Model, Timestamp):
         """Remove a record from the OAISet.
 
         :param record: Record to be removed.
+        :type record: `invenio_records.api.Record` or derivative.
         """
-        assert self.spec in record.get('_oai', {}).get('sets', [])
+        assert self.has_record(record)
 
         record['_oai']['sets'] = [
             s for s in record['_oai']['sets'] if s != self.spec]
         record['_oai']['updated'] = datetime_to_datestamp(datetime.utcnow())
+
+    def has_record(self, record):
+        """Check if the record blongs to the OAISet.
+
+        :param record: Record to be checked.
+        :type record: `invenio_records.api.Record` or derivative.
+        """
+        return self.spec in record.get('_oai', {}).get('sets', [])
 
 
 def oaiset_removed_or_inserted(mapper, connection, target):
