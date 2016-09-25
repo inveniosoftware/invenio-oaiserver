@@ -24,7 +24,7 @@ Installation
 Documentation
 -------------
 
-   http://pythonhosted.org/invenio-oaiserver/
+   http://invenio-oaiserver.readthedocs.io/
 
 Happy hacking and thanks for flying Invenio-OAIServer.
 
