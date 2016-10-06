@@ -111,6 +111,12 @@ setup(
         'invenio_base.apps': [
             'invenio_oaiserver = invenio_oaiserver:InvenioOAIServer',
         ],
+        'invenio_base.blueprints': [
+            'invenio_oaiserver = invenio_oaiserver.views.server:blueprint',
+        ],
+        'invenio_base.api_apps': [
+            'invenio_oaiserver = invenio_oaiserver:InvenioOAIServer',
+        ],
         'invenio_db.models': [
             'invenio_oaiserver = invenio_oaiserver.models',
         ],

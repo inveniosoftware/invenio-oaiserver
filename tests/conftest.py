@@ -44,11 +44,13 @@ from invenio_marc21 import InvenioMARC21
 from invenio_pidstore import InvenioPIDStore
 from invenio_records import InvenioRecords
 from invenio_search import InvenioSearch
+from werkzeug.contrib.cache import SimpleCache
 
-from invenio_oaiserver import InvenioOAIServer
+from invenio_oaiserver import InvenioOAIServer, current_oaiserver
+from invenio_oaiserver.views.server import blueprint
 
 
-@pytest.fixture()
+@pytest.yield_fixture
 def app(request):
     """Flask application fixture."""
     instance_path = tempfile.mkdtemp()
@@ -86,6 +88,8 @@ def app(request):
     InvenioIndexer(app)
     InvenioOAIServer(app)
 
+    app.register_blueprint(blueprint)
+
     with app.app_context():
         db.create_all()
         list(search.create(ignore=[400]))
@@ -98,7 +102,8 @@ def app(request):
         shutil.rmtree(instance_path)
 
     request.addfinalizer(teardown)
-    return app
+    with app.app_context():
+        yield app
 
 
 def mock_record_validate(self):
@@ -129,3 +134,14 @@ def bibliographic_data(app):
     yield records
     with app.test_request_context():
         remove_records(app, records)
+
+
+@pytest.yield_fixture
+def with_record_signals(app):
+    """Enable the record insert/update signals for OAISets."""
+    current_oaiserver.register_signals()
+    prev_cache = current_oaiserver.cache
+    current_oaiserver.cache = SimpleCache()
+    yield
+    current_oaiserver.cache = prev_cache
+    current_oaiserver.unregister_signals()

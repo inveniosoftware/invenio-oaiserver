@@ -33,8 +33,8 @@ from six import iteritems
 from .models import OAISet
 from .proxies import current_oaiserver
 from .query import Query
-from .response import datetime_to_datestamp
 from .tasks import update_affected_records
+from .utils import datetime_to_datestamp
 
 try:
     from functools import lru_cache
@@ -112,11 +112,16 @@ class OAIServerUpdater(object):
 
         :param record: The record data.
         """
-        record.setdefault('_oai', {})
-        record['_oai'].update({
-            'sets': get_record_sets(record=record, matcher=self.matcher),
-            'updated': datetime_to_datestamp(datetime.utcnow()),
-        })
+        if '_oai' in record and 'id' in record['_oai']:
+            old_sets = sorted(record['_oai'].get('sets', []))
+            new_sets = sorted(get_record_sets(
+                record=record, matcher=self.matcher))
+            # Sort old and new sets for false-positives coming from ordering
+            if old_sets != new_sets:
+                record['_oai'].update({
+                    'sets': new_sets,
+                    'updated': datetime_to_datestamp(datetime.utcnow()),
+                })
 
 
 def after_insert_oai_set(mapper, connection, target):

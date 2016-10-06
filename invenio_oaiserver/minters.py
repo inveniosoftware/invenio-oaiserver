@@ -26,9 +26,12 @@
 
 from __future__ import absolute_import, print_function
 
+from datetime import datetime
+
 from flask import current_app
 
 from .provider import OAIIDProvider
+from .utils import datetime_to_datestamp
 
 
 def oaiid_minter(record_uuid, data):
@@ -50,4 +53,5 @@ def oaiid_minter(record_uuid, data):
     )
     data.setdefault('_oai', {})
     data['_oai']['id'] = provider.pid.pid_value
+    data['_oai']['updated'] = datetime_to_datestamp(datetime.utcnow())
     return provider.pid

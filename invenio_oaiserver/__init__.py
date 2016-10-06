@@ -70,6 +70,13 @@ you need to set following configuration options first:
 >>> from invenio_oaiserver import InvenioOAIServer
 >>> ext_oaiserver = InvenioOAIServer(app)
 
+Register the blueprint for OAIServer. If you use InvenioOAIServer as part of
+the invenio-base setup, the blueprint will be registered automatically through
+an entry point.
+
+>>> from invenio_oaiserver.views.server import blueprint
+>>> app.register_blueprint(blueprint)
+
 In order for the following examples to work, you need to work within an
 Flask application context so let's push one:
 

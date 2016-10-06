@@ -25,7 +25,6 @@
 """Percolator test cases."""
 
 import uuid
-
 from datetime import datetime
 from time import sleep
 
@@ -47,18 +46,8 @@ from invenio_oaiserver.receivers import after_delete_oai_set, \
     after_insert_oai_set, after_update_oai_set
 
 
-def test_without_percolator(app, request):
-    """Test percolator."""
-    with app.test_request_context():
-        current_oaiserver.unregister_signals()
-        current_oaiserver.register_signals()
-        current_oaiserver.cache = SimpleCache()
-
-        _try_populate_oaisets()
-
-
-def _try_populate_oaisets():
-    """Try to update collections."""
+def test_populate_oaisets(app, with_record_signals):
+    """Populate OAISets."""
     indexer = RecordIndexer()
     schema = {
         'allOf': [{
@@ -74,14 +63,16 @@ def _try_populate_oaisets():
         }]
     }
 
-    def create_record(item_dict):
+    def create_record(item_dict, mint_oaiid=True):
         """Create test record."""
-        record_id = uuid.uuid4()
-        recid_minter(record_id, item_dict)
-        oaiid_minter(record_id, item_dict)
-        record = Record.create(item_dict, id_=record_id)
-        indexer.index(record)
-        return record
+        with app.test_request_context():
+            record_id = uuid.uuid4()
+            recid_minter(record_id, item_dict)
+            if mint_oaiid:
+                oaiid_minter(record_id, item_dict)
+            record = Record.create(item_dict, id_=record_id)
+            indexer.index(record)
+            return record
 
     a = OAISet(spec='a')
     b = OAISet(spec='b')
@@ -118,7 +109,8 @@ def _try_populate_oaisets():
         {'title': 'TestNotFound', '$schema': schema}
     )
 
-    assert record_not_found['_oai']['sets'] == []
+    # Don't create empty sets list just because of commit
+    assert 'sets' not in record_not_found['_oai']
 
     record1 = create_record({'title': 'Test1', '$schema': schema})
 
@@ -144,6 +136,31 @@ def _try_populate_oaisets():
 
     assert 'j with space' in record4['_oai']['sets']
     assert len(record4['_oai']['sets']) == 1
+
+    # If record does not have '_oai', don't add any sets,
+    # nor even the default '_oai' key
+    record5 = create_record({'title': 'Test1', '$schema': schema},
+                            mint_oaiid=False)
+    assert '_oai' not in record5
+
+    # If 'sets' before and after record commit are equivalent
+    # don't bump up the '_oai.updated' timestamp...
+    record6 = create_record({'title': 'Test1', '$schema': schema})
+    assert record6['_oai']['sets'] == ['d']
+    prev_updated_r6 = record6['_oai']['updated']
+    record6.commit()
+    assert record6['_oai']['sets'] == ['d']
+    assert record6['_oai']['updated'] == prev_updated_r6  # date stays the same
+
+    # ...but do bump up '_oai.updated' if the sets are different
+    record7 = create_record({'title': 'Test1', '$schema': schema})
+    assert record7['_oai']['sets'] == ['d']
+    prev_updated_r7 = record7['_oai']['updated']
+    sleep(1)  # 'updated' timestamp is accurate to a second, hence the wait
+    record7['_oai']['sets'] = ['d', 'f']  # 'f' should be removed after commit
+    record7.commit()
+    assert record7['_oai']['sets'] == ['d']
+    assert record7['_oai']['updated'] != prev_updated_r7  # date bumped
 
     # wait ElasticSearch end to index records
     sleep(10)

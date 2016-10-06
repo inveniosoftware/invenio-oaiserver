@@ -118,12 +118,7 @@ class InvenioOAIServer(object):
         :param app: An instance of :class:`flask.Flask`.
         """
         self.init_config(app)
-
         state = _AppState(app=app, cache=kwargs.get('cache'))
-
-        from .views import server
-        app.register_blueprint(server.blueprint)
-
         app.extensions['invenio-oaiserver'] = state
 
     def init_config(self, app):
