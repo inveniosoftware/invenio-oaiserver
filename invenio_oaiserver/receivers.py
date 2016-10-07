@@ -113,11 +113,10 @@ class OAIServerUpdater(object):
         :param record: The record data.
         """
         if '_oai' in record and 'id' in record['_oai']:
-            old_sets = sorted(record['_oai'].get('sets', []))
-            new_sets = sorted(get_record_sets(
-                record=record, matcher=self.matcher))
-            # Sort old and new sets for false-positives coming from ordering
-            if old_sets != new_sets:
+            new_sets = get_record_sets(
+                record=record, matcher=self.matcher)
+            # Update only if old and new sets differ
+            if set(record['_oai'].get('sets', [])) != set(new_sets):
                 record['_oai'].update({
                     'sets': new_sets,
                     'updated': datetime_to_datestamp(datetime.utcnow()),

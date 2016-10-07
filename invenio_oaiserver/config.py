@@ -133,3 +133,6 @@ OAISERVER_CACHE_KEY = 'DynamicOAISets::'
 
 OAISERVER_CELERY_TASK_CHUNK_SIZE = 100
 """Specify the maximum number of records each task will update."""
+
+OAISERVER_CONTROL_NUMBER_FETCHER = 'recid'
+"""PIDStore fetcher for the OAI ID control number."""
