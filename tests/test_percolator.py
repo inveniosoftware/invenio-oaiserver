@@ -36,7 +36,6 @@ from invenio_pidstore.minters import recid_minter
 from invenio_records.api import Record
 from invenio_records.models import RecordMetadata
 from mock import patch
-from werkzeug.contrib.cache import SimpleCache
 
 from invenio_oaiserver import current_oaiserver
 from invenio_oaiserver.errors import OAISetSpecUpdateError
@@ -54,6 +53,7 @@ def test_populate_oaisets(app, with_record_signals):
             'type': 'object',
             'properties': {
                 'title': {'type': 'string'},
+                'genre': {'type': 'string'},
                 'field': {'type': 'boolean'},
             },
             'required': ['title'],
@@ -85,9 +85,14 @@ def test_populate_oaisets(app, with_record_signals):
     h = OAISet(spec="h")
     i = OAISet(spec="i", search_pattern="title:Test3")
     j = OAISet(spec="j with space", search_pattern="title:Test4")
+    # Note below: brackets around AND search query are required
+    l = OAISet(spec="math",
+               search_pattern="(title:foo AND genre:math)")
+    m = OAISet(spec="nonmath",
+               search_pattern="(title:foo AND -genre:math)")
 
     with db.session.begin_nested():
-        for oaiset in [a, b, c, d, e, f, g, h, i, j]:
+        for oaiset in [a, b, c, d, e, f, g, h, i, j, l, m]:
             db.session.add(oaiset)
 
     db.session.commit()
@@ -161,6 +166,19 @@ def test_populate_oaisets(app, with_record_signals):
     record7.commit()
     assert record7['_oai']['sets'] == ['d']
     assert record7['_oai']['updated'] != prev_updated_r7  # date bumped
+
+    # Test 'AND' keyword for records
+    record8 = create_record(
+        {'title': 'foo', 'genre': 'math', '$schema': schema})
+    assert record8['_oai']['sets'] == ['math', ]
+
+    record9 = create_record(
+        {'title': 'foo', 'genre': 'physics', '$schema': schema})
+    assert record9['_oai']['sets'] == ['nonmath', ]
+
+    record10 = create_record(
+        {'title': 'bar', 'genre': 'math', '$schema': schema})
+    assert 'sets' not in record10['_oai']  # title is not 'foo'
 
     # wait ElasticSearch end to index records
     sleep(10)

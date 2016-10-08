@@ -94,8 +94,8 @@ def get_record_sets(record, matcher):
 
     output = set()
 
-    for sets in matcher(sets, record):
-        output |= sets
+    for matched_sets in matcher(sets, record):
+        output |= matched_sets
 
     return list(output)
 
