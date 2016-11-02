@@ -1,8 +1,8 @@
 ============================
- Invenio-OAIServer v1.0.0a8
+ Invenio-OAIServer v1.0.0a9
 ============================
 
-Invenio-OAIServer v1.0.0a8 was released on September 23, 2016.
+Invenio-OAIServer v1.0.0a9 was released on November 16, 2016.
 
 About
 -----
