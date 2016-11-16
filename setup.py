@@ -32,8 +32,10 @@ readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
 
 tests_require = [
+    'SQLAlchemy-Continuum>=1.2.1',
     'check-manifest>=0.25',
     'coverage>=4.0',
+    'invenio-indexer>=1.0.0a8',
     'invenio-jsonschemas>=1.0.0a3',
     'invenio-marc21>=1.0.0a2',
     'isort>=4.2.2',
@@ -52,15 +54,27 @@ extras_require = {
     'admin': [
         'Flask-Admin>=1.3.0',
     ],
+    'celery': [
+        'Flask-CeleryExt>=0.2.2',
+    ],
     'docs': [
         'Sphinx>=1.4.2',
+    ],
+    'mysql': [
+        'invenio-db[mysql]>=1.0.0b3',
+    ],
+    'postgresql': [
+        'invenio-db[postgresql]>=1.0.0b3',
+    ],
+    'sqlite': [
+        'invenio-db>=1.0.0b3',
     ],
     'tests': tests_require,
 }
 
 extras_require['all'] = []
 for name, reqs in extras_require.items():
-    if name[0] == ':':
+    if name[0] == ':' or name in ('mysql', 'postgresql', 'sqlite'):
         continue
     extras_require['all'].extend(reqs)
 
@@ -73,13 +87,12 @@ install_requires = [
     'Flask>=0.11.1',
     'Flask-BabelEx>=0.9.2',
     'dojson>=1.2.0',
-    'elasticsearch-dsl>=2.0.0',
-    'invenio-db>=1.0.0b1',
-    'invenio-indexer>=1.0.0a6',
-    'invenio-pidstore>=1.0.0a9',
+    'elasticsearch>=2.0.0,<3.0.0',
+    'elasticsearch-dsl>=2.0.0,<3.0.0',
+    'invenio-pidstore>=1.0.0b1',
     'invenio-query-parser>=0.6.0',
-    'invenio-records>=1.0.0a17',
-    'invenio-search>=1.0.0a7',
+    'invenio-records>=1.0.0b1',
+    'invenio-search>=1.0.0a9',
     'lxml>=3.5.0',
     'marshmallow>=2.5.0',
     'webargs>=1.1.0',
@@ -117,6 +130,9 @@ setup(
         'invenio_base.api_apps': [
             'invenio_oaiserver = invenio_oaiserver:InvenioOAIServer',
         ],
+        'invenio_db.alembic': [
+            'invenio_oaiserver = invenio_oaiserver:alembic',
+        ],
         'invenio_db.models': [
             'invenio_oaiserver = invenio_oaiserver.models',
         ],
@@ -151,6 +167,6 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
-        'Development Status :: 1 - Planning',
+        'Development Status :: 3 - Alpha',
     ],
 )

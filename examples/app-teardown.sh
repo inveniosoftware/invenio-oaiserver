@@ -6,7 +6,7 @@ cd $DIR
 export FLASK_APP=app.py
 
 # Delete the database
-flask db destroy --yes-i-know
+flask db drop --yes-i-know
 
 # Delete indices
 flask index destroy --yes-i-know --force

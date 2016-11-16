@@ -44,6 +44,8 @@ from invenio_marc21 import InvenioMARC21
 from invenio_pidstore import InvenioPIDStore
 from invenio_records import InvenioRecords
 from invenio_search import InvenioSearch
+from sqlalchemy_utils.functions import create_database, database_exists, \
+    drop_database
 from werkzeug.contrib.cache import SimpleCache
 
 from invenio_oaiserver import InvenioOAIServer, current_oaiserver
@@ -51,7 +53,7 @@ from invenio_oaiserver.views.server import blueprint
 
 
 @pytest.yield_fixture
-def app(request):
+def app():
     """Flask application fixture."""
     instance_path = tempfile.mkdtemp()
     app = Flask('testapp', instance_path=instance_path)
@@ -91,19 +93,22 @@ def app(request):
     app.register_blueprint(blueprint)
 
     with app.app_context():
+        if str(db.engine.url) != 'sqlite://' and \
+           not database_exists(str(db.engine.url)):
+                create_database(str(db.engine.url))
         db.create_all()
         list(search.create(ignore=[400]))
         sleep(5)
 
-    def teardown():
-        with app.app_context():
-            list(search.delete(ignore=[404]))
-            db.drop_all()
-        shutil.rmtree(instance_path)
-
-    request.addfinalizer(teardown)
     with app.app_context():
         yield app
+
+    with app.app_context():
+        db.session.close()
+        if str(db.engine.url) != 'sqlite://':
+            drop_database(str(db.engine.url))
+        list(search.delete(ignore=[404]))
+    shutil.rmtree(instance_path)
 
 
 def mock_record_validate(self):

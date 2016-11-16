@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015, 2016 CERN.
+# Copyright (C) 2016 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -22,28 +21,23 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-include *.rst
-include *.sh
-include *.txt
-include .dockerignore
-include .editorconfig
-include .lgtm MAINTAINERS
-include .tx/config
-include LICENSE
-include babel.ini
-include docs/requirements.txt
-include pytest.ini
-recursive-include docs *.bat
-recursive-include docs *.py
-recursive-include docs *.rst
-recursive-include docs Makefile
-recursive-include examples *.py *.txt *.sh
-recursive-include invenio_oaiserver *.html
-recursive-include invenio_oaiserver *.json
-recursive-include invenio_oaiserver *.po *.pot *.mo
-recursive-include invenio_oaiserver *.py
-recursive-include invenio_oaiserver *.xml
-recursive-include invenio_oaiserver *.xsl
-recursive-include tests *.json
-recursive-include tests *.py
-recursive-include tests *.xml
+"""Create oaiserver branch."""
+
+import sqlalchemy as sa
+from alembic import op
+
+# revision identifiers, used by Alembic.
+revision = '759d47cbdba7'
+down_revision = None
+branch_labels = (u'invenio_oaiserver',)
+depends_on = 'dbdbc1b19cf2'
+
+
+def upgrade():
+    """Upgrade database."""
+    pass
+
+
+def downgrade():
+    """Downgrade database."""
+    pass

@@ -26,7 +26,9 @@
 
 from __future__ import absolute_import, print_function
 
+import pytest
 from flask import Flask
+from invenio_db import db
 
 from invenio_oaiserver import InvenioOAIServer, current_oaiserver
 
@@ -57,3 +59,22 @@ def test_view(app):
     with app.test_client() as client:
         res = client.get("/oai2d?verb=Identify")
         assert res.status_code == 200
+
+
+def test_alembic(app):
+    """Test alembic recipes."""
+    ext = app.extensions['invenio-db']
+
+    if db.engine.name == 'sqlite':
+        raise pytest.skip('Upgrades are not supported on SQLite.')
+
+    assert not ext.alembic.compare_metadata()
+    db.drop_all()
+    ext.alembic.upgrade()
+
+    assert not ext.alembic.compare_metadata()
+    ext.alembic.stamp()
+    ext.alembic.downgrade(target='96e796392533')
+    ext.alembic.upgrade()
+
+    assert not ext.alembic.compare_metadata()
