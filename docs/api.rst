@@ -28,10 +28,6 @@ API Docs
 .. automodule:: invenio_oaiserver.ext
    :members:
 
-..
-   automodule:: invenio_oaiserver.proxies
-   :members:
-
 Models
 ------
 

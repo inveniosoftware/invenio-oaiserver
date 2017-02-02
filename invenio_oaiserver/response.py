@@ -270,7 +270,7 @@ def getrecord(**kwargs):
 
     header(
         e_record,
-        identifier=str(pid.object_uuid),
+        identifier=pid.pid_value,
         datestamp=record.updated,
         sets=record.get('_oai', {}).get('sets', []),
     )

@@ -48,7 +48,7 @@ from sqlalchemy_utils.functions import create_database, database_exists, \
     drop_database
 from werkzeug.contrib.cache import SimpleCache
 
-from invenio_oaiserver import InvenioOAIServer, current_oaiserver
+from invenio_oaiserver import InvenioOAIServer
 from invenio_oaiserver.views.server import blueprint
 
 
@@ -144,6 +144,7 @@ def bibliographic_data(app):
 @pytest.yield_fixture
 def with_record_signals(app):
     """Enable the record insert/update signals for OAISets."""
+    from invenio_oaiserver import current_oaiserver
     current_oaiserver.register_signals()
     prev_cache = current_oaiserver.cache
     current_oaiserver.cache = SimpleCache()

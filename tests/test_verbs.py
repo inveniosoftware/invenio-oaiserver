@@ -155,7 +155,7 @@ def test_getrecord(app):
             identifier = tree.xpath(
                 '/x:OAI-PMH/x:GetRecord/x:record/x:header/x:identifier/text()',
                 namespaces=NAMESPACES)
-            assert identifier == [str(record.id)]
+            assert identifier == [pid_value]
             datestamp = tree.xpath(
                 '/x:OAI-PMH/x:GetRecord/x:record/x:header/x:datestamp/text()',
                 namespaces=NAMESPACES)
