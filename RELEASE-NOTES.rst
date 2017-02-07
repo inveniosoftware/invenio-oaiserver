@@ -1,8 +1,8 @@
 =============================
- Invenio-OAIServer v1.0.0a10
+ Invenio-OAIServer v1.0.0a11
 ============================+
 
-Invenio-OAIServer v1.0.0a10 was released on February 3, 2017.
+Invenio-OAIServer v1.0.0a11 was released on February 7, 2017.
 
 About
 -----
@@ -19,7 +19,7 @@ What's new
 Installation
 ------------
 
-   $ pip install invenio-oaiserver==1.0.0a10
+   $ pip install invenio-oaiserver==1.0.0a11
 
 Documentation
 -------------
