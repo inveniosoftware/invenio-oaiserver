@@ -86,7 +86,6 @@ install_requires = [
     'dojson>=1.2.0',
     'elasticsearch>=2.0.0,<3.0.0',
     'elasticsearch-dsl>=2.0.0,<3.0.0',
-    'functools32>=3.2.3-2; python_version=="2.7"',
     'invenio-pidstore>=1.0.0b1',
     'invenio-query-parser>=0.6.0',
     'invenio-records>=1.0.0b1',
