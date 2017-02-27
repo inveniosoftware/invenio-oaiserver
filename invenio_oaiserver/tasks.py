@@ -61,6 +61,6 @@ def update_affected_records(spec=None, search_pattern=None):
     record_ids = get_affected_records(spec=spec, search_pattern=search_pattern)
 
     group(
-        update_records_sets.s(filter(None, chunk))
+        update_records_sets.s(list(filter(None, chunk)))
         for chunk in zip_longest(*[iter(record_ids)] * chunk_size)
     )()
