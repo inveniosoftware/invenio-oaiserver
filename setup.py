@@ -35,9 +35,9 @@ tests_require = [
     'SQLAlchemy-Continuum>=1.2.1',
     'check-manifest>=0.25',
     'coverage>=4.0',
-    'invenio-indexer>=1.0.0a8',
+    'invenio-indexer>=1.0.0a9',
     'invenio-jsonschemas>=1.0.0a3',
-    'invenio-marc21>=1.0.0a2',
+    'invenio-marc21>=1.0.0a5',
     'isort>=4.2.2',
     'mock>=1.3.0',
     'pydocstyle>=1.0.0',
@@ -52,19 +52,22 @@ extras_require = {
         'Flask-Admin>=1.3.0',
     ],
     'celery': [
-        'Flask-CeleryExt>=0.2.2',
+        'Flask-CeleryExt>=0.3.0',
     ],
     'docs': [
         'Sphinx>=1.5.2',
     ],
     'mysql': [
-        'invenio-db[mysql]>=1.0.0b3',
+        'invenio-db[mysql]>=1.0.0b5',
     ],
     'postgresql': [
-        'invenio-db[postgresql]>=1.0.0b3',
+        'invenio-db[postgresql]>=1.0.0b5',
+    ],
+    'invenio-query-parser': [
+        'invenio-query-parser>=0.6.0',
     ],
     'sqlite': [
-        'invenio-db>=1.0.0b3',
+        'invenio-db>=1.0.0b5',
     ],
     'tests': tests_require,
 }
@@ -87,12 +90,11 @@ install_requires = [
     'elasticsearch>=2.0.0,<3.0.0',
     'elasticsearch-dsl>=2.0.0,<3.0.0',
     'invenio-pidstore>=1.0.0b1',
-    'invenio-query-parser>=0.6.0',
     'invenio-records>=1.0.0b1',
     'invenio-search>=1.0.0a9',
     'lxml>=3.5.0',
-    'marshmallow>=2.5.0',
-    'webargs>=1.1.0',
+    'marshmallow>=2.7.0',
+    'webargs>=1.3.2',
 ]
 
 packages = find_packages()

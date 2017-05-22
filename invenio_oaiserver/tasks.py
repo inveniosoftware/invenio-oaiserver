@@ -38,15 +38,20 @@ except ImportError:  # pragma: no cover
     from itertools import izip_longest as zip_longest
 
 
+def _records_commit(record_ids):
+    """Commit all records."""
+    for record_id in record_ids:
+        record = Record.get_record(record_id)
+        record.commit()
+
+
 @shared_task(base=RequestContextTask)
 def update_records_sets(record_ids):
     """Update records sets.
 
     :param record_ids: List of record UUID.
     """
-    for record_id in record_ids:
-        record = Record.get_record(record_id)
-        record.commit()
+    _records_commit(record_ids)
     db.session.commit()
 
 

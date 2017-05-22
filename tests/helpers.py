@@ -43,6 +43,8 @@ from invenio_records.models import RecordMetadata
 from invenio_search import current_search_client
 
 from invenio_oaiserver.minters import oaiid_minter
+from invenio_oaiserver.models import OAISet
+from invenio_oaiserver.receivers import after_insert_oai_set
 
 
 def load_records(app, filename, schema, tries=5):
@@ -90,3 +92,23 @@ def remove_records(app, record_ids):
                 db.session.delete(pid)
             db.session.delete(record)
         db.session.commit()
+
+
+def run_after_insert_oai_set():
+    """Run task run_after_insert_oai_set."""
+    for oaiset_id in [oaiset_.spec for oaiset_ in OAISet.query.all()]:
+        oaiset = OAISet.query.filter_by(spec=oaiset_id).one()
+        after_insert_oai_set(None, None, oaiset)
+
+
+def create_record(app, item_dict, mint_oaiid=True):
+    """Create test record."""
+    indexer = RecordIndexer()
+    with app.test_request_context():
+        record_id = uuid.uuid4()
+        recid_minter(record_id, item_dict)
+        if mint_oaiid:
+            oaiid_minter(record_id, item_dict)
+        record = Record.create(item_dict, id_=record_id)
+        indexer.index(record)
+        return record

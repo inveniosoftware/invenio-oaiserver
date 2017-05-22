@@ -46,7 +46,6 @@ from invenio_records import InvenioRecords
 from invenio_search import InvenioSearch
 from sqlalchemy_utils.functions import create_database, database_exists, \
     drop_database
-from werkzeug.contrib.cache import SimpleCache
 
 from invenio_oaiserver import InvenioOAIServer
 from invenio_oaiserver.views.server import blueprint
@@ -70,9 +69,7 @@ def app():
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
         SERVER_NAME='app',
         OAISERVER_RECORD_INDEX='_all',
-        # Disable set signals because the celery tasks cannot be run
-        # synchronously
-        OAISERVER_REGISTER_SET_SIGNALS=False,
+        OAISERVER_REGISTER_SET_SIGNALS=True,
         SEARCH_ELASTIC_KEYWORD_MAPPING={None: ['_all']},
     )
     if not hasattr(app, 'cli'):
@@ -142,12 +139,31 @@ def bibliographic_data(app):
 
 
 @pytest.yield_fixture
-def with_record_signals(app):
-    """Enable the record insert/update signals for OAISets."""
+def without_oaiset_signals(app):
+    """Temporary disable oaiset signals."""
     from invenio_oaiserver import current_oaiserver
-    current_oaiserver.register_signals()
-    prev_cache = current_oaiserver.cache
-    current_oaiserver.cache = SimpleCache()
+    current_oaiserver.unregister_signals_oaiset()
     yield
-    current_oaiserver.cache = prev_cache
-    current_oaiserver.unregister_signals()
+    current_oaiserver.register_signals_oaiset()
+
+
+@pytest.fixture
+def schema():
+    """Get record schema."""
+    return {
+        'allOf': [{
+            'type': 'object',
+            'properties': {
+                'title_statement': {
+                    'type': 'object',
+                    'properties': {
+                        'title': {'type': 'string'}
+                    }
+                },
+                'genre': {'type': 'string'},
+            },
+        }, {
+            '$ref': 'http://inveniosoftware.org/schemas/'
+                    'oaiserver/internal-v1.0.0.json',
+        }]
+    }

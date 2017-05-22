@@ -63,7 +63,7 @@ class _AppState(object):
         """Register signals."""
         from .receivers import OAIServerUpdater
         # Register Record signals to update OAI informations
-        self.update_function = OAIServerUpdater(app=self.app)
+        self.update_function = OAIServerUpdater()
         records_signals.before_record_insert.connect(self.update_function,
                                                      weak=False)
         records_signals.before_record_update.connect(self.update_function,

@@ -19,36 +19,23 @@
 
 """Query parser."""
 
-import pypeg2
+import six
 from elasticsearch_dsl import Q
 from flask import current_app
-from invenio_query_parser.walkers.match_unit import MatchUnit
 from invenio_search import RecordsSearch, current_search_client
-from invenio_search.walkers.elasticsearch import ElasticSearchDSL
-from werkzeug.utils import cached_property
+from werkzeug.utils import cached_property, import_string
 
-from .utils import parser, query_walkers
+from . import current_oaiserver
 
 
-class Query(object):
-    """Query object."""
-
-    def __init__(self, query=None):
-        """Parse query string using given grammar.
-
-        :param query: The query to parse. (Default: ``None``)
-        """
-        tree = pypeg2.parse(query or '', parser(), whitespace='')
-        for walker in query_walkers():
-            tree = tree.accept(walker)
-        self.query = tree
-
-    def match(self, record):
-        """Return True if record match the query.
-
-        :param record: The record in which to look for matches.
-        """
-        return self.query.accept(MatchUnit(record))
+def query_string_parser(search_pattern):
+    """Elasticsearch query string parser."""
+    if not hasattr(current_oaiserver, 'query_parser'):
+        query_parser = current_app.config['OAISERVER_QUERY_PARSER']
+        if isinstance(query_parser, six.string_types):
+            query_parser = import_string(query_parser)
+        current_oaiserver.query_parser = query_parser
+    return current_oaiserver.query_parser('query_string', query=search_pattern)
 
 
 class OAIServerSearch(RecordsSearch):
@@ -84,7 +71,7 @@ def get_affected_records(spec=None, search_pattern=None):
         queries.append(Q('match', **{'_oai.sets': spec}))
 
     if search_pattern:
-        queries.append(Query(search_pattern).query.accept(ElasticSearchDSL()))
+        queries.append(query_string_parser(search_pattern=search_pattern))
 
     search = OAIServerSearch(
         index=current_app.config['OAISERVER_RECORD_INDEX'],
