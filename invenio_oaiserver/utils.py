@@ -28,7 +28,6 @@ from __future__ import absolute_import, print_function
 
 from functools import partial
 
-import six
 from flask import current_app
 from werkzeug.utils import import_string
 
@@ -36,23 +35,6 @@ try:
     from functools import lru_cache
 except ImportError:  # pragma: no cover
     from functools32 import lru_cache
-
-
-def parser():
-    """Return search query parser."""
-    query_parser = current_app.config['OAISERVER_QUERY_PARSER']
-    if isinstance(query_parser, six.string_types):
-        query_parser = import_string(query_parser)
-        return query_parser
-
-
-def query_walkers():
-    """Return query walker instances."""
-    return [
-        import_string(walker)() if isinstance(walker, six.string_types)
-        else walker() for walker in current_app.config[
-            'OAISERVER_QUERY_WALKERS']
-    ]
 
 
 @lru_cache(maxsize=100)

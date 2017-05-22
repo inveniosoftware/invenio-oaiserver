@@ -31,12 +31,14 @@ import uuid
 from copy import deepcopy
 from time import sleep
 
+from helpers import run_after_insert_oai_set
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_pidstore.minters import recid_minter
 from invenio_records.api import Record
 from lxml import etree
 
+from invenio_oaiserver import current_oaiserver
 from invenio_oaiserver.minters import oaiid_minter
 from invenio_oaiserver.models import OAISet
 from invenio_oaiserver.response import NS_DC, NS_OAIDC, NS_OAIPMH, \
@@ -274,6 +276,7 @@ def _listmetadataformats(app, query):
 def test_listsets(app):
     """Test ListSets."""
     with app.test_request_context():
+        current_oaiserver.unregister_signals_oaiset()
         with db.session.begin_nested():
             a = OAISet(spec='test', name='Test', description='test desc')
             db.session.add(a)
@@ -442,18 +445,24 @@ def test_listidentifiers(app):
     from invenio_oaiserver.models import OAISet
 
     with app.app_context():
+        current_oaiserver.unregister_signals_oaiset()
+        # create new OAI Set
         with db.session.begin_nested():
-            db.session.add(OAISet(
+            oaiset = OAISet(
                 spec='test0',
                 name='Test0',
                 description='test desc 0',
                 search_pattern='title_statement.title:Test0',
-            ))
+            )
+            db.session.add(oaiset)
         db.session.commit()
+
+    run_after_insert_oai_set()
 
     with app.test_request_context():
         indexer = RecordIndexer()
 
+        # create a new record (inside the OAI Set)
         with db.session.begin_nested():
             record_id = uuid.uuid4()
             data = {'title_statement': {'title': 'Test0'}}
@@ -468,6 +477,7 @@ def test_listidentifiers(app):
 
         pid_value = pid.pid_value
 
+        # get the lis of identifiers
         with app.test_client() as c:
             result = c.get(
                 '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
@@ -519,15 +529,19 @@ def test_list_sets_long(app):
     from invenio_oaiserver.models import OAISet
 
     with app.app_context():
+        current_oaiserver.unregister_signals_oaiset()
         with db.session.begin_nested():
             for i in range(27):
-                db.session.add(OAISet(
+                oaiset = OAISet(
                     spec='test{0}'.format(i),
                     name='Test{0}'.format(i),
                     description='test desc {0}'.format(i),
                     search_pattern='title_statement.title:Test{0}'.format(i),
-                ))
+                )
+                db.session.add(oaiset)
         db.session.commit()
+
+    run_after_insert_oai_set()
 
     with app.test_client() as c:
         # First page:

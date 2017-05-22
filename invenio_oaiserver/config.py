@@ -120,13 +120,8 @@ OAISERVER_REGISTER_SET_SIGNALS = True
 """Catch set insert/update/delete signals and update the `_oai` record
 field."""
 
-OAISERVER_QUERY_PARSER = 'invenio_query_parser.parser:Main'
+OAISERVER_QUERY_PARSER = 'elasticsearch_dsl:Q'
 """Define query parser for OIASet definition."""
-
-OAISERVER_QUERY_WALKERS = [
-    'invenio_query_parser.walkers.pypeg_to_ast:PypegConverter',
-]
-"""List of query AST walkers."""
 
 OAISERVER_CACHE_KEY = 'DynamicOAISets::'
 """Key prefix added before all keys in cache server."""
