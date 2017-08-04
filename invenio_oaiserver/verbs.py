@@ -27,7 +27,9 @@
 from __future__ import absolute_import
 
 from flask import current_app, request
-from marshmallow import Schema, ValidationError, fields, validates_schema
+from marshmallow import Schema, ValidationError, fields, utils, \
+    validates_schema
+from marshmallow.fields import DateTime as _DateTime
 
 from .resumption_token import ResumptionTokenSchema
 
@@ -42,6 +44,37 @@ def validate_metadata_prefix(value):
     if value not in metadataFormats:
         raise ValidationError('metadataPrefix does not exist',
                               field_names=['metadataPrefix'])
+
+
+class DateTime(_DateTime):
+    """DateTime with a permissive deserializer."""
+
+    def from_iso_permissive(datestring, use_dateutil=True):
+        """Parse an ISO8601-formatted datetime and return a datetime object.
+
+        Inspired by the marshmallow.utils.from_iso function, but also accepts
+        datestrings that don't contain the time.
+        """
+        dateutil_available = False
+        try:
+            from dateutil import parser
+            dateutil_available = True
+        except ImportError:
+            dateutil_available = False
+            import datetime
+
+        # Use dateutil's parser if possible
+        if dateutil_available and use_dateutil:
+            return parser.parse(datestring)
+        else:
+            # Strip off timezone info.
+            return datetime.datetime.strptime(datestring[:19],
+                                              '%Y-%m-%dT%H:%M:%S')
+
+    DATEFORMAT_DESERIALIZATION_FUNCS = dict(
+        _DateTime.DATEFORMAT_DESERIALIZATION_FUNCS,
+        permissive=from_iso_permissive
+    )
 
 
 class OAISchema(Schema):
@@ -98,8 +131,8 @@ class Verbs(object):
     class ListIdentifiers(OAISchema):
         """Arguments for ListIdentifiers verb."""
 
-        from_ = fields.DateTime(load_from='from', dump_to='from')
-        until = fields.DateTime()
+        from_ = DateTime(format='permissive', load_from='from', dump_to='from')
+        until = DateTime(format='permissive')
         set = fields.Str()
         metadataPrefix = fields.Str(required=True,
                                     validate=validate_metadata_prefix)
