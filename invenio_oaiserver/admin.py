@@ -41,11 +41,12 @@ class OAISetModelView(ModelView):
     can_edit = True
     can_delete = False
     can_view_details = True
-    column_list = ('id', 'spec', 'updated', 'created',)
+    column_list = ('id', 'spec', 'name', 'updated', 'created',)
     column_details_list = ('id', 'spec', 'name', 'description',
                            'search_pattern', 'updated', 'created')
     column_filters = ('name', 'created', 'updated')
     column_default_sort = ('updated', True)
+    column_searchable_list = ['spec', 'name', 'description']
     page_size = 25
 
     def edit_form(self, obj):
