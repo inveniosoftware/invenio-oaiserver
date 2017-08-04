@@ -41,8 +41,8 @@ from lxml import etree
 from invenio_oaiserver import current_oaiserver
 from invenio_oaiserver.minters import oaiid_minter
 from invenio_oaiserver.models import OAISet
-from invenio_oaiserver.response import NS_DC, NS_OAIDC, NS_OAIPMH, \
-    datetime_to_datestamp
+from invenio_oaiserver.response import NS_DC, NS_OAIDC, NS_OAIPMH
+from invenio_oaiserver.utils import datetime_to_datestamp
 
 NAMESPACES = {'x': NS_OAIPMH, 'y': NS_OAIDC, 'z': NS_DC}
 
@@ -477,7 +477,7 @@ def test_listidentifiers(app):
 
         pid_value = pid.pid_value
 
-        # get the lis of identifiers
+        # get the list of identifiers
         with app.test_client() as c:
             result = c.get(
                 '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
@@ -512,6 +512,27 @@ def test_listidentifiers(app):
                         1)),
                     datetime_to_datestamp(record.updated + datetime.timedelta(
                         1)),
+                )
+            )
+
+        tree = etree.fromstring(result.data)
+        identifier = tree.xpath(
+            '/x:OAI-PMH/x:ListIdentifiers/x:header/x:identifier',
+            namespaces=NAMESPACES
+        )
+        assert len(identifier) == 1
+
+        # Check that a date without the time will also work
+        with app.test_client() as c:
+            result = c.get(
+                '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
+                '&from={0}&until={1}&set=test0'.format(
+                    datetime_to_datestamp(
+                        record.updated - datetime.timedelta(1),
+                        day_granularity=True),
+                    datetime_to_datestamp(
+                        record.updated + datetime.timedelta(1),
+                        day_granularity=True),
                 )
             )
 
