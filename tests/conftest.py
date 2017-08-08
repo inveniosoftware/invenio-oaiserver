@@ -164,6 +164,6 @@ def schema():
             },
         }, {
             '$ref': 'http://inveniosoftware.org/schemas/'
-                    'oaiserver/internal-v1.0.0.json',
+                    'oaiserver/internal-v1.1.0.json',
         }]
     }
