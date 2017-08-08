@@ -103,7 +103,6 @@ class OAISet(db.Model, Timestamp):
         assert not self.has_record(record)
 
         record['_oai']['sets'].append(self.spec)
-        record['_oai']['updated'] = datetime_to_datestamp(datetime.utcnow())
 
     def remove_record(self, record):
         """Remove a record from the OAISet.
@@ -115,7 +114,6 @@ class OAISet(db.Model, Timestamp):
 
         record['_oai']['sets'] = [
             s for s in record['_oai']['sets'] if s != self.spec]
-        record['_oai']['updated'] = datetime_to_datestamp(datetime.utcnow())
 
     def has_record(self, record):
         """Check if the record blongs to the OAISet.

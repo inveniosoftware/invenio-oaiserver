@@ -82,7 +82,7 @@ def get_affected_records(spec=None, search_pattern=None):
 
 
 def get_records(**kwargs):
-    """Get recordsi paginated."""
+    """Get records paginated."""
     page_ = kwargs.get('resumptionToken', {}).get('page', 1)
     size_ = current_app.config['OAISERVER_PAGE_SIZE']
     scroll = current_app.config['OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME']
@@ -106,7 +106,7 @@ def get_records(**kwargs):
         if 'until' in kwargs:
             time_range['lte'] = kwargs['until']
         if time_range:
-            search = search.filter('range', **{'_oai.updated': time_range})
+            search = search.filter('range', **{'_updated': time_range})
 
         response = search.execute().to_dict()
     else:
@@ -154,8 +154,8 @@ def get_records(**kwargs):
                         'id': result['_id'],
                         'json': result,
                         'updated': datetime.strptime(
-                            result['_source']['_oai']['updated'],
-                            '%Y-%m-%dT%H:%M:%SZ'
+                            result['_source']['_updated'][:19],
+                            '%Y-%m-%dT%H:%M:%S'
                         ),
                     }
 

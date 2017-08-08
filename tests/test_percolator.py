@@ -155,45 +155,24 @@ def test_populate_oaisets(app, without_oaiset_signals, schema):
                             mint_oaiid=False)
     assert '_oai' not in record5
 
-    # If 'sets' before and after record commit are equivalent
-    # don't bump up the '_oai.updated' timestamp...
-    record6 = create_record(app, {'title_statement': {'title': 'Test1'},
-                            '$schema': schema})
-    assert record6['_oai']['sets'] == ['d']
-    prev_updated_r6 = record6['_oai']['updated']
-    record6.commit()
-    assert record6['_oai']['sets'] == ['d']
-    assert record6['_oai']['updated'] == prev_updated_r6  # date stays the same
-
-    # ...but do bump up '_oai.updated' if the sets are different
-    record7 = create_record(app, {'title_statement': {'title': 'Test1'},
-                            '$schema': schema})
-    assert record7['_oai']['sets'] == ['d']
-    prev_updated_r7 = record7['_oai']['updated']
-    sleep(1)  # 'updated' timestamp is accurate to a second, hence the wait
-    record7['_oai']['sets'] = ['d', 'f']  # 'f' should be removed after commit
-    record7.commit()
-    assert record7['_oai']['sets'] == ['d']
-    assert record7['_oai']['updated'] != prev_updated_r7  # date bumped
-
     # Test 'AND' keyword for records
-    record8 = create_record(app, {
+    record6 = create_record(app, {
         'title_statement': {'title': 'foo'},
         'genre': 'math', '$schema': schema
     })
-    assert record8['_oai']['sets'] == ['math', ]
+    assert record6['_oai']['sets'] == ['math', ]
 
-    record9 = create_record(app, {
+    record7 = create_record(app, {
         'title_statement': {'title': 'foo'},
         'genre': 'physics', '$schema': schema
     })
-    assert record9['_oai']['sets'] == ['nonmath', ]
+    assert record7['_oai']['sets'] == ['nonmath', ]
 
-    record10 = create_record(app, {
+    record8 = create_record(app, {
         'title_statement': {'title': 'bar'},
         'genre': 'math', '$schema': schema
     })
-    assert 'sets' not in record10['_oai']  # title is not 'foo'
+    assert 'sets' not in record8['_oai']  # title is not 'foo'
 
     # wait ElasticSearch end to index records
     sleep(5)
@@ -289,16 +268,20 @@ def test_oaiset_add_remove_record(app):
     with app.app_context():
         oaiset1 = OAISet(spec='abc')
         rec1 = Record.create({'title_statement': {'title': 'Test1'}})
+        rec1.commit()
+        # Adding a record to an OAIset should change the record's updated date
+        dt1 = rec1.updated
         assert not oaiset1.has_record(rec1)
         oaiset1.add_record(rec1)
         assert 'abc' in rec1['_oai']['sets']
-        assert 'updated' in rec1['_oai']
         assert oaiset1.has_record(rec1)
-        dt1 = iso2dt(rec1['_oai']['updated'])
-        assert dt1.year == datetime.utcnow().year  # Test if parsed OK
+        rec1.commit()
+        dt2 = rec1.updated
+        assert dt2 > dt1
 
         oaiset1.remove_record(rec1)
+        rec1.commit()
+        dt3 = rec1.updated
         assert 'abc' not in rec1['_oai']['sets']
         assert not oaiset1.has_record(rec1)
-        dt2 = iso2dt(rec1['_oai']['updated'])
-        assert dt2 >= dt1
+        assert dt3 > dt2

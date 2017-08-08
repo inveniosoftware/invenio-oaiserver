@@ -47,8 +47,7 @@ class OAIServerUpdater(object):
             # Update only if old and new sets differ
             if set(record['_oai'].get('sets', [])) != new_sets:
                 record['_oai'].update({
-                    'sets': list(new_sets),
-                    'updated': datetime_to_datestamp(datetime.utcnow()),
+                    'sets': list(new_sets)
                 })
 
 
