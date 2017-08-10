@@ -35,8 +35,8 @@ tests_require = [
     'SQLAlchemy-Continuum>=1.2.1',
     'check-manifest>=0.25',
     'coverage>=4.0',
-    'invenio-indexer>=1.0.0a9',
-    'invenio-jsonschemas>=1.0.0a3',
+    'invenio-indexer>=1.0.0a10',
+    'invenio-jsonschemas>=1.0.0a5',
     'invenio-marc21>=1.0.0a5',
     'isort>=4.2.2',
     'mock>=1.3.0',
@@ -58,16 +58,16 @@ extras_require = {
         'Sphinx>=1.5.2',
     ],
     'mysql': [
-        'invenio-db[mysql]>=1.0.0b5',
+        'invenio-db[mysql]>=1.0.0b8',
     ],
     'postgresql': [
-        'invenio-db[postgresql]>=1.0.0b5',
+        'invenio-db[postgresql]>=1.0.0b8',
     ],
     'invenio-query-parser': [
         'invenio-query-parser>=0.6.0',
     ],
     'sqlite': [
-        'invenio-db>=1.0.0b5',
+        'invenio-db>=1.0.0b8',
     ],
     'tests': tests_require,
 }
@@ -91,7 +91,7 @@ install_requires = [
     'elasticsearch-dsl>=2.0.0,<3.0.0',
     'invenio-pidstore>=1.0.0b1',
     'invenio-records>=1.0.0b1',
-    'invenio-search>=1.0.0a9',
+    'invenio-search>=1.0.0a10',
     'lxml>=3.5.0',
     'marshmallow>=2.7.0',
     'webargs>=1.3.2',
