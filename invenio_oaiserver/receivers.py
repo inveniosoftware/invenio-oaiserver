@@ -37,7 +37,7 @@ from .utils import datetime_to_datestamp
 class OAIServerUpdater(object):
     """Return the right update oaisets function."""
 
-    def __call__(self, record, **kwargs):
+    def __call__(self, sender, record, **kwargs):
         """Update sets list.
 
         :param record: The record data.
