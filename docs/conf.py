@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015, 2016 CERN.
+# Copyright (C) 2015, 2016, 2017 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -22,12 +22,13 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
+"""Sphinx configuration."""
+
 from __future__ import print_function
 
 import os
 
 import sphinx.environment
-from docutils.utils import get_source_line
 
 # -- General configuration ------------------------------------------------
 
@@ -65,7 +66,7 @@ master_doc = 'index'
 # General information about the project.
 project = u'Invenio-OAIServer'
 copyright = u'2015, CERN'
-author = u'Wojciech Ziółek'
+author = u'CERN'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -75,7 +76,9 @@ author = u'Wojciech Ziółek'
 
 # Get the version string. Cannot be done with import!
 g = {}
-with open(os.path.join('..', 'invenio_oaiserver', 'version.py'), 'rt') as fp:
+with open(os.path.join(os.path.dirname(__file__), '..',
+                       'invenio_oaiserver', 'version.py'),
+          'rt') as fp:
     exec(fp.read(), g)
     version = g['__version__']
 
@@ -131,7 +134,7 @@ todo_include_todos = False
 html_theme = 'alabaster'
 
 html_theme_options = {
-    'description': 'Invenio module that adds more fun to the platform.',
+    'description': 'Invenio module that implements OAI-PMH server.',
     'github_user': 'inveniosoftware',
     'github_repo': 'invenio-oaiserver',
     'github_button': False,
@@ -266,8 +269,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'invenio-oaiserver.tex', u'invenio-oaiserver Documentation',
-   u'Wojciech Ziółek', 'manual'),
+    (master_doc, 'invenio-oaiserver.tex', u'invenio-oaiserver Documentation',
+     u'CERN', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -310,9 +313,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'invenio-oaiserver', u'Invenio-OAIServer Documentation',
-   author, 'invenio-oaiserver', 'Invenio module that adds more fun to the platform.',
-   'Miscellaneous'),
+    (master_doc, 'invenio-oaiserver', u'Invenio-OAIServer Documentation',
+     author, 'invenio-oaiserver', 'Invenio module that implements OAI-PMH server.',
+     'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.

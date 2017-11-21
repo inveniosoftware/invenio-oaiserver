@@ -1,6 +1,6 @@
 ..
     This file is part of Invenio.
-    Copyright (C) 2015, 2016, 2017 CERN.
+    Copyright (C) 2017 CERN.
 
     Invenio is free software; you can redistribute it
     and/or modify it under the terms of the GNU General Public License as
@@ -22,12 +22,8 @@
     as an Intergovernmental Organization or submit itself to any jurisdiction.
 
 
-Authors
-=======
+Configuration
+=============
 
-Invenio module that implements OAI-PMH server.
-
-- Jiri Kuncar <jiri.kuncar@cern.ch>
-- Lars Holm Nielsen <lars.holm.nielsen@cern.ch>
-- Leonardo Rossi <leonardo.r@cern.ch>
-- Wojciech Ziółek <wziolek@cern.ch>
+.. automodule:: invenio_oaiserver.config
+   :members:
