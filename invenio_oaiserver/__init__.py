@@ -135,7 +135,7 @@ with following structure.
         }
     }
 
-There **must** exist a ``id`` key with not null value otherwise the record
+There **must** exist an ``id`` key with a non-null value otherwise the record
 is not exposed via OAI-PHM interface (``listIdentifiers``, ``listRecords``).
 The value of this field should be regitered in PID store. We provide default
 :func:`~invenio_oaiserver.minters.oaiid_minter` that can register existing
@@ -145,7 +145,7 @@ value or mint new one by concatenating a configuration option
 All values in ``sets`` must exist in ``spec`` column in ``oaiserver_set``
 table or they will be removed when record updater is executed. The last
 field ``updated`` contains ISO8601 datetime of the last record metadata
-modification acording to following rules for `selective harvesting`_.
+modification according to following rules for `selective harvesting`_.
 
 .. _selective harvesting: https://www.openarchives.org/OAI/openarchivesprotocol.html#SelectiveHarvestingandDatestamps
 """

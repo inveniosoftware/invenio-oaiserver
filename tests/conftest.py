@@ -64,7 +64,7 @@ def app():
         TESTING=True,
         SECRET_KEY='CHANGE_ME',
         SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI',
-                                               'sqlite://'),
+                                               'sqlite:///test.db'),
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
         SERVER_NAME='app',
         OAISERVER_RECORD_INDEX='_all',

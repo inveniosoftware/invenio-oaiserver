@@ -43,6 +43,4 @@
 
 Invenio module that implements OAI-PMH server.
 
-*This is an experimental developer preview release.*
-
 Further documentation is available on https://invenio-oaiserver.readthedocs.io/
