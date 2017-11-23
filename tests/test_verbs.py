@@ -31,6 +31,7 @@ import uuid
 from copy import deepcopy
 from time import sleep
 
+import pytest
 from helpers import run_after_insert_oai_set
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
@@ -42,7 +43,8 @@ from invenio_oaiserver import current_oaiserver
 from invenio_oaiserver.minters import oaiid_minter
 from invenio_oaiserver.models import OAISet
 from invenio_oaiserver.response import NS_DC, NS_OAIDC, NS_OAIPMH
-from invenio_oaiserver.utils import datetime_to_datestamp
+from invenio_oaiserver.utils import datetime_to_datestamp, \
+    eprints_description, friends_description, oai_identifier_description
 
 NAMESPACES = {'x': NS_OAIPMH, 'y': NS_OAIDC, 'z': NS_DC}
 
@@ -73,13 +75,29 @@ def test_wrong_verb(app):
 
 def test_identify(app):
     """Test Identify verb."""
-    FRIENDS = """<friends xmlns="http://www.openarchives.org/OAI/2.0/friends/"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/friends/
-        http://www.openarchives.org/OAI/2.0/friends.xsd">
-        <baseURL>http://example.org/oai2d</baseURL>
-    </friends>"""
-    app.config['OAISERVER_DESCRIPTIONS'] = [FRIENDS, FRIENDS]
+    # baseUrls for friends element
+    baseUrls = ['http://example.org/1',
+                'http://example.org/2']
+    # parameters for eprints element
+    content = {'URL': 'http://arXiv.org/arXiv_content.htm'}
+    metadataPolicy = {'text': 'Metadata can be used by commercial'
+                      'and non-commercial service providers',
+                      'URL': 'http://arXiv.org/arXiv_metadata_use.htm'}
+    dataPolicy = {'text': 'Full content, i.e. preprints may'
+                  'not be harvested by robots'}
+    submissionPolicy = {'URL': 'http://arXiv.org/arXiv_submission.htm'}
+    # parameters for oai-identifier element
+    scheme = 'oai'
+    repositoryIdentifier = 'oai-stuff.foo.org'
+    delimiter = ':'
+    sampleIdentifier = 'oai:oai-stuff.foo.org:5324'
+
+    app.config['OAISERVER_DESCRIPTIONS'] = \
+        [friends_description(baseUrls),
+         eprints_description(metadataPolicy, dataPolicy,
+                             submissionPolicy, content),
+         oai_identifier_description(scheme, repositoryIdentifier, delimiter,
+                                    sampleIdentifier)]
 
     with app.test_client() as c:
         result = c.get('/oai2d?verb=Identify')
@@ -98,8 +116,9 @@ def test_identify(app):
                               namespaces=NAMESPACES)
         assert len(base_url) == 1
         assert base_url[0].text == 'http://app/oai2d'
-        protocolVersion = tree.xpath('/x:OAI-PMH/x:Identify/x:protocolVersion',
-                                     namespaces=NAMESPACES)
+        protocolVersion = tree.xpath(
+            '/x:OAI-PMH/x:Identify/x:protocolVersion',
+            namespaces=NAMESPACES)
         assert len(protocolVersion) == 1
         assert protocolVersion[0].text == '2.0'
         adminEmail = tree.xpath('/x:OAI-PMH/x:Identify/x:adminEmail',
@@ -119,7 +138,68 @@ def test_identify(app):
         assert len(granularity) == 1
         description = tree.xpath('/x:OAI-PMH/x:Identify/x:description',
                                  namespaces=NAMESPACES)
-        assert len(description) == 2
+
+        friends_element = description[0]
+        for element in friends_element.getchildren():
+            for child in element.getchildren():
+                assert child.tag == \
+                    '{http://www.openarchives.org/OAI/2.0/friends/}baseURL'
+                assert child.text in baseUrls
+
+        eprints_root = description[1]
+        children = eprints_root[0].getchildren()
+        assert children[0].tag == \
+            '{http://www.openarchives.org/OAI/2.0/eprints}content'
+        leaves = children[0].getchildren()
+        assert len(leaves) == 1
+        assert leaves[0].tag == \
+            '{http://www.openarchives.org/OAI/2.0/eprints}URL'
+        assert leaves[0].text == content['URL']
+
+        assert children[1].tag == \
+            '{http://www.openarchives.org/OAI/2.0/eprints}metadataPolicy'
+        leaves = children[1].getchildren()
+        assert len(leaves) == 2
+        metadataPolicyContents = \
+            ['{http://www.openarchives.org/OAI/2.0/eprints}text',
+             '{http://www.openarchives.org/OAI/2.0/eprints}URL']
+        assert set([leaves[0].tag, leaves[1].tag]) == \
+            set(metadataPolicyContents)
+        assert set([leaves[0].text, leaves[1].text]) == \
+            set(metadataPolicy.values())
+        assert children[2].tag == \
+            '{http://www.openarchives.org/OAI/2.0/eprints}dataPolicy'
+        leaves = children[2].getchildren()
+        assert len(leaves) == 1
+        assert leaves[0].tag == \
+            '{http://www.openarchives.org/OAI/2.0/eprints}text'
+        assert leaves[0].text == dataPolicy['text']
+
+        assert children[3].tag == \
+            '{http://www.openarchives.org/OAI/2.0/eprints}submissionPolicy'
+        leaves = children[3].getchildren()
+        assert len(leaves) == 1
+        assert leaves[0].tag == \
+            '{http://www.openarchives.org/OAI/2.0/eprints}URL'
+        assert leaves[0].text == submissionPolicy['URL']
+
+        oai_identifier_root = description[2]
+        children = oai_identifier_root[0].getchildren()
+        assert children[0].tag == \
+            '{http://www.openarchives.org/OAI/2.0/oai-identifier}scheme'
+        assert children[0].text == scheme
+        assert children[1].tag == \
+            '{http://www.openarchives.org/OAI/2.0/oai-identifier}' + \
+            'repositoryIdentifier'
+        assert children[1].text == repositoryIdentifier
+        assert children[2].tag == \
+            '{http://www.openarchives.org/OAI/2.0/oai-identifier}' + \
+            'delimiter'
+        assert children[2].text == delimiter
+        assert children[3].tag == \
+            '{http://www.openarchives.org/OAI/2.0/oai-identifier}' + \
+            'sampleIdentifier'
+        assert children[3].text == sampleIdentifier
 
 
 def test_getrecord(app):

@@ -131,3 +131,54 @@ OAISERVER_CELERY_TASK_CHUNK_SIZE = 100
 
 OAISERVER_CONTROL_NUMBER_FETCHER = 'recid'
 """PIDStore fetcher for the OAI ID control number."""
+
+OAISERVER_DESCRIPTIONS = []
+"""Specify the optional description containers that can be used to express
+properties of the repository that are not covered by the standard response
+to the Identify verb.
+For further information see:
+http://www.openarchives.org/OAI/2.0/guidelines.htm
+
+The `eprints`, `oai_identifier` and `friends` description can be added using
+the helper functions in utils.py as follows:
+
+.. code-block:: python
+
+    from invenio_oaiserver.utils import eprints_description
+    from invenio_oaiserver.utils import friends_description
+    from invenio_oaiserver.utils import oai_identifier_description
+
+    OAISERVER_DESCRIPTIONS = [
+        eprints_description(metadataPolicy, dataPolicy,
+                            submissionPolicy, content),
+        oai_identifier_description(scheme, repositoryIdentifier,
+                                   delimiter, sampleIdentifier),
+        friends_description(baseUrls)
+    ]
+
+The parameters of each description element are strings if their type is unique
+or dictionaries, with the type being the key, if it can differ.
+E.g. the dataPolicy of the eprints element can consist of a
+text and or URL so it will have the form:
+
+.. code-block:: python
+
+    metadataPolicy = {'text': 'Metadata can be used by commercial'
+                      'and non-commercial service providers',
+                      'URL': 'http://arXiv.org/arXiv_metadata_use.htm'}
+
+Whereas for the scheme of the oai_identifier it will just be:
+
+.. code-block:: python
+
+    scheme = 'oai'
+
+If the parameter can take an arbitrary amount of elements it can be a list:
+
+.. code-block:: python
+
+    baseUrls = [http://oai.east.org/foo/,
+                http://oai.hq.org/bar/,
+                http://oai.south.org/repo.cgi]
+
+"""
