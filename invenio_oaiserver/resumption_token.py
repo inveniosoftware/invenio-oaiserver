@@ -38,7 +38,7 @@ def _schema_from_verb(verb, partial=False):
 
 
 def serialize(pagination, **kwargs):
-    """Return resumtion token serializer."""
+    """Return resumption token serializer."""
     if not pagination.has_next:
         return
 
