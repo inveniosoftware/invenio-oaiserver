@@ -156,7 +156,7 @@ class Verbs(object):
 
 
 class ResumptionVerbs(Verbs):
-    """List valid verbs when resumtion token is defined."""
+    """List valid verbs when resumption token is defined."""
 
     class ListIdentifiers(OAISchema, ResumptionTokenSchema):
         """Arguments for ListIdentifiers verb."""

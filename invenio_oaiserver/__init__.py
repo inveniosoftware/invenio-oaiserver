@@ -31,10 +31,15 @@ OAIServer consists of:
 
 - OAI-PMH 2.0 compatible endpoint.
 - Persistent identifier minters, fetchers and providers.
-- Backend for formating Elastic search results.
+- Backend for formatting Elasticsearch results.
 
 Initialization
 --------------
+
+.. note::
+   You need to have Elasticsearch and a message queue service (e.g. RabbitMQ)
+   running and available on their default ports at 127.0.0.1.
+
 First create a Flask application (Flask-CLI is not needed for Flask
 version 1.0+):
 
@@ -70,9 +75,9 @@ you need to set following configuration options first:
 >>> from invenio_oaiserver import InvenioOAIServer
 >>> ext_oaiserver = InvenioOAIServer(app)
 
-Register the blueprint for OAIServer. If you use InvenioOAIServer as part of
-the invenio-base setup, the blueprint will be registered automatically through
-an entry point.
+Register the Flask Blueprint for OAIServer. If you use InvenioOAIServer as
+part of the invenio-base setup, the Blueprint will be registered automatically
+through an entry point.
 
 >>> from invenio_oaiserver.views.server import blueprint
 >>> app.register_blueprint(blueprint)
