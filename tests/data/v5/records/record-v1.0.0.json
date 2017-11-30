@@ -1,0 +1,22 @@
+{
+  "mappings": {
+    "record": {
+      "_source" : { "enabled" : true },
+      "properties" : {
+        "title_statement": {
+          "properties": {
+            "title": {
+              "type": "text"
+            },
+            "body": {
+              "type": "text"
+            }
+          }
+        },
+        "genre": {
+          "type": "text"
+        }
+      }
+    }
+  }
+}
