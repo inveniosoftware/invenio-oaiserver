@@ -60,14 +60,14 @@ with meanings as defined in ISO8601.
 """
 
 OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME = 1 * 60
-"""The expiration time of a resuption token in seconds.
+"""The expiration time of a resumption token in seconds.
 
 **Default: 60 seconds = 1 minute**.
 
 .. note::
 
     Setting longer expiration time may have a negative impact on your
-    Elastic search cluster as it might need to keep open cursors.
+    Elasticsearch cluster as it might need to keep open cursors.
 
     https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
 """

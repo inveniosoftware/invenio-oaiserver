@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015, 2016 CERN.
+# Copyright (C) 2015, 2016, 2017 CERN.
 #
 # Invenio is free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public License as
@@ -57,13 +57,9 @@ python:
 
 matrix:
   fast_finish: true
-  allow_failures:
-    - python: pypy
-  include:
-    - python: pypy
-      env: EXTRAS=all,sqlite REQUIREMENTS=release SQLALCHEMY_DATABASE_URI="sqlite:///test.db" ES_HOST=127.0.0.1 ES_VERSION=2.2.0
 
 before_install:
+  - "nvm install 6; nvm use 6"
   - "mkdir /tmp/elasticsearch"
   - "wget -O - https://download.elasticsearch.org/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz | tar xz --directory=/tmp/elasticsearch --strip-components=1"
   - "/tmp/elasticsearch/bin/elasticsearch &"
@@ -91,7 +87,7 @@ deploy:
   user: jirikuncar
   password:
     secure: iL3rNkSvHzzd3it4PAMF0KO1WKDnRG3I9hyvjfRi+kgc5UNyUla749wXHGRM6Z2SKWSzxOM++8ke0n/ZHtdgmo/dNHxe1yZOEDykxvwgpvXNpicBpYmDm9WWh1ddV9dIYHbWnIDVSqCi3sa+U42wBhyT+LnEDy8pXUKn+M5zetCC6H6n13cxdsKpSKttiLP9lcNm2P9FP+tUsxnZGpdjmWJ4BL0VadxIYQoHd4t1y0due+G2a2DK3D67SviLWxfMM8dXugtvXXP05xFDxKvASJ6b0D3EAoIgja6TPV+riL9sKQdf4yf/VWcs+q4M6BHj1VDjsvRoO1JNNaB0H+gBatRbUHFOQhiZx8ljp7CB2myw2uSKr2gQ4nXuTDc+rsqGEE2elkfI5r8N/ZUrnvmounyEedruVjF9VEADrjt/1ZD+ILkm/W3yFJ6YFZ2HXWyoqnSobrFgIPyxSEC6OQOUdWAlPSIgts+BhqELRpDGrN6nD7OqgUFAqJqTK9lejqfZwL//kk0dlptHX6P7l4wwBygv9X/wuc19egOEX0E97j20G//WtwRjr3QLZb2pl/i5ReYVCzUTvBgzJp6Si3dmFGtyNMCkCy6Q+W8fuI6XKNDHzQuQWK02GA/XaLVaAclFzOHEeDKh1OnmJCl9xVerpCJ2PjMAN0EOmpe8HzuOamQ=
-  distributions: compile_catalog sdist bdist_wheel
+  distributions: "compile_catalog sdist bdist_wheel"
   on:
     tags: true
     python: "2.7"
