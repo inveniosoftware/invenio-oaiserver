@@ -54,9 +54,10 @@ env:
     - REQUIREMENTS=release EXTRAS=all,mysql,elasticsearch2 SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio" ES_URL=$ES2_DOWNLOAD_URL
     - REQUIREMENTS=release EXTRAS=all,postgresql,elasticsearch2 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" ES_URL=$ES2_DOWNLOAD_URL
     # Elasticsearch 5
-    - REQUIREMENTS=lowest EXTRAS=all,sqlite,elasticsearch5 SQLALCHEMY_DATABASE_URI="sqlite:///test.db" ES_URL=$ES5_DOWNLOAD_URL
-    - REQUIREMENTS=lowest EXTRAS=all,mysql,elasticsearch5 SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio" ES_URL=$ES5_DOWNLOAD_URL
-    - REQUIREMENTS=lowest EXTRAS=all,postgresql,elasticsearch5 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" ES_URL=$ES5_DOWNLOAD_URL
+    # TODO: Add when `invenio-search v1.0.0b3` starts being propagated as a minimum requirement
+    # - REQUIREMENTS=lowest EXTRAS=all,sqlite,elasticsearch5 SQLALCHEMY_DATABASE_URI="sqlite:///test.db" ES_URL=$ES5_DOWNLOAD_URL
+    # - REQUIREMENTS=lowest EXTRAS=all,mysql,elasticsearch5 SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio" ES_URL=$ES5_DOWNLOAD_URL
+    # - REQUIREMENTS=lowest EXTRAS=all,postgresql,elasticsearch5 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" ES_URL=$ES5_DOWNLOAD_URL
     - REQUIREMENTS=release EXTRAS=all,sqlite,elasticsearch2 SQLALCHEMY_DATABASE_URI="sqlite:///test.db" ES_URL=$ES2_DOWNLOAD_URL
     - REQUIREMENTS=release EXTRAS=all,mysql,elasticsearch2 SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio" ES_URL=$ES2_DOWNLOAD_URL
     - REQUIREMENTS=release EXTRAS=all,postgresql,elasticsearch2 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" ES_URL=$ES2_DOWNLOAD_URL

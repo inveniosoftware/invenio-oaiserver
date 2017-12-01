@@ -37,8 +37,7 @@ tests_require = [
     'coverage>=4.0',
     'invenio-indexer>=1.0.0a10',
     'invenio-jsonschemas>=1.0.0a5',
-    # TODO: 'invenio-marc21>=1.0.0a6',
-    'invenio-marc21>=1.0.0a5',
+    'invenio-marc21>=1.0.0a6',
     'isort>=4.2.2',
     'mock>=1.3.0',
     'pydocstyle>=1.0.0',
@@ -47,6 +46,8 @@ tests_require = [
     'pytest-pep8>=1.0.6',
     'pytest>=2.8.0',
 ]
+
+invenio_search_version = '1.0.0b3'
 
 extras_require = {
     'admin': [
@@ -58,13 +59,14 @@ extras_require = {
     'docs': [
         'Sphinx>=1.5.2',
     ],
-    # Elasticsearch version
+    # Elasticsearch
     'elasticsearch2': [
-        'invenio-search[elasticsearch2]>=1.0.0a10'
+        'invenio-search[elasticsearch2]>={}'.format(invenio_search_version)
     ],
     'elasticsearch5': [
-        'invenio-search[elasticsearch5]>=1.0.0a10'
+        'invenio-search[elasticsearch5]>={}'.format(invenio_search_version)
     ],
+    # Database
     'mysql': [
         'invenio-db[mysql]>=1.0.0b8',
     ],

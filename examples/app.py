@@ -87,6 +87,7 @@ InvenioDB(app)
 InvenioRecords(app)
 InvenioPIDStore(app)
 search = InvenioSearch(app)
+search.register_mappings('records', 'data')
 InvenioIndexer(app)
 InvenioOAIServer(app)
 
@@ -135,9 +136,6 @@ def oaiserver(sets, records):
             'field': {'type': 'boolean'},
         },
     }
-
-    search.client.indices.delete_alias('_all', '_all', ignore=[400, 404])
-    search.client.indices.delete('*')
 
     with app.app_context():
         indexer = RecordIndexer()

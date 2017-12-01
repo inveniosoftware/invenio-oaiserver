@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import, print_function
 
+from elasticsearch import VERSION as ES_VERSION
 from invenio_indexer.api import RecordIndexer
 from invenio_search import current_search, current_search_client
 
@@ -33,14 +34,25 @@ from .models import OAISet
 from .proxies import current_oaiserver
 from .query import query_string_parser
 
+# ES5 percolator
+PERCOLATOR_DOC_TYPE = '.percolator' if ES_VERSION[0] == 2 else 'percolators'
+PERCOLATOR_MAPPING = {
+    'properties': {'query': {'type': 'percolator'}}
+}
+
 
 def _new_percolator(spec, search_pattern):
     """Create new percolator associated with the new set."""
     if spec and search_pattern:
         query = query_string_parser(search_pattern=search_pattern).to_dict()
         for name in current_search.mappings.keys():
-            current_search.client.index(
-                index=name, doc_type='.percolator',
+            # Create the percolator doc_type in the existing index if ES5
+            if ES_VERSION[0] > 2:
+                current_search_client.indices.put_mapping(
+                    index=name, doc_type=PERCOLATOR_DOC_TYPE,
+                    body=PERCOLATOR_MAPPING, ignore=[400, 404])
+            current_search_client.index(
+                index=name, doc_type=PERCOLATOR_DOC_TYPE,
                 id='oaiset-{}'.format(spec),
                 body={'query': query}
             )
@@ -53,8 +65,12 @@ def _delete_percolator(spec, search_pattern):
     """
     if spec:
         for name in current_search.mappings.keys():
-            current_search.client.delete(
-                index=name, doc_type='.percolator',
+            if ES_VERSION[0] > 2:
+                current_search_client.indices.put_mapping(
+                    index=name, doc_type=PERCOLATOR_DOC_TYPE,
+                    body=PERCOLATOR_MAPPING, ignore=[400, 404])
+            current_search_client.delete(
+                index=name, doc_type=PERCOLATOR_DOC_TYPE,
                 id='oaiset-{}'.format(spec), ignore=[404]
             )
 
@@ -82,6 +98,11 @@ def get_record_sets(record):
     # get list of sets that match using percolator
     index, doc_type = RecordIndexer().record_to_index(record)
     body = {"doc": record.dumps()}
+
+    if ES_VERSION[0] > 2:
+        current_search_client.indices.put_mapping(
+            index=index, doc_type=PERCOLATOR_DOC_TYPE,
+            body=PERCOLATOR_MAPPING, ignore=[400, 404])
     results = current_search_client.percolate(
         index=index, doc_type=doc_type, allow_no_indices=True,
         ignore_unavailable=True, body=body
