@@ -46,23 +46,21 @@ env:
     - ES5_DOWNLOAD_URL="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.6.4.tar.gz"
     - ES_HOST=127.0.0.1
   matrix:
-    # Elasticsearch 2
+    # ES2 + SQLite
     - REQUIREMENTS=lowest EXTRAS=all,sqlite,elasticsearch2 SQLALCHEMY_DATABASE_URI="sqlite:///test.db" ES_URL=$ES2_DOWNLOAD_URL
-    - REQUIREMENTS=lowest EXTRAS=all,mysql,elasticsearch2 SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio" ES_URL=$ES2_DOWNLOAD_URL
-    - REQUIREMENTS=lowest EXTRAS=all,postgresql,elasticsearch2 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" ES_URL=$ES2_DOWNLOAD_URL DEPLOY=true
     - REQUIREMENTS=release EXTRAS=all,sqlite,elasticsearch2 SQLALCHEMY_DATABASE_URI="sqlite:///test.db" ES_URL=$ES2_DOWNLOAD_URL
-    - REQUIREMENTS=release EXTRAS=all,mysql,elasticsearch2 SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio" ES_URL=$ES2_DOWNLOAD_URL
-    - REQUIREMENTS=release EXTRAS=all,postgresql,elasticsearch2 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" ES_URL=$ES2_DOWNLOAD_URL
-    # Elasticsearch 5
-    # TODO: Add when `invenio-search v1.0.0b3` starts being propagated as a minimum requirement
-    # - REQUIREMENTS=lowest EXTRAS=all,sqlite,elasticsearch5 SQLALCHEMY_DATABASE_URI="sqlite:///test.db" ES_URL=$ES5_DOWNLOAD_URL
-    # - REQUIREMENTS=lowest EXTRAS=all,mysql,elasticsearch5 SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio" ES_URL=$ES5_DOWNLOAD_URL
-    # - REQUIREMENTS=lowest EXTRAS=all,postgresql,elasticsearch5 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" ES_URL=$ES5_DOWNLOAD_URL
-    - REQUIREMENTS=release EXTRAS=all,sqlite,elasticsearch2 SQLALCHEMY_DATABASE_URI="sqlite:///test.db" ES_URL=$ES2_DOWNLOAD_URL
-    - REQUIREMENTS=release EXTRAS=all,mysql,elasticsearch2 SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio" ES_URL=$ES2_DOWNLOAD_URL
-    - REQUIREMENTS=release EXTRAS=all,postgresql,elasticsearch2 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" ES_URL=$ES2_DOWNLOAD_URL
-    - REQUIREMENTS=devel EXTRAS=all,sqlite,elasticsearch5 SQLALCHEMY_DATABASE_URI="sqlite:///test.db" ES_URL=$ES5_DOWNLOAD_URL
+    - REQUIREMENTS=devel EXTRAS=all,sqlite,elasticsearch2 SQLALCHEMY_DATABASE_URI="sqlite:///test.db" ES_URL=$ES2_DOWNLOAD_URL
+    # ES5 + SQLite
+    # Note: SQLite lowest, release, devel are tested above. ES5 lowest, release,
+    # devel are tested below for both MySQL and PostgreSQL.
+    - REQUIREMENTS=release EXTRAS=all,sqlite,elasticsearch5 SQLALCHEMY_DATABASE_URI="sqlite:///test.db" ES_URL=$ES5_DOWNLOAD_URL
+    # ES5 + MySQL
+    - REQUIREMENTS=lowest EXTRAS=all,mysql,elasticsearch5 SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio" ES_URL=$ES5_DOWNLOAD_URL
+    - REQUIREMENTS=release EXTRAS=all,mysql,elasticsearch5 SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio" ES_URL=$ES5_DOWNLOAD_URL
     - REQUIREMENTS=devel EXTRAS=all,mysql,elasticsearch5 SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio" ES_URL=$ES5_DOWNLOAD_URL
+    # ES5 + PostgreSQL
+    - REQUIREMENTS=lowest EXTRAS=all,postgresql,elasticsearch5 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" ES_URL=$ES5_DOWNLOAD_URL
+    - REQUIREMENTS=release EXTRAS=all,postgresql,elasticsearch5 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" ES_URL=$ES5_DOWNLOAD_URL DEPLOY=true
     - REQUIREMENTS=devel EXTRAS=all,postgresql,elasticsearch5 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" ES_URL=$ES5_DOWNLOAD_URL
 
 python:
@@ -101,9 +99,9 @@ after_success:
 
 deploy:
   provider: pypi
-  user: jirikuncar
+  user: inveniosoftware
   password:
-    secure: iL3rNkSvHzzd3it4PAMF0KO1WKDnRG3I9hyvjfRi+kgc5UNyUla749wXHGRM6Z2SKWSzxOM++8ke0n/ZHtdgmo/dNHxe1yZOEDykxvwgpvXNpicBpYmDm9WWh1ddV9dIYHbWnIDVSqCi3sa+U42wBhyT+LnEDy8pXUKn+M5zetCC6H6n13cxdsKpSKttiLP9lcNm2P9FP+tUsxnZGpdjmWJ4BL0VadxIYQoHd4t1y0due+G2a2DK3D67SviLWxfMM8dXugtvXXP05xFDxKvASJ6b0D3EAoIgja6TPV+riL9sKQdf4yf/VWcs+q4M6BHj1VDjsvRoO1JNNaB0H+gBatRbUHFOQhiZx8ljp7CB2myw2uSKr2gQ4nXuTDc+rsqGEE2elkfI5r8N/ZUrnvmounyEedruVjF9VEADrjt/1ZD+ILkm/W3yFJ6YFZ2HXWyoqnSobrFgIPyxSEC6OQOUdWAlPSIgts+BhqELRpDGrN6nD7OqgUFAqJqTK9lejqfZwL//kk0dlptHX6P7l4wwBygv9X/wuc19egOEX0E97j20G//WtwRjr3QLZb2pl/i5ReYVCzUTvBgzJp6Si3dmFGtyNMCkCy6Q+W8fuI6XKNDHzQuQWK02GA/XaLVaAclFzOHEeDKh1OnmJCl9xVerpCJ2PjMAN0EOmpe8HzuOamQ=
+    secure: "lYM0Rd0yBrJHBxOlA7qU7dx6FxJl8mjeDFipGn5C+sPrs5RRR6S5MJJZLjKhQDNQfsc8zsfe38QiaK/9geOh0mZMSw1kQvJNY/BJZ5PWbUW635470T/bfILj0lM2vlob2WVdsXnudHBPpBVQDCQsfjy1baQVQqa9z9gsobH9J95o5lTDPme7DXuAf6C3HNW0Gq8zs/O3ifpn3eo+PNHZHsGsU95ZW+NlrKHQKZBVOtij9FD6QTX0rbfoAUWG0tkoUA330yNlI/9pGAONlI7yEquQGh4kKZ6KQbQA2UlInsdInU/hgz4gsZ6WuVxV8BIUQYCKzDyl1JOyrvcQJMElA4js0LjIFUUndci1yme74efWKctIKV3okr9zBKCpfytT2cJgApkRuQ+i5H99Os+7aK5kuPf7xP2/ZC/vlh0i/IOJq5Kgy4jSJUkds+Ftjsy0DYSBXZXa/1Zr3dy4PPaXHhh1sj5l/ev74/+aXbpkmMJSCuzD1QfQ6zH2X7PUO+wZ09n+pWAbXVGCiVb4+FBbvSEML/7mu65NJ16wTchCjDFPHyhnL4rvszRWJe51RFnNx3GM/tlBZa1d7GnSoKHy1K08fTHsM02vQ0xgrgu35sdJGid2Wmahuv17im3+CsGGv4jhEkMXKdYPE6XZZBLJRWgXzcFSjbqw5qytkd62a1A="
   distributions: "compile_catalog sdist bdist_wheel"
   on:
     tags: true

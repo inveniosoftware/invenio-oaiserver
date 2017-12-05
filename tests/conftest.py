@@ -57,8 +57,10 @@ def app():
     app = Flask('testapp', instance_path=instance_path)
     app.config.update(
         CELERY_ALWAYS_EAGER=True,
+        CELERY_TASK_ALWAYS_EAGER=True,
         CELERY_CACHE_BACKEND='memory',
         CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+        CELERY_TASK_EAGER_PROPAGATES=True,
         CELERY_RESULT_BACKEND='cache',
         JSONSCHEMAS_HOST='inveniosoftware.org',
         TESTING=True,
@@ -67,9 +69,9 @@ def app():
                                                'sqlite:///test.db'),
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
         SERVER_NAME='app',
+        OAISERVER_ID_PREFIX='oai:inveniosoftware.org:recid/',
         OAISERVER_RECORD_INDEX='_all',
         OAISERVER_REGISTER_SET_SIGNALS=True,
-        SEARCH_ELASTIC_KEYWORD_MAPPING={None: ['_all']},
     )
     if not hasattr(app, 'cli'):
         from flask_cli import FlaskCLI

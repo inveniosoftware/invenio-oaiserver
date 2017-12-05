@@ -47,7 +47,7 @@ tests_require = [
     'pytest>=2.8.0',
 ]
 
-invenio_search_version = '1.0.0b3'
+invenio_search_version = '1.0.0b4'
 
 extras_require = {
     'admin': [
