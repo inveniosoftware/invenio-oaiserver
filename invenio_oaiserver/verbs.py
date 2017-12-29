@@ -142,14 +142,8 @@ class Verbs(object):
 
         identifier = fields.Str()
 
-    class ListRecords(OAISchema):
+    class ListRecords(ListIdentifiers):
         """Arguments for ListRecords verb."""
-
-        from_ = fields.DateTime(load_from='from', dump_to='from')
-        until = fields.DateTime()
-        set = fields.Str()
-        metadataPrefix = fields.Str(required=True,
-                                    validate=validate_metadata_prefix)
 
     class ListSets(OAISchema):
         """Arguments for ListSets verb."""

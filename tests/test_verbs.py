@@ -26,10 +26,9 @@
 
 from __future__ import absolute_import
 
-import datetime
 import uuid
 from copy import deepcopy
-from time import sleep
+from datetime import datetime, timedelta
 
 import pytest
 from helpers import run_after_insert_oai_set
@@ -37,6 +36,7 @@ from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_pidstore.minters import recid_minter
 from invenio_records.api import Record
+from invenio_search import current_search
 from lxml import etree
 
 from invenio_oaiserver import current_oaiserver
@@ -455,7 +455,7 @@ def test_listrecords(app):
                 data = {'title_statement': {'title': 'Test{0}'.format(idx)}}
                 recid_minter(record_id, data)
                 oaiid_minter(record_id, data)
-                Record.create(data, id_=record_id)
+                record = Record.create(data, id_=record_id)
                 record_ids.append(record_id)
 
         db.session.commit()
@@ -463,7 +463,7 @@ def test_listrecords(app):
         for record_id in record_ids:
             indexer.index_by_id(record_id)
 
-        sleep(5)
+        current_search.flush_and_refresh('_all')
 
         with app.test_client() as c:
             result = c.get('/oai2d?verb=ListRecords&metadataPrefix=oai_dc')
@@ -519,6 +519,27 @@ def test_listrecords(app):
         )[0]
         assert not resumption_token.text
 
+        # Check from:until range
+        with app.test_client() as c:
+            # Check date and datetime timestamps.
+            for granularity in (False, True):
+                result = c.get(
+                    '/oai2d?verb=ListRecords&metadataPrefix=oai_dc'
+                    '&from={0}&until={1}'.format(
+                        datetime_to_datestamp(
+                            record.updated - timedelta(days=1),
+                            day_granularity=granularity),
+                        datetime_to_datestamp(
+                            record.updated + timedelta(days=1),
+                            day_granularity=granularity),
+                    )
+                )
+                assert result.status_code == 200
+
+                tree = etree.fromstring(result.data)
+                assert len(tree.xpath('/x:OAI-PMH/x:ListRecords/x:record',
+                           namespaces=NAMESPACES)) == 10
+
 
 def test_listidentifiers(app):
     """Test verb ListIdentifiers."""
@@ -553,7 +574,7 @@ def test_listidentifiers(app):
         db.session.commit()
 
         indexer.index_by_id(record_id)
-        sleep(2)
+        current_search.flush_and_refresh('_all')
 
         pid_value = pid.pid_value
 
@@ -585,43 +606,27 @@ def test_listidentifiers(app):
 
         # Check from:until range
         with app.test_client() as c:
-            result = c.get(
-                '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
-                '&from={0}&until={1}&set=test0'.format(
-                    datetime_to_datestamp(record.updated - datetime.timedelta(
-                        1)),
-                    datetime_to_datestamp(record.updated + datetime.timedelta(
-                        1)),
+            # Check date and datetime timestamps.
+            for granularity in (False, True):
+                result = c.get(
+                    '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
+                    '&from={0}&until={1}&set=test0'.format(
+                        datetime_to_datestamp(
+                            record.updated - timedelta(1),
+                            day_granularity=granularity),
+                        datetime_to_datestamp(
+                            record.updated + timedelta(1),
+                            day_granularity=granularity),
+                    )
                 )
-            )
+                assert result.status_code == 200
 
-        tree = etree.fromstring(result.data)
-        identifier = tree.xpath(
-            '/x:OAI-PMH/x:ListIdentifiers/x:header/x:identifier',
-            namespaces=NAMESPACES
-        )
-        assert len(identifier) == 1
-
-        # Check that a date without the time will also work
-        with app.test_client() as c:
-            result = c.get(
-                '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
-                '&from={0}&until={1}&set=test0'.format(
-                    datetime_to_datestamp(
-                        record.updated - datetime.timedelta(1),
-                        day_granularity=True),
-                    datetime_to_datestamp(
-                        record.updated + datetime.timedelta(1),
-                        day_granularity=True),
+                tree = etree.fromstring(result.data)
+                identifier = tree.xpath(
+                    '/x:OAI-PMH/x:ListIdentifiers/x:header/x:identifier',
+                    namespaces=NAMESPACES
                 )
-            )
-
-        tree = etree.fromstring(result.data)
-        identifier = tree.xpath(
-            '/x:OAI-PMH/x:ListIdentifiers/x:header/x:identifier',
-            namespaces=NAMESPACES
-        )
-        assert len(identifier) == 1
+                assert len(identifier) == 1
 
 
 def test_list_sets_long(app):
