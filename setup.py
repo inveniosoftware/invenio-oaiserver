@@ -73,9 +73,6 @@ extras_require = {
     'postgresql': [
         'invenio-db[postgresql]>=1.0.0b8',
     ],
-    'invenio-query-parser': [
-        'invenio-query-parser>=0.6.0',
-    ],
     'sqlite': [
         'invenio-db>=1.0.0b8',
     ],
