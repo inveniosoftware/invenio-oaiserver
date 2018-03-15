@@ -69,6 +69,10 @@ python:
 
 matrix:
   fast_finish: true
+  allow_failures:
+    - env: REQUIREMENTS=devel EXTRAS=all,sqlite,elasticsearch2 SQLALCHEMY_DATABASE_URI="sqlite:///test.db" ES_URL=$ES2_DOWNLOAD_URL
+    - env: REQUIREMENTS=devel EXTRAS=all,mysql,elasticsearch5 SQLALCHEMY_DATABASE_URI="mysql+pymysql://travis@localhost:3306/invenio" ES_URL=$ES5_DOWNLOAD_URL
+    - env: REQUIREMENTS=devel EXTRAS=all,postgresql,elasticsearch5 SQLALCHEMY_DATABASE_URI="postgresql+psycopg2://postgres@localhost:5432/invenio" ES_URL=$ES5_DOWNLOAD_URL
 
 
 before_install:
