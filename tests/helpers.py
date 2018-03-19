@@ -12,7 +12,6 @@
 from __future__ import absolute_import, print_function
 
 import uuid
-from time import sleep
 
 import mock
 import pkg_resources
@@ -24,7 +23,7 @@ from invenio_pidstore.minters import recid_minter
 from invenio_pidstore.models import PersistentIdentifier
 from invenio_records import Record
 from invenio_records.models import RecordMetadata
-from invenio_search import current_search_client
+from invenio_search import current_search, current_search_client
 
 from invenio_oaiserver.minters import oaiid_minter
 from invenio_oaiserver.models import OAISet
@@ -58,7 +57,7 @@ def load_records(app, filename, schema, tries=5):
             response = current_search_client.search()
             if response['hits']['total'] >= len(records):
                 break
-            sleep(5)
+            current_search.flush_and_refresh('_all')
 
     return records
 

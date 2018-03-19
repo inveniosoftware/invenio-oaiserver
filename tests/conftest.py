@@ -13,7 +13,6 @@ from __future__ import absolute_import, print_function
 import os
 import shutil
 import tempfile
-from time import sleep
 
 import pytest
 from elasticsearch import Elasticsearch
@@ -80,7 +79,7 @@ def app():
                 create_database(str(db.engine.url))
         db.create_all()
         list(search.create(ignore=[400]))
-        sleep(5)
+        search.flush_and_refresh('_all')
 
     with app.app_context():
         yield app

@@ -81,8 +81,7 @@ in this example we use an in-memory SQLite database):
 And create the indices on Elasticsearch.
 
 >>> indices = list(ext_search.create(ignore=[400]))
->>> from time import sleep
->>> sleep(5)
+>>> ext_search.flush_and_refresh('_all')
 
 Creating OAI sets
 -----------------

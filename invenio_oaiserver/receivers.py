@@ -10,12 +10,10 @@
 
 from __future__ import absolute_import, print_function
 
-from datetime import datetime
 from time import sleep
 
 from .percolator import _delete_percolator, _new_percolator, get_record_sets
 from .tasks import update_affected_records
-from .utils import datetime_to_datestamp
 
 
 class OAIServerUpdater(object):

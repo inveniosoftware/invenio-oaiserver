@@ -8,15 +8,12 @@
 
 """Percolator test cases."""
 
-from datetime import datetime
-from time import sleep
-
 import pytest
-from dateutil.parser import parse as iso2dt
 from helpers import create_record, run_after_insert_oai_set
 from invenio_db import db
 from invenio_records.api import Record
 from invenio_records.models import RecordMetadata
+from invenio_search import current_search
 from mock import patch
 
 from invenio_oaiserver import current_oaiserver
@@ -37,7 +34,7 @@ def test_search_pattern_change(app, without_oaiset_signals, schema):
     db.session.add(oaiset)
     db.session.commit()
     run_after_insert_oai_set()
-    sleep(2)
+    current_search.flush_and_refresh('records')
     record = Record.get_record(rec_uuid)
     assert record['_oai']['sets'] == ['a']
 
@@ -47,7 +44,7 @@ def test_search_pattern_change(app, without_oaiset_signals, schema):
     db.session.merge(oaiset)
     db.session.commit()
     after_update_oai_set(None, None, oaiset)
-    sleep(2)
+    current_search.flush_and_refresh('records')
     record = Record.get_record(rec_uuid)
     record.commit()
     assert record['_oai']['sets'] == []
@@ -158,8 +155,7 @@ def test_populate_oaisets(app, without_oaiset_signals, schema):
     })
     assert 'sets' not in record8['_oai']  # title is not 'foo'
 
-    # wait ElasticSearch end to index records
-    sleep(5)
+    current_search.flush_and_refresh('records')
 
     # test delete
     current_oaiserver.unregister_signals_oaiset()
