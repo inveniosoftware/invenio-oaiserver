@@ -63,8 +63,7 @@ before_install:
   - "nvm install 6; nvm use 6"
   - "mkdir /tmp/elasticsearch"
   - "wget -O - ${ES_URL} | tar xz --directory=/tmp/elasticsearch --strip-components=1"
-  - "/tmp/elasticsearch/bin/elasticsearch &"
-  - "sleep 20"
+  - "/tmp/elasticsearch/bin/elasticsearch > /tmp/local-es.log &"
   - "travis_retry pip install --upgrade pip setuptools py"
   - "travis_retry pip install twine wheel coveralls requirements-builder"
   - "requirements-builder -e $EXTRAS --level=min setup.py > .travis-lowest-requirements.txt"
@@ -76,6 +75,11 @@ before_install:
 install:
   - "travis_retry pip install -r .travis-${REQUIREMENTS}-requirements.txt"
   - "travis_retry pip install -e .[${EXTRAS}]"
+
+before_script:
+  # Allow ES to start
+  - sleep 10
+  - curl http://127.0.0.1:9200 && echo "Elasticsearch is up!" || cat /tmp/local-es.log
 
 script:
   - /tmp/elasticsearch/bin/elasticsearch --version
