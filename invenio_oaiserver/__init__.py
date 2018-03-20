@@ -137,6 +137,34 @@ field ``updated`` contains ISO8601 datetime of the last record metadata
 modification according to following rules for `selective harvesting`_.
 
 .. _selective harvesting: https://www.openarchives.org/OAI/openarchivesprotocol.html#SelectiveHarvestingandDatestamps
+
+XSL Stylesheet
+--------------
+OAI 2.0 results can be nicely presented to the user navigating to the OAI
+Server by defining an XSL Stylesheet to transform XML into HTML.
+
+You can configure the module to use a static XSL file or to fetch it from a
+remote server.
+
+To use a local XSL Stylesheet, place the file in a `static` folder, and set
+the relative url in the config `OAISERVER_XSL_URL`. For example:
+
+.. code-block:: python
+
+    OAISERVER_XSL_URL = /static/xsl/oai2.xsl
+
+To use a remote XSL Stylesheet, set the config variable to an absolute url:
+
+.. code-block:: python
+
+    OAISERVER_XSL_URL = https://www.mydomain.com/oai2.xsl
+
+Be aware of CORS restrictions when fetching content from remote servers.
+
+You can obtain an already defined XSL Stylesheet for OAIS 2.0 on `EPrints
+repository`.
+
+.. _EPrints repository: https://raw.githubusercontent.com/eprints/eprints/3.3/lib/static/oai2.xsl
 """
 
 from __future__ import absolute_import, print_function

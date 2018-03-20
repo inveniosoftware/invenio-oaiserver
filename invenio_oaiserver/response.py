@@ -53,9 +53,10 @@ def envelope(**kwargs):
                  '{0} {1}'.format(NS_OAIPMH, NS_OAIPMH_XSD))
     e_tree = ElementTree(element=e_oaipmh)
 
-    e_oaipmh.addprevious(etree.ProcessingInstruction(
-        'xml-stylesheet', 'type="text/xsl" href="{0}"'.format(url_for(
-            'invenio_oaiserver.static', filename='xsl/oai2.v1.0.xsl'))))
+    if current_app.config['OAISERVER_XSL_URL']:
+        e_oaipmh.addprevious(etree.ProcessingInstruction(
+            'xml-stylesheet', 'type="text/xsl" href="{0}"'
+                .format(current_app.config['OAISERVER_XSL_URL'])))
 
     e_responseDate = SubElement(
         e_oaipmh, etree.QName(

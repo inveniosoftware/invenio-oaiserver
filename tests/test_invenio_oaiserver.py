@@ -44,6 +44,19 @@ def test_view(app):
         res = client.get("/oai2d?verb=Identify")
         assert res.status_code == 200
 
+        # no XSL transformation by default
+        assert b'xml-stylesheet' not in res.data
+
+
+def test_view_with_xsl(app):
+    """Test view."""
+    with app.test_client() as client:
+        app.config['OAISERVER_XSL_URL'] = 'testdomain.com/oai2.xsl'
+        res = client.get("/oai2d?verb=Identify")
+        assert res.status_code == 200
+
+        assert b'xml-stylesheet' in res.data
+
 
 def test_alembic(app):
     """Test alembic recipes."""

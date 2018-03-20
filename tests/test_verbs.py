@@ -12,9 +12,8 @@ from __future__ import absolute_import
 
 import uuid
 from copy import deepcopy
-from datetime import datetime, timedelta
+from datetime import timedelta
 
-import pytest
 from helpers import run_after_insert_oai_set
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer

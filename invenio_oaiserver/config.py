@@ -166,3 +166,23 @@ If the parameter can take an arbitrary amount of elements it can be a list:
                 http://oai.south.org/repo.cgi]
 
 """
+
+OAISERVER_XSL_URL = None
+"""Specify the url (relative or absolute) to the XML Stylesheet file to
+transform XML OAI 2.0 responses into XHTML.
+
+The url can be a relative path to a local static file:
+
+.. code-block:: python
+
+    OAISERVER_OAI2_XSL_PATH = '/static/xsl/oai2.xsl'
+
+or an absolute url to a remote file (be aware of CORS restrictions):
+
+.. code-block:: python
+
+    OAISERVER_OAI2_XSL_PATH = 'https//www.otherdomain.org/oai2.xsl'
+
+You can obtain an already defined XSL on EPrints repository:
+https://raw.githubusercontent.com/eprints/eprints/3.3/lib/static/oai2.xsl
+"""
