@@ -150,20 +150,20 @@ the relative url in the config `OAISERVER_XSL_URL`. For example:
 
 .. code-block:: python
 
-    OAISERVER_XSL_URL = /static/xsl/oai2.xsl
+    OAISERVER_XSL_URL = '/static/xsl/oai2.xsl'
 
 To use a remote XSL Stylesheet, set the config variable to an absolute url:
 
 .. code-block:: python
 
-    OAISERVER_XSL_URL = https://www.mydomain.com/oai2.xsl
+    OAISERVER_XSL_URL = 'https://www.mydomain.com/oai2.xsl'
 
 Be aware of CORS restrictions when fetching content from remote servers.
 
 You can obtain an already defined XSL Stylesheet for OAIS 2.0 on `EPrints
-repository`.
-
-.. _EPrints repository: https://raw.githubusercontent.com/eprints/eprints/3.3/lib/static/oai2.xsl
+repository
+<https://raw.githubusercontent.com/eprints/eprints/3.3/lib/static/oai2.xsl>`_
+(GPLv3 licensed).
 """
 
 from __future__ import absolute_import, print_function

@@ -183,6 +183,8 @@ or an absolute url to a remote file (be aware of CORS restrictions):
 
     OAISERVER_OAI2_XSL_PATH = 'https//www.otherdomain.org/oai2.xsl'
 
-You can obtain an already defined XSL on EPrints repository:
-https://raw.githubusercontent.com/eprints/eprints/3.3/lib/static/oai2.xsl
+You can obtain an already defined XSL Stylesheet for OAIS 2.0 on `EPrints
+repository
+<https://raw.githubusercontent.com/eprints/eprints/3.3/lib/static/oai2.xsl>`_
+(GPLv3 licensed).
 """
