@@ -19,9 +19,9 @@ tests_require = [
     'SQLAlchemy-Continuum>=1.2.1',
     'check-manifest>=0.25',
     'coverage>=4.0',
-    'invenio-indexer>=1.0.0a10',
-    'invenio-jsonschemas>=1.0.0a5',
-    'invenio-marc21>=1.0.0a7',
+    'invenio-indexer>=1.0.0',
+    'invenio-jsonschemas>=1.0.0',
+    'invenio-marc21>=1.0.0a8',
     'isort>=4.2.2',
     'mock>=1.3.0',
     'pydocstyle>=1.0.0',
@@ -30,7 +30,7 @@ tests_require = [
     'pytest>=2.8.0,!=3.3.0',
 ]
 
-invenio_search_version = '1.0.0b4'
+invenio_search_version = '1.0.0'
 
 extras_require = {
     'admin': [
@@ -54,13 +54,13 @@ extras_require = {
     ],
     # Database
     'mysql': [
-        'invenio-db[mysql]>=1.0.0b8',
+        'invenio-db[mysql]>=1.0.0',
     ],
     'postgresql': [
-        'invenio-db[postgresql]>=1.0.0b8',
+        'invenio-db[postgresql]>=1.0.0',
     ],
     'sqlite': [
-        'invenio-db>=1.0.0b8',
+        'invenio-db>=1.0.0',
     ],
     'tests': tests_require,
 }
@@ -82,8 +82,8 @@ install_requires = [
     'Flask>=0.11.1',
     'Flask-BabelEx>=0.9.2',
     'dojson>=1.2.0',
-    'invenio-pidstore>=1.0.0b1',
-    'invenio-records>=1.0.0b3',
+    'invenio-pidstore>=1.0.0',
+    'invenio-records>=1.0.0',
     'lxml>=3.5.0',
     'marshmallow>=2.7.0',
     'webargs>=1.3.2',
@@ -156,6 +156,6 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
     ],
 )
