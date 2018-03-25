@@ -9,6 +9,9 @@
  Invenio-OAIServer
 ===================
 
+.. image:: https://img.shields.io/github/license/inveniosoftware/invenio-oaiserver.svg
+        :target: https://github.com/inveniosoftware/invenio-oaiserver/blob/master/LICENSE
+
 .. image:: https://img.shields.io/travis/inveniosoftware/invenio-oaiserver.svg
         :target: https://travis-ci.org/inveniosoftware/invenio-oaiserver
 
