@@ -175,13 +175,13 @@ The url can be a relative path to a local static file:
 
 .. code-block:: python
 
-    OAISERVER_OAI2_XSL_PATH = '/static/xsl/oai2.xsl'
+    OAISERVER_XSL_URL = '/static/xsl/oai2.xsl'
 
 or an absolute url to a remote file (be aware of CORS restrictions):
 
 .. code-block:: python
 
-    OAISERVER_OAI2_XSL_PATH = 'https//www.otherdomain.org/oai2.xsl'
+    OAISERVER_XSL_URL = 'https//www.otherdomain.org/oai2.xsl'
 
 You can obtain an already defined XSL Stylesheet for OAIS 2.0 on `EPrints
 repository
