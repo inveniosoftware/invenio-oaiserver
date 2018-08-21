@@ -378,6 +378,24 @@ def test_listsets(app):
         assert text[0] == 'test desc'
 
 
+def test_listsets_invalid_name(app):
+    """Test ListSets with invalid unicode character for XML."""
+    with app.test_request_context():
+        current_oaiserver.unregister_signals_oaiset()
+        with db.session.begin_nested():
+            a = OAISet(spec='test', name=u'uni\x01co\x0bde',
+                       description='test desc')
+            db.session.add(a)
+
+        with app.test_client() as c:
+            result = c.get('/oai2d?verb=ListSets')
+
+        tree = etree.fromstring(result.data)
+
+        assert tree.xpath('/x:OAI-PMH/x:ListSets/x:set/x:setName',
+                          namespaces=NAMESPACES)[0].text == 'unicode'
+
+
 def test_fail_missing_metadataPrefix(app):
     """Test ListRecords fail missing metadataPrefix."""
     queries = [

@@ -22,7 +22,7 @@ from .models import OAISet
 from .provider import OAIIDProvider
 from .query import get_records
 from .resumption_token import serialize
-from .utils import datetime_to_datestamp, serializer
+from .utils import datetime_to_datestamp, sanitize_unicode, serializer
 
 NS_OAIPMH = 'http://www.openarchives.org/OAI/2.0/'
 NS_OAIPMH_XSD = 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd'
@@ -184,7 +184,7 @@ def listsets(**kwargs):
         e_setSpec = SubElement(e_set, etree.QName(NS_OAIPMH, 'setSpec'))
         e_setSpec.text = oai_set.spec
         e_setName = SubElement(e_set, etree.QName(NS_OAIPMH, 'setName'))
-        e_setName.text = oai_set.name
+        e_setName.text = sanitize_unicode(oai_set.name)
         if oai_set.description:
             e_setDescription = SubElement(e_set, etree.QName(NS_OAIPMH,
                                                              'setDescription'))
