@@ -12,9 +12,9 @@ from __future__ import absolute_import
 
 import uuid
 from copy import deepcopy
-from datetime import timedelta
+from datetime import datetime, timedelta
 
-from helpers import run_after_insert_oai_set
+from helpers import create_record, run_after_insert_oai_set
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_pidstore.minters import recid_minter
@@ -183,6 +183,47 @@ def test_identify(app):
             '{http://www.openarchives.org/OAI/2.0/oai-identifier}' + \
             'sampleIdentifier'
         assert children[3].text == sampleIdentifier
+
+
+def test_identify_earliest_date(app, schema):
+
+    with app.test_client() as c:
+        result = c.get('/oai2d?verb=Identify')
+        assert 200 == result.status_code
+
+        tree = etree.fromstring(result.data)
+        earliestDatestamp = tree.xpath(
+            '/x:OAI-PMH/x:Identify/x:earliestDatestamp',
+            namespaces=NAMESPACES)
+        assert earliestDatestamp[0].text == '0001-01-01T00:00:00Z'
+
+    first_record = create_record(app, {
+        '_oai': {'sets': ['a']}, 'title_statement': {'title': 'Test0'},
+        '_oai_id': 1, '$schema': schema
+    })
+
+    first_record.model.created = datetime(2000, 1, 1, 13, 0, 0)
+    RecordIndexer().index(first_record)
+
+    create_record(app, {
+        '_oai': {'sets': ['a']}, 'title_statement': {'title': 'Test1'},
+        '_oai_id': 2, '$schema': schema
+    })
+    create_record(app, {
+        '_oai': {'sets': ['a']}, 'title_statement': {'title': 'Test2'},
+        '_oai_id': 3, '$schema': schema
+    })
+    app.extensions['invenio-search'].flush_and_refresh('records')
+
+    with app.test_client() as c:
+        result = c.get('/oai2d?verb=Identify')
+        assert 200 == result.status_code
+
+        tree = etree.fromstring(result.data)
+        earliestDatestamp = tree.xpath(
+            '/x:OAI-PMH/x:Identify/x:earliestDatestamp',
+            namespaces=NAMESPACES)
+        assert earliestDatestamp[0].text == '2000-01-01T13:00:00Z'
 
 
 def test_getrecord(app):

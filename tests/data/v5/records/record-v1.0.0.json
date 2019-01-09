@@ -26,6 +26,9 @@
         },
         "genre": {
           "type": "text"
+        },
+        "_created": {
+          "type": "date"
         }
       }
     }

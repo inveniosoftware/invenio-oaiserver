@@ -29,6 +29,9 @@
         },
         "genre": {
           "type": "string"
+        },
+        "_created": {
+          "type": "date"
         }
       }
     }
