@@ -1,26 +1,10 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2016 CERN.
+# Copyright (C) 2016-2018 CERN.
 #
-# Invenio is free software; you can redistribute it
-# and/or modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of the
-# License, or (at your option) any later version.
-#
-# Invenio is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Invenio; if not, write to the
-# Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307, USA.
-#
-# In applying this license, CERN does not
-# waive the privileges and immunities granted to it by virtue of its status
-# as an Intergovernmental Organization or submit itself to any jurisdiction.
+# Invenio is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
 
 
 """Utilities for loading test records."""
@@ -28,7 +12,6 @@
 from __future__ import absolute_import, print_function
 
 import uuid
-from time import sleep
 
 import mock
 import pkg_resources
@@ -40,9 +23,11 @@ from invenio_pidstore.minters import recid_minter
 from invenio_pidstore.models import PersistentIdentifier
 from invenio_records import Record
 from invenio_records.models import RecordMetadata
-from invenio_search import current_search_client
+from invenio_search import current_search, current_search_client
 
 from invenio_oaiserver.minters import oaiid_minter
+from invenio_oaiserver.models import OAISet
+from invenio_oaiserver.receivers import after_insert_oai_set
 
 
 def load_records(app, filename, schema, tries=5):
@@ -72,7 +57,7 @@ def load_records(app, filename, schema, tries=5):
             response = current_search_client.search()
             if response['hits']['total'] >= len(records):
                 break
-            sleep(5)
+            current_search.flush_and_refresh('_all')
 
     return records
 
@@ -90,3 +75,23 @@ def remove_records(app, record_ids):
                 db.session.delete(pid)
             db.session.delete(record)
         db.session.commit()
+
+
+def run_after_insert_oai_set():
+    """Run task run_after_insert_oai_set."""
+    for oaiset_id in [oaiset_.spec for oaiset_ in OAISet.query.all()]:
+        oaiset = OAISet.query.filter_by(spec=oaiset_id).one()
+        after_insert_oai_set(None, None, oaiset)
+
+
+def create_record(app, item_dict, mint_oaiid=True):
+    """Create test record."""
+    indexer = RecordIndexer()
+    with app.test_request_context():
+        record_id = uuid.uuid4()
+        recid_minter(record_id, item_dict)
+        if mint_oaiid:
+            oaiid_minter(record_id, item_dict)
+        record = Record.create(item_dict, id_=record_id)
+        indexer.index(record)
+        return record

@@ -1,26 +1,10 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015, 2016 CERN.
+# Copyright (C) 2015-2018 CERN.
 #
-# Invenio is free software; you can redistribute it
-# and/or modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of the
-# License, or (at your option) any later version.
-#
-# Invenio is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Invenio; if not, write to the
-# Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307, USA.
-#
-# In applying this license, CERN does not
-# waive the privileges and immunities granted to it by virtue of its status
-# as an Intergovernmental Organization or submit itself to any jurisdiction.
+# Invenio is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
 
 """The details of the configuration options for OAI-PMH server."""
 
@@ -60,14 +44,14 @@ with meanings as defined in ISO8601.
 """
 
 OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME = 1 * 60
-"""The expiration time of a resuption token in seconds.
+"""The expiration time of a resumption token in seconds.
 
 **Default: 60 seconds = 1 minute**.
 
 .. note::
 
     Setting longer expiration time may have a negative impact on your
-    Elastic search cluster as it might need to keep open cursors.
+    Elasticsearch cluster as it might need to keep open cursors.
 
     https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
 """
@@ -120,13 +104,8 @@ OAISERVER_REGISTER_SET_SIGNALS = True
 """Catch set insert/update/delete signals and update the `_oai` record
 field."""
 
-OAISERVER_QUERY_PARSER = 'invenio_query_parser.parser:Main'
+OAISERVER_QUERY_PARSER = 'elasticsearch_dsl:Q'
 """Define query parser for OIASet definition."""
-
-OAISERVER_QUERY_WALKERS = [
-    'invenio_query_parser.walkers.pypeg_to_ast:PypegConverter',
-]
-"""List of query AST walkers."""
 
 OAISERVER_CACHE_KEY = 'DynamicOAISets::'
 """Key prefix added before all keys in cache server."""
@@ -136,3 +115,76 @@ OAISERVER_CELERY_TASK_CHUNK_SIZE = 100
 
 OAISERVER_CONTROL_NUMBER_FETCHER = 'recid'
 """PIDStore fetcher for the OAI ID control number."""
+
+OAISERVER_DESCRIPTIONS = []
+"""Specify the optional description containers that can be used to express
+properties of the repository that are not covered by the standard response
+to the Identify verb.
+For further information see:
+http://www.openarchives.org/OAI/2.0/guidelines.htm
+
+The `eprints`, `oai_identifier` and `friends` description can be added using
+the helper functions in utils.py as follows:
+
+.. code-block:: python
+
+    from invenio_oaiserver.utils import eprints_description
+    from invenio_oaiserver.utils import friends_description
+    from invenio_oaiserver.utils import oai_identifier_description
+
+    OAISERVER_DESCRIPTIONS = [
+        eprints_description(metadataPolicy, dataPolicy,
+                            submissionPolicy, content),
+        oai_identifier_description(scheme, repositoryIdentifier,
+                                   delimiter, sampleIdentifier),
+        friends_description(baseUrls)
+    ]
+
+The parameters of each description element are strings if their type is unique
+or dictionaries, with the type being the key, if it can differ.
+E.g. the dataPolicy of the eprints element can consist of a
+text and or URL so it will have the form:
+
+.. code-block:: python
+
+    metadataPolicy = {'text': 'Metadata can be used by commercial'
+                      'and non-commercial service providers',
+                      'URL': 'http://arXiv.org/arXiv_metadata_use.htm'}
+
+Whereas for the scheme of the oai_identifier it will just be:
+
+.. code-block:: python
+
+    scheme = 'oai'
+
+If the parameter can take an arbitrary amount of elements it can be a list:
+
+.. code-block:: python
+
+    baseUrls = [http://oai.east.org/foo/,
+                http://oai.hq.org/bar/,
+                http://oai.south.org/repo.cgi]
+
+"""
+
+OAISERVER_XSL_URL = None
+"""Specify the url (relative or absolute) to the XML Stylesheet file to
+transform XML OAI 2.0 responses into XHTML.
+
+The url can be a relative path to a local static file:
+
+.. code-block:: python
+
+    OAISERVER_XSL_URL = '/static/xsl/oai2.xsl'
+
+or an absolute url to a remote file (be aware of CORS restrictions):
+
+.. code-block:: python
+
+    OAISERVER_XSL_URL = 'https//www.otherdomain.org/oai2.xsl'
+
+You can obtain an already defined XSL Stylesheet for OAIS 2.0 on `EPrints
+repository
+<https://raw.githubusercontent.com/eprints/eprints/3.3/lib/static/oai2.xsl>`_
+(GPLv3 licensed).
+"""

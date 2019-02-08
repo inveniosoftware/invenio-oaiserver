@@ -1,31 +1,16 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015, 2016 CERN.
+# Copyright (C) 2015-2019 CERN.
 #
-# Invenio is free software; you can redistribute it
-# and/or modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of the
-# License, or (at your option) any later version.
-#
-# Invenio is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Invenio; if not, write to the
-# Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307, USA.
-#
-# In applying this license, CERN does not
-# waive the privileges and immunities granted to it by virtue of its status
-# as an Intergovernmental Organization or submit itself to any jurisdiction.
+# Invenio is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
 
 """OAI-PMH 2.0 response generator."""
 
 from datetime import MINYEAR, datetime, timedelta
 
+import arrow
 from flask import current_app, url_for
 from invenio_db import db
 from invenio_records.api import Record
@@ -36,9 +21,9 @@ from lxml.etree import Element, ElementTree, SubElement
 from .fetchers import oaiid_fetcher
 from .models import OAISet
 from .provider import OAIIDProvider
-from .query import get_records
+from .query import OAIServerSearch, get_records
 from .resumption_token import serialize
-from .utils import datetime_to_datestamp, serializer
+from .utils import datetime_to_datestamp, sanitize_unicode, serializer
 
 NS_OAIPMH = 'http://www.openarchives.org/OAI/2.0/'
 NS_OAIPMH_XSD = 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd'
@@ -69,9 +54,10 @@ def envelope(**kwargs):
                  '{0} {1}'.format(NS_OAIPMH, NS_OAIPMH_XSD))
     e_tree = ElementTree(element=e_oaipmh)
 
-    e_oaipmh.addprevious(etree.ProcessingInstruction(
-        'xml-stylesheet', 'type="text/xsl" href="{0}"'.format(url_for(
-            'invenio_oaiserver.static', filename='xsl/oai2.v1.0.xsl'))))
+    if current_app.config['OAISERVER_XSL_URL']:
+        e_oaipmh.addprevious(etree.ProcessingInstruction(
+            'xml-stylesheet', 'type="text/xsl" href="{0}"'
+                .format(current_app.config['OAISERVER_XSL_URL'])))
 
     e_responseDate = SubElement(
         e_oaipmh, etree.QName(
@@ -130,10 +116,18 @@ def identify(**kwargs):
     e_earliestDatestamp = SubElement(
         e_identify, etree.QName(
             NS_OAIPMH, 'earliestDatestamp'))
-    e_earliestDatestamp.text = datetime_to_datestamp(
-        db.session.query(db.func.min(RecordMetadata.created)).scalar() or
-        datetime(MINYEAR, 1, 1)
-    )
+    earliest_date = datetime(MINYEAR, 1, 1)
+    earliest_record = OAIServerSearch(
+        index=current_app.config['OAISERVER_RECORD_INDEX']).sort({
+            "_created": {"order": "asc"}})[0:1].execute()
+    if len(earliest_record.hits.hits) > 0:
+        created_date_str = earliest_record.hits.hits[0].get(
+            "_source", {}).get('_created')
+        if created_date_str:
+            earliest_date = arrow.get(
+                created_date_str).to('utc').datetime.replace(tzinfo=None)
+
+    e_earliestDatestamp.text = datetime_to_datestamp(earliest_date)
 
     e_deletedRecord = SubElement(e_identify,
                                  etree.QName(NS_OAIPMH, 'deletedRecord'))
@@ -199,7 +193,7 @@ def listsets(**kwargs):
         e_setSpec = SubElement(e_set, etree.QName(NS_OAIPMH, 'setSpec'))
         e_setSpec.text = oai_set.spec
         e_setName = SubElement(e_set, etree.QName(NS_OAIPMH, 'setName'))
-        e_setName.text = oai_set.name
+        e_setName.text = sanitize_unicode(oai_set.name)
         if oai_set.description:
             e_setDescription = SubElement(e_set, etree.QName(NS_OAIPMH,
                                                              'setDescription'))

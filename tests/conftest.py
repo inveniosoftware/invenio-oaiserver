@@ -1,27 +1,10 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015, 2016 CERN.
+# Copyright (C) 2015-2018 CERN.
 #
-# Invenio is free software; you can redistribute it
-# and/or modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of the
-# License, or (at your option) any later version.
-#
-# Invenio is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Invenio; if not, write to the
-# Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307, USA.
-#
-# In applying this license, CERN does not
-# waive the privileges and immunities granted to it by virtue of its status
-# as an Intergovernmental Organization or submit itself to any jurisdiction.
-
+# Invenio is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
 
 """Pytest configuration."""
 
@@ -30,7 +13,6 @@ from __future__ import absolute_import, print_function
 import os
 import shutil
 import tempfile
-from time import sleep
 
 import pytest
 from elasticsearch import Elasticsearch
@@ -46,7 +28,6 @@ from invenio_records import InvenioRecords
 from invenio_search import InvenioSearch
 from sqlalchemy_utils.functions import create_database, database_exists, \
     drop_database
-from werkzeug.contrib.cache import SimpleCache
 
 from invenio_oaiserver import InvenioOAIServer
 from invenio_oaiserver.views.server import blueprint
@@ -59,21 +40,21 @@ def app():
     app = Flask('testapp', instance_path=instance_path)
     app.config.update(
         CELERY_ALWAYS_EAGER=True,
+        CELERY_TASK_ALWAYS_EAGER=True,
         CELERY_CACHE_BACKEND='memory',
         CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
+        CELERY_TASK_EAGER_PROPAGATES=True,
         CELERY_RESULT_BACKEND='cache',
         JSONSCHEMAS_HOST='inveniosoftware.org',
         TESTING=True,
         SECRET_KEY='CHANGE_ME',
         SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI',
-                                               'sqlite://'),
+                                               'sqlite:///test.db'),
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
         SERVER_NAME='app',
+        OAISERVER_ID_PREFIX='oai:inveniosoftware.org:recid/',
         OAISERVER_RECORD_INDEX='_all',
-        # Disable set signals because the celery tasks cannot be run
-        # synchronously
-        OAISERVER_REGISTER_SET_SIGNALS=False,
-        SEARCH_ELASTIC_KEYWORD_MAPPING={None: ['_all']},
+        OAISERVER_REGISTER_SET_SIGNALS=True,
     )
     InvenioDB(app)
     FlaskCeleryExt(app)
@@ -95,7 +76,7 @@ def app():
                 create_database(str(db.engine.url))
         db.create_all()
         list(search.create(ignore=[400]))
-        sleep(5)
+        search.flush_and_refresh('_all')
 
     with app.app_context():
         yield app
@@ -139,12 +120,31 @@ def bibliographic_data(app):
 
 
 @pytest.yield_fixture
-def with_record_signals(app):
-    """Enable the record insert/update signals for OAISets."""
+def without_oaiset_signals(app):
+    """Temporary disable oaiset signals."""
     from invenio_oaiserver import current_oaiserver
-    current_oaiserver.register_signals()
-    prev_cache = current_oaiserver.cache
-    current_oaiserver.cache = SimpleCache()
+    current_oaiserver.unregister_signals_oaiset()
     yield
-    current_oaiserver.cache = prev_cache
-    current_oaiserver.unregister_signals()
+    current_oaiserver.register_signals_oaiset()
+
+
+@pytest.fixture
+def schema():
+    """Get record schema."""
+    return {
+        'allOf': [{
+            'type': 'object',
+            'properties': {
+                'title_statement': {
+                    'type': 'object',
+                    'properties': {
+                        'title': {'type': 'string'}
+                    }
+                },
+                'genre': {'type': 'string'},
+            },
+        }, {
+            '$ref': 'http://inveniosoftware.org/schemas/'
+                    'oaiserver/internal-v1.1.0.json',
+        }]
+    }

@@ -1,46 +1,33 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015, 2016 CERN.
+# Copyright (C) 2015-2019 CERN.
 #
-# Invenio is free software; you can redistribute it
-# and/or modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of the
-# License, or (at your option) any later version.
-#
-# Invenio is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Invenio; if not, write to the
-# Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307, USA.
-#
-# In applying this license, CERN does not
-# waive the privileges and immunities granted to it by virtue of its status
-# as an Intergovernmental Organization or submit itself to any jurisdiction.
+# Invenio is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
 
 """Test OAI verbs."""
 
 from __future__ import absolute_import
 
-import datetime
 import uuid
 from copy import deepcopy
-from time import sleep
+from datetime import datetime, timedelta
 
+from helpers import create_record, run_after_insert_oai_set
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_pidstore.minters import recid_minter
 from invenio_records.api import Record
+from invenio_search import current_search
 from lxml import etree
 
+from invenio_oaiserver import current_oaiserver
 from invenio_oaiserver.minters import oaiid_minter
 from invenio_oaiserver.models import OAISet
-from invenio_oaiserver.response import NS_DC, NS_OAIDC, NS_OAIPMH, \
-    datetime_to_datestamp
+from invenio_oaiserver.response import NS_DC, NS_OAIDC, NS_OAIPMH
+from invenio_oaiserver.utils import datetime_to_datestamp, \
+    eprints_description, friends_description, oai_identifier_description
 
 NAMESPACES = {'x': NS_OAIPMH, 'y': NS_OAIDC, 'z': NS_DC}
 
@@ -71,13 +58,29 @@ def test_wrong_verb(app):
 
 def test_identify(app):
     """Test Identify verb."""
-    FRIENDS = """<friends xmlns="http://www.openarchives.org/OAI/2.0/friends/"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/friends/
-        http://www.openarchives.org/OAI/2.0/friends.xsd">
-        <baseURL>http://example.org/oai2d</baseURL>
-    </friends>"""
-    app.config['OAISERVER_DESCRIPTIONS'] = [FRIENDS, FRIENDS]
+    # baseUrls for friends element
+    baseUrls = ['http://example.org/1',
+                'http://example.org/2']
+    # parameters for eprints element
+    content = {'URL': 'http://arXiv.org/arXiv_content.htm'}
+    metadataPolicy = {'text': 'Metadata can be used by commercial'
+                      'and non-commercial service providers',
+                      'URL': 'http://arXiv.org/arXiv_metadata_use.htm'}
+    dataPolicy = {'text': 'Full content, i.e. preprints may'
+                  'not be harvested by robots'}
+    submissionPolicy = {'URL': 'http://arXiv.org/arXiv_submission.htm'}
+    # parameters for oai-identifier element
+    scheme = 'oai'
+    repositoryIdentifier = 'oai-stuff.foo.org'
+    delimiter = ':'
+    sampleIdentifier = 'oai:oai-stuff.foo.org:5324'
+
+    app.config['OAISERVER_DESCRIPTIONS'] = \
+        [friends_description(baseUrls),
+         eprints_description(metadataPolicy, dataPolicy,
+                             submissionPolicy, content),
+         oai_identifier_description(scheme, repositoryIdentifier, delimiter,
+                                    sampleIdentifier)]
 
     with app.test_client() as c:
         result = c.get('/oai2d?verb=Identify')
@@ -96,8 +99,9 @@ def test_identify(app):
                               namespaces=NAMESPACES)
         assert len(base_url) == 1
         assert base_url[0].text == 'http://app/oai2d'
-        protocolVersion = tree.xpath('/x:OAI-PMH/x:Identify/x:protocolVersion',
-                                     namespaces=NAMESPACES)
+        protocolVersion = tree.xpath(
+            '/x:OAI-PMH/x:Identify/x:protocolVersion',
+            namespaces=NAMESPACES)
         assert len(protocolVersion) == 1
         assert protocolVersion[0].text == '2.0'
         adminEmail = tree.xpath('/x:OAI-PMH/x:Identify/x:adminEmail',
@@ -117,7 +121,109 @@ def test_identify(app):
         assert len(granularity) == 1
         description = tree.xpath('/x:OAI-PMH/x:Identify/x:description',
                                  namespaces=NAMESPACES)
-        assert len(description) == 2
+
+        friends_element = description[0]
+        for element in friends_element.getchildren():
+            for child in element.getchildren():
+                assert child.tag == \
+                    '{http://www.openarchives.org/OAI/2.0/friends/}baseURL'
+                assert child.text in baseUrls
+
+        eprints_root = description[1]
+        children = eprints_root[0].getchildren()
+        assert children[0].tag == \
+            '{http://www.openarchives.org/OAI/2.0/eprints}content'
+        leaves = children[0].getchildren()
+        assert len(leaves) == 1
+        assert leaves[0].tag == \
+            '{http://www.openarchives.org/OAI/2.0/eprints}URL'
+        assert leaves[0].text == content['URL']
+
+        assert children[1].tag == \
+            '{http://www.openarchives.org/OAI/2.0/eprints}metadataPolicy'
+        leaves = children[1].getchildren()
+        assert len(leaves) == 2
+        metadataPolicyContents = \
+            ['{http://www.openarchives.org/OAI/2.0/eprints}text',
+             '{http://www.openarchives.org/OAI/2.0/eprints}URL']
+        assert set([leaves[0].tag, leaves[1].tag]) == \
+            set(metadataPolicyContents)
+        assert set([leaves[0].text, leaves[1].text]) == \
+            set(metadataPolicy.values())
+        assert children[2].tag == \
+            '{http://www.openarchives.org/OAI/2.0/eprints}dataPolicy'
+        leaves = children[2].getchildren()
+        assert len(leaves) == 1
+        assert leaves[0].tag == \
+            '{http://www.openarchives.org/OAI/2.0/eprints}text'
+        assert leaves[0].text == dataPolicy['text']
+
+        assert children[3].tag == \
+            '{http://www.openarchives.org/OAI/2.0/eprints}submissionPolicy'
+        leaves = children[3].getchildren()
+        assert len(leaves) == 1
+        assert leaves[0].tag == \
+            '{http://www.openarchives.org/OAI/2.0/eprints}URL'
+        assert leaves[0].text == submissionPolicy['URL']
+
+        oai_identifier_root = description[2]
+        children = oai_identifier_root[0].getchildren()
+        assert children[0].tag == \
+            '{http://www.openarchives.org/OAI/2.0/oai-identifier}scheme'
+        assert children[0].text == scheme
+        assert children[1].tag == \
+            '{http://www.openarchives.org/OAI/2.0/oai-identifier}' + \
+            'repositoryIdentifier'
+        assert children[1].text == repositoryIdentifier
+        assert children[2].tag == \
+            '{http://www.openarchives.org/OAI/2.0/oai-identifier}' + \
+            'delimiter'
+        assert children[2].text == delimiter
+        assert children[3].tag == \
+            '{http://www.openarchives.org/OAI/2.0/oai-identifier}' + \
+            'sampleIdentifier'
+        assert children[3].text == sampleIdentifier
+
+
+def test_identify_earliest_date(app, schema):
+
+    with app.test_client() as c:
+        result = c.get('/oai2d?verb=Identify')
+        assert 200 == result.status_code
+
+        tree = etree.fromstring(result.data)
+        earliestDatestamp = tree.xpath(
+            '/x:OAI-PMH/x:Identify/x:earliestDatestamp',
+            namespaces=NAMESPACES)
+        assert earliestDatestamp[0].text == '0001-01-01T00:00:00Z'
+
+    first_record = create_record(app, {
+        '_oai': {'sets': ['a']}, 'title_statement': {'title': 'Test0'},
+        '_oai_id': 1, '$schema': schema
+    })
+
+    first_record.model.created = datetime(2000, 1, 1, 13, 0, 0)
+    RecordIndexer().index(first_record)
+
+    create_record(app, {
+        '_oai': {'sets': ['a']}, 'title_statement': {'title': 'Test1'},
+        '_oai_id': 2, '$schema': schema
+    })
+    create_record(app, {
+        '_oai': {'sets': ['a']}, 'title_statement': {'title': 'Test2'},
+        '_oai_id': 3, '$schema': schema
+    })
+    app.extensions['invenio-search'].flush_and_refresh('records')
+
+    with app.test_client() as c:
+        result = c.get('/oai2d?verb=Identify')
+        assert 200 == result.status_code
+
+        tree = etree.fromstring(result.data)
+        earliestDatestamp = tree.xpath(
+            '/x:OAI-PMH/x:Identify/x:earliestDatestamp',
+            namespaces=NAMESPACES)
+        assert earliestDatestamp[0].text == '2000-01-01T13:00:00Z'
 
 
 def test_getrecord(app):
@@ -274,6 +380,7 @@ def _listmetadataformats(app, query):
 def test_listsets(app):
     """Test ListSets."""
     with app.test_request_context():
+        current_oaiserver.unregister_signals_oaiset()
         with db.session.begin_nested():
             a = OAISet(spec='test', name='Test', description='test desc')
             db.session.add(a)
@@ -310,6 +417,24 @@ def test_listsets(app):
             'z:description/text()', namespaces=NAMESPACES)
         assert len(text) == 1
         assert text[0] == 'test desc'
+
+
+def test_listsets_invalid_name(app):
+    """Test ListSets with invalid unicode character for XML."""
+    with app.test_request_context():
+        current_oaiserver.unregister_signals_oaiset()
+        with db.session.begin_nested():
+            a = OAISet(spec='test', name=u'uni\x01co\x0bde',
+                       description='test desc')
+            db.session.add(a)
+
+        with app.test_client() as c:
+            result = c.get('/oai2d?verb=ListSets')
+
+        tree = etree.fromstring(result.data)
+
+        assert tree.xpath('/x:OAI-PMH/x:ListSets/x:set/x:setName',
+                          namespaces=NAMESPACES)[0].text == 'unicode'
 
 
 def test_fail_missing_metadataPrefix(app):
@@ -372,7 +497,7 @@ def test_listrecords(app):
                 data = {'title_statement': {'title': 'Test{0}'.format(idx)}}
                 recid_minter(record_id, data)
                 oaiid_minter(record_id, data)
-                Record.create(data, id_=record_id)
+                record = Record.create(data, id_=record_id)
                 record_ids.append(record_id)
 
         db.session.commit()
@@ -380,7 +505,7 @@ def test_listrecords(app):
         for record_id in record_ids:
             indexer.index_by_id(record_id)
 
-        sleep(5)
+        current_search.flush_and_refresh('_all')
 
         with app.test_client() as c:
             result = c.get('/oai2d?verb=ListRecords&metadataPrefix=oai_dc')
@@ -436,24 +561,51 @@ def test_listrecords(app):
         )[0]
         assert not resumption_token.text
 
+        # Check from:until range
+        with app.test_client() as c:
+            # Check date and datetime timestamps.
+            for granularity in (False, True):
+                result = c.get(
+                    '/oai2d?verb=ListRecords&metadataPrefix=oai_dc'
+                    '&from={0}&until={1}'.format(
+                        datetime_to_datestamp(
+                            record.updated - timedelta(days=1),
+                            day_granularity=granularity),
+                        datetime_to_datestamp(
+                            record.updated + timedelta(days=1),
+                            day_granularity=granularity),
+                    )
+                )
+                assert result.status_code == 200
+
+                tree = etree.fromstring(result.data)
+                assert len(tree.xpath('/x:OAI-PMH/x:ListRecords/x:record',
+                           namespaces=NAMESPACES)) == 10
+
 
 def test_listidentifiers(app):
     """Test verb ListIdentifiers."""
     from invenio_oaiserver.models import OAISet
 
     with app.app_context():
+        current_oaiserver.unregister_signals_oaiset()
+        # create new OAI Set
         with db.session.begin_nested():
-            db.session.add(OAISet(
+            oaiset = OAISet(
                 spec='test0',
                 name='Test0',
                 description='test desc 0',
                 search_pattern='title_statement.title:Test0',
-            ))
+            )
+            db.session.add(oaiset)
         db.session.commit()
+
+    run_after_insert_oai_set()
 
     with app.test_request_context():
         indexer = RecordIndexer()
 
+        # create a new record (inside the OAI Set)
         with db.session.begin_nested():
             record_id = uuid.uuid4()
             data = {'title_statement': {'title': 'Test0'}}
@@ -464,10 +616,11 @@ def test_listidentifiers(app):
         db.session.commit()
 
         indexer.index_by_id(record_id)
-        sleep(2)
+        current_search.flush_and_refresh('_all')
 
         pid_value = pid.pid_value
 
+        # get the list of identifiers
         with app.test_client() as c:
             result = c.get(
                 '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
@@ -491,26 +644,31 @@ def test_listidentifiers(app):
             namespaces=NAMESPACES
         )
         assert len(datestamp) == 1
-        assert datestamp[0].text == record['_oai']['updated']
+        assert datestamp[0].text == datetime_to_datestamp(record.updated)
 
         # Check from:until range
         with app.test_client() as c:
-            result = c.get(
-                '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
-                '&from={0}&until={1}&set=test0'.format(
-                    datetime_to_datestamp(record.updated - datetime.timedelta(
-                        1)),
-                    datetime_to_datestamp(record.updated + datetime.timedelta(
-                        1)),
+            # Check date and datetime timestamps.
+            for granularity in (False, True):
+                result = c.get(
+                    '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
+                    '&from={0}&until={1}&set=test0'.format(
+                        datetime_to_datestamp(
+                            record.updated - timedelta(1),
+                            day_granularity=granularity),
+                        datetime_to_datestamp(
+                            record.updated + timedelta(1),
+                            day_granularity=granularity),
+                    )
                 )
-            )
+                assert result.status_code == 200
 
-        tree = etree.fromstring(result.data)
-        identifier = tree.xpath(
-            '/x:OAI-PMH/x:ListIdentifiers/x:header/x:identifier',
-            namespaces=NAMESPACES
-        )
-        assert len(identifier) == 1
+                tree = etree.fromstring(result.data)
+                identifier = tree.xpath(
+                    '/x:OAI-PMH/x:ListIdentifiers/x:header/x:identifier',
+                    namespaces=NAMESPACES
+                )
+                assert len(identifier) == 1
 
 
 def test_list_sets_long(app):
@@ -519,15 +677,19 @@ def test_list_sets_long(app):
     from invenio_oaiserver.models import OAISet
 
     with app.app_context():
+        current_oaiserver.unregister_signals_oaiset()
         with db.session.begin_nested():
             for i in range(27):
-                db.session.add(OAISet(
+                oaiset = OAISet(
                     spec='test{0}'.format(i),
                     name='Test{0}'.format(i),
                     description='test desc {0}'.format(i),
                     search_pattern='title_statement.title:Test{0}'.format(i),
-                ))
+                )
+                db.session.add(oaiset)
         db.session.commit()
+
+    run_after_insert_oai_set()
 
     with app.test_client() as c:
         # First page:

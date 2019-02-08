@@ -1,54 +1,30 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2016 CERN.
+# Copyright (C) 2016-2018 CERN.
 #
-# Invenio is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of the
-# License, or (at your option) any later version.
-#
-# Invenio is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Invenio; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA 02D111-1307, USA.
+# Invenio is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
 
 """Query parser."""
 
-import pypeg2
+import six
 from elasticsearch_dsl import Q
 from flask import current_app
-from invenio_query_parser.walkers.match_unit import MatchUnit
 from invenio_search import RecordsSearch, current_search_client
-from invenio_search.walkers.elasticsearch import ElasticSearchDSL
-from werkzeug.utils import cached_property
+from werkzeug.utils import cached_property, import_string
 
-from .utils import parser, query_walkers
+from . import current_oaiserver
 
 
-class Query(object):
-    """Query object."""
-
-    def __init__(self, query=None):
-        """Parse query string using given grammar.
-
-        :param query: The query to parse. (Default: ``None``)
-        """
-        tree = pypeg2.parse(query or '', parser(), whitespace='')
-        for walker in query_walkers():
-            tree = tree.accept(walker)
-        self.query = tree
-
-    def match(self, record):
-        """Return True if record match the query.
-
-        :param record: The record in which to look for matches.
-        """
-        return self.query.accept(MatchUnit(record))
+def query_string_parser(search_pattern):
+    """Elasticsearch query string parser."""
+    if not hasattr(current_oaiserver, 'query_parser'):
+        query_parser = current_app.config['OAISERVER_QUERY_PARSER']
+        if isinstance(query_parser, six.string_types):
+            query_parser = import_string(query_parser)
+        current_oaiserver.query_parser = query_parser
+    return current_oaiserver.query_parser('query_string', query=search_pattern)
 
 
 class OAIServerSearch(RecordsSearch):
@@ -84,7 +60,7 @@ def get_affected_records(spec=None, search_pattern=None):
         queries.append(Q('match', **{'_oai.sets': spec}))
 
     if search_pattern:
-        queries.append(Query(search_pattern).query.accept(ElasticSearchDSL()))
+        queries.append(query_string_parser(search_pattern=search_pattern))
 
     search = OAIServerSearch(
         index=current_app.config['OAISERVER_RECORD_INDEX'],
@@ -95,7 +71,7 @@ def get_affected_records(spec=None, search_pattern=None):
 
 
 def get_records(**kwargs):
-    """Get recordsi paginated."""
+    """Get records paginated."""
     page_ = kwargs.get('resumptionToken', {}).get('page', 1)
     size_ = current_app.config['OAISERVER_PAGE_SIZE']
     scroll = current_app.config['OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME']
@@ -119,7 +95,7 @@ def get_records(**kwargs):
         if 'until' in kwargs:
             time_range['lte'] = kwargs['until']
         if time_range:
-            search = search.filter('range', **{'_oai.updated': time_range})
+            search = search.filter('range', **{'_updated': time_range})
 
         response = search.execute().to_dict()
     else:
@@ -167,8 +143,8 @@ def get_records(**kwargs):
                         'id': result['_id'],
                         'json': result,
                         'updated': datetime.strptime(
-                            result['_source']['_oai']['updated'],
-                            '%Y-%m-%dT%H:%M:%SZ'
+                            result['_source']['_updated'][:19],
+                            '%Y-%m-%dT%H:%M:%S'
                         ),
                     }
 

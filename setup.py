@@ -1,26 +1,10 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015, 2016 CERN.
+# Copyright (C) 2015-2018 CERN.
 #
-# Invenio is free software; you can redistribute it
-# and/or modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of the
-# License, or (at your option) any later version.
-#
-# Invenio is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Invenio; if not, write to the
-# Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307, USA.
-#
-# In applying this license, CERN does not
-# waive the privileges and immunities granted to it by virtue of its status
-# as an Intergovernmental Organization or submit itself to any jurisdiction.
+# Invenio is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
 
 """Invenio module that implements OAI-PMH server."""
 
@@ -35,43 +19,57 @@ tests_require = [
     'SQLAlchemy-Continuum>=1.2.1',
     'check-manifest>=0.25',
     'coverage>=4.0',
-    'invenio-indexer>=1.0.0a8',
-    'invenio-jsonschemas>=1.0.0a3',
-    'invenio-marc21>=1.0.0a2',
+    'invenio-indexer>=1.0.0',
+    'invenio-jsonschemas>=1.0.0',
+    'invenio-marc21>=1.0.0a8',
     'isort>=4.2.2',
     'mock>=1.3.0',
     'pydocstyle>=1.0.0',
-    'pytest-cache>=1.0',
     'pytest-cov>=1.8.0',
     'pytest-pep8>=1.0.6',
-    'pytest>=2.8.0',
+    'pytest>=2.8.0,!=3.3.0',
 ]
+
+invenio_search_version = '1.0.0'
 
 extras_require = {
     'admin': [
         'Flask-Admin>=1.3.0',
     ],
     'celery': [
-        'Flask-CeleryExt>=0.2.2',
+        'Flask-CeleryExt>=0.3.0',
     ],
     'docs': [
         'Sphinx>=1.5.2',
     ],
+    # Elasticsearch
+    'elasticsearch2': [
+        'invenio-search[elasticsearch2]>={}'.format(invenio_search_version)
+    ],
+    'elasticsearch5': [
+        'invenio-search[elasticsearch5]>={}'.format(invenio_search_version)
+    ],
+    'elasticsearch6': [
+        'invenio-search[elasticsearch6]>={}'.format(invenio_search_version)
+    ],
+    # Database
     'mysql': [
-        'invenio-db[mysql]>=1.0.0b3',
+        'invenio-db[mysql]>=1.0.0',
     ],
     'postgresql': [
-        'invenio-db[postgresql]>=1.0.0b3',
+        'invenio-db[postgresql]>=1.0.0',
     ],
     'sqlite': [
-        'invenio-db>=1.0.0b3',
+        'invenio-db>=1.0.0',
     ],
     'tests': tests_require,
 }
 
 extras_require['all'] = []
 for name, reqs in extras_require.items():
-    if name[0] == ':' or name in ('mysql', 'postgresql', 'sqlite'):
+    if name[0] == ':' or name in (
+            'mysql', 'postgresql', 'sqlite',
+            'elasticsearch2', 'elasticsearch5', 'elasticsearch6'):
         continue
     extras_require['all'].extend(reqs)
 
@@ -81,19 +79,15 @@ setup_requires = [
 ]
 
 install_requires = [
+    'arrow>=0.13.0',
     'Flask>=0.11.1',
     'Flask-BabelEx>=0.9.2',
     'dojson>=1.2.0',
-    'elasticsearch>=2.0.0,<3.0.0',
-    'elasticsearch-dsl>=2.0.0,<3.0.0',
-    'functools32>=3.2.3-2; python_version=="2.7"',
-    'invenio-pidstore>=1.0.0b1',
-    'invenio-query-parser>=0.6.0',
-    'invenio-records>=1.0.0b1',
-    'invenio-search>=1.0.0a9',
+    'invenio-pidstore>=1.0.0',
+    'invenio-records>=1.0.0',
     'lxml>=3.5.0',
-    'marshmallow>=2.5.0',
-    'webargs>=1.1.0',
+    'marshmallow>=2.7.0',
+    'webargs>=1.3.2',
 ]
 
 packages = find_packages()
@@ -110,7 +104,7 @@ setup(
     description=__doc__,
     long_description=readme + '\n\n' + history,
     keywords='invenio OAI-PMH',
-    license='GPLv2',
+    license='MIT',
     author='CERN',
     author_email='info@inveniosoftware.org',
     url='https://github.com/inveniosoftware/invenio-oaiserver',
@@ -157,7 +151,7 @@ setup(
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
@@ -166,8 +160,6 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy',
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
     ],
 )
