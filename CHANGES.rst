@@ -8,6 +8,11 @@
 Changes
 =======
 
+Version 1.0.3 (released 2019-02-15)
+
+- Pins marshmallow package to <3 in preparation for upcoming v3.0.0 release
+  which will break compatibility.
+
 Version 1.0.2 (released 2019-01-10)
 
 - Improved performance of the *Identify* verb response by fetching earliest
