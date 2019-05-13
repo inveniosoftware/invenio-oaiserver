@@ -81,6 +81,7 @@ setup_requires = [
 install_requires = [
     'arrow>=0.13.0',
     'Flask>=0.11.1',
+    'Werkzeug>=0.14.1',
     'Flask-BabelEx>=0.9.2',
     'dojson>=1.2.0',
     'invenio-pidstore>=1.0.0',
