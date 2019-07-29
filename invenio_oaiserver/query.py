@@ -9,6 +9,7 @@
 """Query parser."""
 
 import six
+from elasticsearch import VERSION as ES_VERSION
 from elasticsearch_dsl import Q
 from flask import current_app
 from invenio_search import RecordsSearch, current_search_client
@@ -24,7 +25,11 @@ def query_string_parser(search_pattern):
         if isinstance(query_parser, six.string_types):
             query_parser = import_string(query_parser)
         current_oaiserver.query_parser = query_parser
-    return current_oaiserver.query_parser('query_string', query=search_pattern)
+    query_parser_fields = current_app.config['OAISERVER_QUERY_PARSER_FIELDS']
+    if query_parser_fields:
+        query_parser_fields = dict(fields=query_parser_fields)
+    return current_oaiserver.query_parser(
+        'query_string', query=search_pattern, **query_parser_fields)
 
 
 class OAIServerSearch(RecordsSearch):
@@ -126,7 +131,9 @@ def get_records(**kwargs):
         @cached_property
         def has_next(self):
             """Return True if there is next page."""
-            return self.page * self.per_page <= self.total
+            total = self.total if ES_VERSION[0] < 7 else \
+                self.total.get('value', 0)
+            return self.page * self.per_page <= total
 
         @cached_property
         def next_num(self):

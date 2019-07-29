@@ -66,6 +66,7 @@ app.config.update(
     SECRET_KEY='CHANGE_ME',
     SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI',
                                       'sqlite:///app.db'),
+    OAISERVER_QUERY_PARSER_FIELDS=["title_statement"]
 )
 InvenioDB(app)
 InvenioRecords(app)

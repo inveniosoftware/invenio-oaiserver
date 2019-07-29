@@ -19,18 +19,18 @@ tests_require = [
     'SQLAlchemy-Continuum>=1.2.1',
     'check-manifest>=0.25',
     'coverage>=4.0',
-    'invenio-indexer>=1.0.0',
+    'invenio-indexer>=1.1.0',
     'invenio-jsonschemas>=1.0.0',
-    'invenio-marc21>=1.0.0a8',
+    'invenio-marc21>=1.0.0a9',
     'isort>=4.2.2',
     'mock>=1.3.0',
     'pydocstyle>=1.0.0',
     'pytest-cov>=1.8.0',
     'pytest-pep8>=1.0.6',
-    'pytest>=2.8.0,!=3.3.0',
+    'pytest>=4.0.0,<5.0.0',
 ]
 
-invenio_search_version = '1.0.0'
+invenio_search_version = '1.2.0'
 
 extras_require = {
     'admin': [
@@ -40,7 +40,7 @@ extras_require = {
         'Flask-CeleryExt>=0.3.0',
     ],
     'docs': [
-        'Sphinx>=1.5.2',
+        'Sphinx>=1.6.7',
     ],
     # Elasticsearch
     'elasticsearch2': [
@@ -51,6 +51,9 @@ extras_require = {
     ],
     'elasticsearch6': [
         'invenio-search[elasticsearch6]>={}'.format(invenio_search_version)
+    ],
+    'elasticsearch7': [
+        'invenio-search[elasticsearch7]>={}'.format(invenio_search_version)
     ],
     # Database
     'mysql': [
@@ -69,7 +72,8 @@ extras_require['all'] = []
 for name, reqs in extras_require.items():
     if name[0] == ':' or name in (
             'mysql', 'postgresql', 'sqlite',
-            'elasticsearch2', 'elasticsearch5', 'elasticsearch6'):
+            'elasticsearch2', 'elasticsearch5',
+            'elasticsearch6', 'elasticsearch7'):
         continue
     extras_require['all'].extend(reqs)
 
@@ -82,8 +86,8 @@ install_requires = [
     'arrow>=0.13.0',
     'Flask>=0.11.1',
     'Werkzeug>=0.14.1',
-    'Flask-BabelEx>=0.9.2',
-    'dojson>=1.2.0',
+    'Flask-BabelEx>=0.9.3',
+    'dojson>=1.3.0',
     'invenio-pidstore>=1.0.0',
     'invenio-records>=1.0.0',
     'lxml>=3.5.0',

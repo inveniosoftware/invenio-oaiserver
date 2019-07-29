@@ -49,7 +49,7 @@ def test_admin(app):
                           spec='test',
                           name='test_name',
                           description='some test description',
-                          search_pattern='test search')
+                          search_pattern='title_statement.title:Test0')
         db.session.add(test_set)
         db.session.commit()
 
