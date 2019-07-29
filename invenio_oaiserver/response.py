@@ -11,6 +11,7 @@
 from datetime import MINYEAR, datetime, timedelta
 
 import arrow
+from elasticsearch import VERSION as ES_VERSION
 from flask import current_app, url_for
 from invenio_db import db
 from invenio_records.api import Record
@@ -121,8 +122,10 @@ def identify(**kwargs):
         index=current_app.config['OAISERVER_RECORD_INDEX']).sort({
             "_created": {"order": "asc"}})[0:1].execute()
     if len(earliest_record.hits.hits) > 0:
-        created_date_str = earliest_record.hits.hits[0].get(
-            "_source", {}).get('_created')
+        hit = earliest_record.hits.hits[0]
+        if ES_VERSION[0] >= 7:
+            hit = hit.to_dict()
+        created_date_str = hit.get("_source", {}).get('_created')
         if created_date_str:
             earliest_date = arrow.get(
                 created_date_str).to('utc').datetime.replace(tzinfo=None)

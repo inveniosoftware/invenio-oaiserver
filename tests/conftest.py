@@ -53,6 +53,7 @@ def app():
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
         SERVER_NAME='app',
         OAISERVER_ID_PREFIX='oai:inveniosoftware.org:recid/',
+        OAISERVER_QUERY_PARSER_FIELDS=["title_statement"],
         OAISERVER_RECORD_INDEX='_all',
         OAISERVER_REGISTER_SET_SIGNALS=True,
     )
@@ -78,7 +79,7 @@ def app():
            not database_exists(str(db.engine.url)):
                 create_database(str(db.engine.url))
         db.create_all()
-        list(search.create(ignore=[400]))
+        list(search.create())
         search.flush_and_refresh('_all')
 
     with app.app_context():
@@ -89,12 +90,8 @@ def app():
         if str(db.engine.url) != 'sqlite://':
             drop_database(str(db.engine.url))
         list(search.delete(ignore=[404]))
+        search.client.indices.delete("*-percolators")
     shutil.rmtree(instance_path)
-
-
-def mock_record_validate(self):
-    """Mock validation."""
-    pass
 
 
 @pytest.yield_fixture
@@ -120,6 +117,15 @@ def bibliographic_data(app):
     yield records
     with app.test_request_context():
         remove_records(app, records)
+
+
+@pytest.yield_fixture
+def without_oaiset_signals(app):
+    """Temporary disable oaiset signals."""
+    from invenio_oaiserver import current_oaiserver
+    current_oaiserver.unregister_signals_oaiset()
+    yield
+    current_oaiserver.register_signals_oaiset()
 
 
 @pytest.yield_fixture
