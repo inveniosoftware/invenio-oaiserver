@@ -120,19 +120,18 @@ class InvenioOAIServer(object):
             app.config.get('THEME_SITENAME',
                            'Invenio-OAIServer'))
 
+        for k in dir(config):
+            if k.startswith('OAISERVER_'):
+                app.config.setdefault(k, getattr(config, k))
+
         # warn user if ID_PREFIX is not set
-        if 'OAISERVER_ID_PREFIX' not in app.config:
+        if app.config.get('OAISERVER_ID_PREFIX') is None:
             import socket
             import warnings
 
-            app.config.setdefault(
-                'OAISERVER_ID_PREFIX',
-                'oai:{0}:recid/'.format(socket.gethostname()))
+            app.config['OAISERVER_ID_PREFIX'] = \
+                'oai:{0}:recid/'.format(socket.gethostname())
             warnings.warn(
                 """Please specify the OAISERVER_ID_PREFIX configuration."""
                 """default value is: {0}""".format(
                     app.config.get('OAISERVER_ID_PREFIX')))
-
-        for k in dir(config):
-            if k.startswith('OAISERVER_'):
-                app.config.setdefault(k, getattr(config, k))

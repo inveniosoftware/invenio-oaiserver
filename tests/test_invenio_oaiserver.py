@@ -10,6 +10,8 @@
 
 from __future__ import absolute_import, print_function
 
+import socket
+
 import pytest
 from flask import Flask
 from invenio_db import db
@@ -56,6 +58,15 @@ def test_view_with_xsl(app):
         assert res.status_code == 200
 
         assert b'xml-stylesheet' in res.data
+
+
+def test_no_id_prefix():
+    """Test warning and default value for OAISERVER_ID_PREFIX."""
+    with pytest.warns(UserWarning, match='specify the OAISERVER_ID_PREFIX'):
+        app = Flask('testapp')
+        ext = InvenioOAIServer(app)
+        expected_id_prefix = 'oai:{0}:recid/'.format(socket.gethostname())
+        assert app.config['OAISERVER_ID_PREFIX'] == expected_id_prefix
 
 
 def test_alembic(app):
