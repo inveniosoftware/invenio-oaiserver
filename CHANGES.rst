@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version 1.1.0 (released 2019-07-31)
+
+- Added support for Eleasticsearch v7
+
 Version 1.0.3 (released 2019-02-15)
 
 - Pins marshmallow package to <3 in preparation for upcoming v3.0.0 release
