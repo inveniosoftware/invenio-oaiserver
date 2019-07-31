@@ -15,8 +15,9 @@ import json
 from elasticsearch import VERSION as ES_VERSION
 from flask import current_app
 from invenio_indexer.api import RecordIndexer
+from invenio_indexer.utils import schema_to_index
 from invenio_search import current_search, current_search_client
-from invenio_search.utils import build_index_name, schema_to_index
+from invenio_search.utils import build_index_name
 
 from .models import OAISet
 from .proxies import current_oaiserver
