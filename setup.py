@@ -90,9 +90,8 @@ install_requires = [
     'dojson>=1.3.0',
     'invenio-pidstore>=1.0.0',
     'invenio-records>=1.0.0',
+    'invenio-rest>=1.1.1',
     'lxml>=3.5.0',
-    'marshmallow>=2.15.1,<3.0.0',
-    'webargs>=1.3.2',
 ]
 
 packages = find_packages()
