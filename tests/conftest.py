@@ -79,6 +79,7 @@ def app():
            not database_exists(str(db.engine.url)):
                 create_database(str(db.engine.url))
         db.create_all()
+        list(search.delete(ignore=[404]))
         list(search.create())
         search.flush_and_refresh('_all')
 

@@ -531,7 +531,6 @@ def test_listrecords(app):
             '/x:OAI-PMH/x:ListRecords/x:resumptionToken', namespaces=NAMESPACES
         )[0]
         assert resumption_token.text
-
         with app.test_client() as c:
             result = c.get(
                 '/oai2d?verb=ListRecords&resumptionToken={0}'.format(

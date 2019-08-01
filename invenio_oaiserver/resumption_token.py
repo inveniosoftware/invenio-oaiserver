@@ -11,8 +11,9 @@
 import random
 
 from flask import current_app
+from invenio_rest.serializer import BaseSchema
 from itsdangerous import URLSafeTimedSerializer
-from marshmallow import Schema, fields
+from marshmallow import fields
 
 
 def _schema_from_verb(verb, partial=False):
@@ -43,7 +44,7 @@ def serialize(pagination, **kwargs):
 class ResumptionToken(fields.Field):
     """Resumption token validator."""
 
-    def _deserialize(self, value, attr, data):
+    def _deserialize(self, value, attr, data, **kwargs):
         """Serialize resumption token."""
         token_builder = URLSafeTimedSerializer(
             current_app.config['SECRET_KEY'],
@@ -56,7 +57,7 @@ class ResumptionToken(fields.Field):
         return result
 
 
-class ResumptionTokenSchema(Schema):
+class ResumptionTokenSchema(BaseSchema):
     """Schema with resumption token."""
 
     resumptionToken = ResumptionToken(required=True, load_only=True)
@@ -67,6 +68,6 @@ class ResumptionTokenSchema(Schema):
             data, many=many, partial=partial
         )
         result.data.update(
-            result.data.get('resumptionToken', {}).get('kwargs', {})
-        )
+                result.data.get('resumptionToken', {}).get('kwargs', {})
+            )
         return result

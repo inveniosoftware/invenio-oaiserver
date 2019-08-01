@@ -11,14 +11,14 @@
 from __future__ import absolute_import
 
 from flask import current_app, request
-from marshmallow import Schema, ValidationError, fields, utils, \
-    validates_schema
+from invenio_rest.serializer import BaseSchema
+from marshmallow import ValidationError, fields, utils, validates_schema
 from marshmallow.fields import DateTime as _DateTime
 
 from .resumption_token import ResumptionTokenSchema
 
 
-def validate_metadata_prefix(value):
+def validate_metadata_prefix(value, **kwargs):
     """Check metadataPrefix.
 
     :param value: One of the metadata identifiers configured in
@@ -54,14 +54,20 @@ class DateTime(_DateTime):
             # Strip off timezone info.
             return datetime.datetime.strptime(datestring[:19],
                                               '%Y-%m-%dT%H:%M:%S')
+    # Marshmallow compatibility 2->3
+    try:
+        DATEFORMAT_DESERIALIZATION_FUNCS = dict(
+            _DateTime.DATEFORMAT_DESERIALIZATION_FUNCS,
+            permissive=from_iso_permissive
+        )
+    except AttributeError:
+        DESERIALIZATION_FUNCS = dict(
+            _DateTime.DESERIALIZATION_FUNCS,
+            permissive=from_iso_permissive
+        )
 
-    DATEFORMAT_DESERIALIZATION_FUNCS = dict(
-        _DateTime.DATEFORMAT_DESERIALIZATION_FUNCS,
-        permissive=from_iso_permissive
-    )
 
-
-class OAISchema(Schema):
+class OAISchema(BaseSchema):
     """Base OAI argument schema."""
 
     verb = fields.Str(required=True, load_only=True)
@@ -72,7 +78,7 @@ class OAISchema(Schema):
         strict = True
 
     @validates_schema
-    def validate(self, data):
+    def validate(self, data, **kwargs):
         """Check range between dates under keys ``from_`` and ``until``."""
         if 'verb' in data and data['verb'] != self.__class__.__name__:
             raise ValidationError(
@@ -84,9 +90,9 @@ class OAISchema(Schema):
         if 'from_' in data and 'until' in data and \
                 data['from_'] > data['until']:
             raise ValidationError('Date "from" must be before "until".')
-
         extra = set(request.values.keys()) - set([
-            f.load_from or f.name for f in self.fields.values()
+            getattr(f, 'load_from', None) or getattr(f, 'data_key', None) or
+            f.name for f in self.fields.values()
         ])
         if extra:
             raise ValidationError('You have passed too many arguments.')
@@ -115,7 +121,9 @@ class Verbs(object):
     class ListIdentifiers(OAISchema):
         """Arguments for ListIdentifiers verb."""
 
-        from_ = DateTime(format='permissive', load_from='from', dump_to='from')
+        from_ = DateTime(
+            format='permissive', load_from='from',
+            data_key='from', dump_to='from')
         until = DateTime(format='permissive')
         set = fields.Str()
         metadataPrefix = fields.Str(required=True,
@@ -153,6 +161,5 @@ def make_request_validator(request):
     """Validate arguments in incomming request."""
     verb = request.values.get('verb', '', type=str)
     resumption_token = request.values.get('resumptionToken', None)
-
     schema = Verbs if resumption_token is None else ResumptionVerbs
     return getattr(schema, verb, OAISchema)(partial=False)
