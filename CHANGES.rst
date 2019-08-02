@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version 1.1.1 (released 2019-07-31)
+
+- Added support for Marshmallow v2 and v3.
+
 Version 1.1.0 (released 2019-07-31)
 
 - Added support for Eleasticsearch v7
