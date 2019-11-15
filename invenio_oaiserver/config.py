@@ -114,7 +114,7 @@ field."""
 OAISERVER_QUERY_PARSER = 'elasticsearch_dsl:Q'
 """Define query parser for OIASet definition."""
 
-OAISERVER_QUERY_PARSER_FIELDS = None
+OAISERVER_QUERY_PARSER_FIELDS = []
 """Define query parser search fields list for OIASet definition."""
 
 OAISERVER_CACHE_KEY = 'DynamicOAISets::'

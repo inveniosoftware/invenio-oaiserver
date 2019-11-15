@@ -25,7 +25,8 @@ def query_string_parser(search_pattern):
         if isinstance(query_parser, six.string_types):
             query_parser = import_string(query_parser)
         current_oaiserver.query_parser = query_parser
-    query_parser_fields = current_app.config['OAISERVER_QUERY_PARSER_FIELDS']
+    query_parser_fields = current_app.config.get(
+        'OAISERVER_QUERY_PARSER_FIELDS', {}) or {}
     if query_parser_fields:
         query_parser_fields = dict(fields=query_parser_fields)
     return current_oaiserver.query_parser(
