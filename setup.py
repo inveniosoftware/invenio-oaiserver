@@ -37,10 +37,7 @@ extras_require = {
         'Flask-Admin>=1.3.0',
     ],
     'celery': [
-        # Avoid version 4.3 it breaks the emails with datetime
-        # https://github.com/celery/celery/pull/5606
-        "celery>=4.2.1,<4.3.0",
-        'Flask-CeleryExt>=0.3.2',
+        'invenio-celery>=1.1.1',
     ],
     'docs': [
         'Sphinx>=1.6.7',
