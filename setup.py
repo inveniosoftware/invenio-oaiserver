@@ -37,7 +37,7 @@ extras_require = {
         'Flask-Admin>=1.3.0',
     ],
     'celery': [
-        'Flask-CeleryExt>=0.3.0',
+        'invenio-celery>=1.1.1',
     ],
     'docs': [
         'Sphinx>=1.6.7',
