@@ -8,6 +8,11 @@
 Changes
 =======
 
+Version 1.1.2 (released 2019-07-19)
+
+- fixes default config OAISERVER_QUERY_PARSER_FIELDS
+- changes celery support module to invenio-celery
+
 Version 1.1.1 (released 2019-07-31)
 
 - Added support for Marshmallow v2 and v3.
