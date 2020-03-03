@@ -15,8 +15,6 @@ addons:
 notifications:
   email: false
 
-sudo: false
-
 services:
   - mysql
   - postgresql
