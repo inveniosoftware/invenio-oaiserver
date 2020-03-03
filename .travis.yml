@@ -78,6 +78,7 @@ before_script:
 script:
   - /tmp/elasticsearch/bin/elasticsearch --version
   - wget -q --waitretry=1 --retry-connrefused -T 10 -O - http://127.0.0.1:9200
+  - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
   - "./run-tests.sh"
 
 after_success:
