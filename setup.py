@@ -16,11 +16,11 @@ readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
 
 tests_require = [
-    'SQLAlchemy-Continuum>=1.2.1',
+    'SQLAlchemy-Continuum>=1.3.6',
     'check-manifest>=0.25',
     'coverage>=4.0',
     'invenio-indexer>=1.1.0',
-    'invenio-jsonschemas>=1.0.0',
+    'invenio-jsonschemas>=1.1.0',
     'invenio-marc21>=1.0.0a9',
     'isort>=4.2.2',
     'mock>=1.3.0',
@@ -34,10 +34,10 @@ invenio_search_version = '1.2.0'
 
 extras_require = {
     'admin': [
-        'Flask-Admin>=1.3.0',
+        'invenio-admin>=1.2.0',
     ],
     'celery': [
-        'invenio-celery>=1.1.1',
+        'invenio-celery>=1.2.0',
     ],
     'docs': [
         'Sphinx>=1.6.7',
@@ -60,7 +60,7 @@ extras_require = {
         'invenio-db[mysql]>=1.0.0',
     ],
     'postgresql': [
-        'invenio-db[postgresql]>=1.0.0',
+        'invenio-db[postgresql]>=1.0.4',
     ],
     'sqlite': [
         'invenio-db>=1.0.0',
@@ -84,14 +84,13 @@ setup_requires = [
 
 install_requires = [
     'arrow>=0.13.0',
-    'Flask>=0.11.1',
-    'Werkzeug>=0.14.1',
-    'Flask-BabelEx>=0.9.3',
     'dojson>=1.3.0',
-    'invenio-pidstore>=1.0.0',
-    'invenio-records>=1.0.0',
-    'invenio-rest>=1.1.1',
-    'lxml>=3.5.0',
+    'invenio-base>=1.2.2',
+    'invenio-i18n>=1.2.0',
+    'invenio-pidstore>=1.2.0',
+    'invenio-records>=1.3.0',
+    'invenio-rest>=1.2.0',
+    'lxml>=4.3.0',
 ]
 
 packages = find_packages()

@@ -167,5 +167,3 @@ def get_record_sets(record):
         if set_name.startswith(prefix):
             name = set_name[prefix_len:]
             yield name
-
-    raise StopIteration
