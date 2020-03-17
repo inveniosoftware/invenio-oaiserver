@@ -1,12 +1,17 @@
 ..
     This file is part of Invenio.
-    Copyright (C) 2016-2019 CERN.
+    Copyright (C) 2016-2020 CERN.
 
     Invenio is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
 
 Changes
 =======
+
+Version 1.2.0 (released 2020-03-17)
+
+- Removes support for python 2.7
+- Centralises management of Flask dependency via invenio-base
 
 Version 1.1.2 (released 2019-07-19)
 
