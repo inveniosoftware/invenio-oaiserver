@@ -673,6 +673,7 @@ def test_listidentifiers(app):
 def test_list_sets_long(app):
     """Test listing of sets."""
     from invenio_db import db
+
     from invenio_oaiserver.models import OAISet
 
     with app.app_context():
