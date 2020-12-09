@@ -31,3 +31,4 @@ recursive-include invenio_oaiserver *.xsl
 recursive-include tests *.json
 recursive-include tests *.py
 recursive-include tests *.xml
+recursive-include .github/workflows *.yml

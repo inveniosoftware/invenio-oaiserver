@@ -77,7 +77,7 @@ def app():
     with app.app_context():
         if str(db.engine.url) != 'sqlite://' and \
            not database_exists(str(db.engine.url)):
-                create_database(str(db.engine.url))
+            create_database(str(db.engine.url))
         db.create_all()
         list(search.delete(ignore=[404]))
         list(search.create())
