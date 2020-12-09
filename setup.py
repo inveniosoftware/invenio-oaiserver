@@ -17,17 +17,11 @@ history = open('CHANGES.rst').read()
 
 tests_require = [
     'SQLAlchemy-Continuum>=1.3.6',
-    'check-manifest>=0.25',
-    'coverage>=4.0',
     'invenio-indexer>=1.1.0',
     'invenio-jsonschemas>=1.1.0',
     'invenio-marc21>=1.0.0a9',
-    'isort>=4.2.2',
     'mock>=1.3.0',
-    'pydocstyle>=1.0.0',
-    'pytest-cov>=1.8.0',
-    'pytest-pep8>=1.0.6',
-    'pytest>=4.0.0,<5.0.0',
+    'pytest-invenio>=1.4.0'
 ]
 
 invenio_search_version = '1.2.0'
@@ -40,7 +34,7 @@ extras_require = {
         'invenio-celery>=1.2.0',
     ],
     'docs': [
-        'Sphinx>=1.6.7',
+        'Sphinx>=3',
     ],
     # Elasticsearch
     'elasticsearch2': [

@@ -39,6 +39,7 @@ class OAISetModelView(ModelView):
         del form.spec
         return form
 
+
 set_adminview = dict(
     modelview=OAISetModelView,
     model=OAISet,

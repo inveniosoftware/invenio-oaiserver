@@ -97,6 +97,7 @@ def _get_percolator_doc_type(index):
         _, doc_type = schema_to_index(mapping_path)
         return doc_type
 
+
 PERCOLATOR_MAPPING = {
     'properties': {'query': {'type': 'percolator'}}
 }
