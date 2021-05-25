@@ -107,18 +107,18 @@ def _new_percolator(spec, search_pattern):
     """Create new percolator associated with the new set."""
     if spec and search_pattern:
         query = query_string_parser(search_pattern=search_pattern).to_dict()
-        for index, mapping_path in current_search.mappings.items():
-            # Create the percolator doc_type in the existing index for >= ES5
-            # TODO: Consider doing this only once in app initialization
-            percolator_doc_type = _get_percolator_doc_type(index)
-            _create_percolator_mapping(
-                index, percolator_doc_type, mapping_path)
-            current_search_client.index(
-                index=_build_percolator_index_name(index),
-                doc_type=percolator_doc_type,
-                id='oaiset-{}'.format(spec),
-                body={'query': query}
-            )
+        for alias, item in current_search.aliases.items():
+            if alias == current_app.config.get('OAISERVER_RECORD_INDEX'):
+                index, mapping_path = next(iter(item.items()))
+                percolator_doc_type = _get_percolator_doc_type(index)
+                _create_percolator_mapping(
+                    index, percolator_doc_type, mapping_path)
+                current_search_client.index(
+                    index=_build_percolator_index_name(index),
+                    doc_type=percolator_doc_type,
+                    id='oaiset-{}'.format(spec),
+                    body={'query': query}
+                )
 
 
 def _delete_percolator(spec, search_pattern):
@@ -157,7 +157,8 @@ def get_record_sets(record):
 
     # get list of sets that match using percolator
     index, doc_type = RecordIndexer().record_to_index(record)
-    document = record.dumps()
+    document = record.replace_refs()
+    document = document.dumps()
     percolator_doc_type = _get_percolator_doc_type(index)
     _create_percolator_mapping(index, percolator_doc_type)
     results = _percolate_query(index, doc_type, percolator_doc_type, document)
