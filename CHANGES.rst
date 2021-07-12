@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version 1.2.1 (released 2021-07-12)
+
+- Adds german translations
+
 Version 1.2.0 (released 2020-03-17)
 
 - Removes support for python 2.7
