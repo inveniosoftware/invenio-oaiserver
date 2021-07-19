@@ -25,12 +25,14 @@ def query_string_parser(search_pattern):
         if isinstance(query_parser, six.string_types):
             query_parser = import_string(query_parser)
         current_oaiserver.query_parser = query_parser
-    query_parser_fields = current_app.config.get(
-        'OAISERVER_QUERY_PARSER_FIELDS', {}) or {}
+    query_parser_fields = (
+        current_app.config.get('OAISERVER_QUERY_PARSER_FIELDS', {}) or {}
+    )
     if query_parser_fields:
         query_parser_fields = dict(fields=query_parser_fields)
     return current_oaiserver.query_parser(
-        'query_string', query=search_pattern, **query_parser_fields)
+        'query_string', query=search_pattern, **query_parser_fields
+    )
 
 
 class OAIServerSearch(RecordsSearch):
@@ -39,7 +41,7 @@ class OAIServerSearch(RecordsSearch):
     class Meta:
         """Configuration for OAI server search."""
 
-        default_filter = Q('exists', field='_oai.id')
+        default_filter = Q('exists', field='pids.oai')
 
 
 def get_affected_records(spec=None, search_pattern=None):
@@ -84,13 +86,17 @@ def get_records(**kwargs):
     scroll_id = kwargs.get('resumptionToken', {}).get('scroll_id')
 
     if scroll_id is None:
-        search = OAIServerSearch(
-            index=current_app.config['OAISERVER_RECORD_INDEX'],
-        ).params(
-            scroll='{0}s'.format(scroll),
-        ).extra(
-            version=True,
-        )[(page_-1)*size_:page_*size_]
+        search = (
+            OAIServerSearch(
+                index=current_app.config['OAISERVER_RECORD_INDEX'],
+            )
+            .params(
+                scroll='{0}s'.format(scroll),
+            )
+            .extra(
+                version=True,
+            )[(page_ - 1) * size_: page_ * size_]
+        )
 
         if 'set' in kwargs:
             search = search.query('match', **{'_oai.sets': kwargs['set']})
@@ -124,16 +130,15 @@ def get_records(**kwargs):
 
             # clean descriptor on last page
             if not self.has_next:
-                current_search_client.clear_scroll(
-                    scroll_id=self._scroll_id
-                )
+                current_search_client.clear_scroll(scroll_id=self._scroll_id)
                 self._scroll_id = None
 
         @cached_property
         def has_next(self):
             """Return True if there is next page."""
-            total = self.total if ES_VERSION[0] < 7 else \
-                self.total.get('value', 0)
+            total = (
+                self.total if ES_VERSION[0] < 7 else self.total.get('value', 0)
+            )
             return self.page * self.per_page <= total
 
         @cached_property
@@ -145,14 +150,15 @@ def get_records(**kwargs):
         def items(self):
             """Return iterator."""
             from datetime import datetime
+
             for result in self.response['hits']['hits']:
-                if '_oai' in result['_source']:
+                if 'oai' in result['_source']['pids']:
                     yield {
                         'id': result['_id'],
                         'json': result,
                         'updated': datetime.strptime(
-                            result['_source']['_updated'][:19],
-                            '%Y-%m-%dT%H:%M:%S'
+                            result['_source']['updated'][:19],
+                            '%Y-%m-%dT%H:%M:%S',
                         ),
                     }
 

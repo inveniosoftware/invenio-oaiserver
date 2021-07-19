@@ -68,6 +68,6 @@ class ResumptionTokenSchema(BaseSchema):
             data, many=many, partial=partial
         )
         result.data.update(
-                result.data.get('resumptionToken', {}).get('kwargs', {})
-            )
+            result.data.get('resumptionToken', {}).get('kwargs', {})
+        )
         return result

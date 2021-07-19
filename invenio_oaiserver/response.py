@@ -14,14 +14,12 @@ import arrow
 from elasticsearch import VERSION as ES_VERSION
 from flask import current_app, url_for
 from invenio_db import db
-from invenio_records.api import Record
-from invenio_records.models import RecordMetadata
+from invenio_rdm_records.records.api import RDMRecord
 from lxml import etree
 from lxml.etree import Element, ElementTree, SubElement
 
-from .fetchers import oaiid_fetcher
+from .fetchers import fetch_pid_by_value, oaiid_fetcher
 from .models import OAISet
-from .provider import OAIIDProvider
 from .query import OAIServerSearch, get_records
 from .resumption_token import serialize
 from .utils import datetime_to_datestamp, sanitize_unicode, serializer
@@ -51,18 +49,25 @@ DATETIME_FORMATS = {
 def envelope(**kwargs):
     """Create OAI-PMH envelope for response."""
     e_oaipmh = Element(etree.QName(NS_OAIPMH, 'OAI-PMH'), nsmap=NSMAP)
-    e_oaipmh.set(etree.QName(NS_XSI, 'schemaLocation'),
-                 '{0} {1}'.format(NS_OAIPMH, NS_OAIPMH_XSD))
+    e_oaipmh.set(
+        etree.QName(NS_XSI, 'schemaLocation'),
+        '{0} {1}'.format(NS_OAIPMH, NS_OAIPMH_XSD),
+    )
     e_tree = ElementTree(element=e_oaipmh)
 
     if current_app.config['OAISERVER_XSL_URL']:
-        e_oaipmh.addprevious(etree.ProcessingInstruction(
-            'xml-stylesheet', 'type="text/xsl" href="{0}"'
-                .format(current_app.config['OAISERVER_XSL_URL'])))
+        e_oaipmh.addprevious(
+            etree.ProcessingInstruction(
+                'xml-stylesheet',
+                'type="text/xsl" href="{0}"'.format(
+                    current_app.config['OAISERVER_XSL_URL']
+                ),
+            )
+        )
 
     e_responseDate = SubElement(
-        e_oaipmh, etree.QName(
-            NS_OAIPMH, 'responseDate'))
+        e_oaipmh, etree.QName(NS_OAIPMH, 'responseDate')
+    )
     # date should be first possible moment
     e_responseDate.text = datetime_to_datestamp(datetime.utcnow())
     e_request = SubElement(e_oaipmh, etree.QName(NS_OAIPMH, 'request'))
@@ -100,14 +105,16 @@ def identify(**kwargs):
     e_tree, e_identify = verb(**kwargs)
 
     e_repositoryName = SubElement(
-        e_identify, etree.QName(NS_OAIPMH, 'repositoryName'))
+        e_identify, etree.QName(NS_OAIPMH, 'repositoryName')
+    )
     e_repositoryName.text = cfg['OAISERVER_REPOSITORY_NAME']
 
     e_baseURL = SubElement(e_identify, etree.QName(NS_OAIPMH, 'baseURL'))
     e_baseURL.text = url_for('invenio_oaiserver.response', _external=True)
 
-    e_protocolVersion = SubElement(e_identify,
-                                   etree.QName(NS_OAIPMH, 'protocolVersion'))
+    e_protocolVersion = SubElement(
+        e_identify, etree.QName(NS_OAIPMH, 'protocolVersion')
+    )
     e_protocolVersion.text = cfg['OAISERVER_PROTOCOL_VERSION']
 
     for adminEmail in cfg['OAISERVER_ADMIN_EMAILS']:
@@ -115,42 +122,51 @@ def identify(**kwargs):
         e.text = adminEmail
 
     e_earliestDatestamp = SubElement(
-        e_identify, etree.QName(
-            NS_OAIPMH, 'earliestDatestamp'))
+        e_identify, etree.QName(NS_OAIPMH, 'earliestDatestamp')
+    )
     earliest_date = datetime(MINYEAR, 1, 1)
-    earliest_record = OAIServerSearch(
-        index=current_app.config['OAISERVER_RECORD_INDEX']).sort({
-            "_created": {"order": "asc"}})[0:1].execute()
+    earliest_record = (
+        OAIServerSearch(index=current_app.config['OAISERVER_RECORD_INDEX'])
+        .sort({"_created": {"order": "asc"}})[0:1]
+        .execute()
+    )
     if len(earliest_record.hits.hits) > 0:
         hit = earliest_record.hits.hits[0]
         if ES_VERSION[0] >= 7:
             hit = hit.to_dict()
         created_date_str = hit.get("_source", {}).get('_created')
         if created_date_str:
-            earliest_date = arrow.get(
-                created_date_str).to('utc').datetime.replace(tzinfo=None)
+            earliest_date = (
+                arrow.get(created_date_str)
+                .to('utc')
+                .datetime.replace(tzinfo=None)
+            )
 
     e_earliestDatestamp.text = datetime_to_datestamp(earliest_date)
 
-    e_deletedRecord = SubElement(e_identify,
-                                 etree.QName(NS_OAIPMH, 'deletedRecord'))
+    e_deletedRecord = SubElement(
+        e_identify, etree.QName(NS_OAIPMH, 'deletedRecord')
+    )
     e_deletedRecord.text = 'no'
 
-    e_granularity = SubElement(e_identify,
-                               etree.QName(NS_OAIPMH, 'granularity'))
+    e_granularity = SubElement(
+        e_identify, etree.QName(NS_OAIPMH, 'granularity')
+    )
     assert cfg['OAISERVER_GRANULARITY'] in DATETIME_FORMATS
     e_granularity.text = cfg['OAISERVER_GRANULARITY']
 
     compressions = cfg['OAISERVER_COMPRESSIONS']
     if compressions != ['identity']:
         for compression in compressions:
-            e_compression = SubElement(e_identify,
-                                       etree.QName(NS_OAIPMH, 'compression'))
+            e_compression = SubElement(
+                e_identify, etree.QName(NS_OAIPMH, 'compression')
+            )
             e_compression.text = compression
 
     for description in cfg.get('OAISERVER_DESCRIPTIONS', []):
-        e_description = SubElement(e_identify,
-                                   etree.QName(NS_OAIPMH, 'description'))
+        e_description = SubElement(
+            e_identify, etree.QName(NS_OAIPMH, 'description')
+        )
         e_description.append(etree.fromstring(description))
 
     return e_tree
@@ -163,20 +179,21 @@ def resumption_token(parent, pagination, **kwargs):
         return
 
     token = serialize(pagination, **kwargs)
-    e_resumptionToken = SubElement(parent, etree.QName(NS_OAIPMH,
-                                                       'resumptionToken'))
+    e_resumptionToken = SubElement(
+        parent, etree.QName(NS_OAIPMH, 'resumptionToken')
+    )
     if pagination.total:
         expiration_date = datetime.utcnow() + timedelta(
             seconds=current_app.config[
                 'OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME'
             ]
         )
-        e_resumptionToken.set('expirationDate', datetime_to_datestamp(
-            expiration_date
-        ))
-        e_resumptionToken.set('cursor', str(
-            (pagination.page - 1) * pagination.per_page
-        ))
+        e_resumptionToken.set(
+            'expirationDate', datetime_to_datestamp(expiration_date)
+        )
+        e_resumptionToken.set(
+            'cursor', str((pagination.page - 1) * pagination.per_page)
+        )
         e_resumptionToken.set('completeListSize', str(pagination.total))
 
     if token:
@@ -198,11 +215,13 @@ def listsets(**kwargs):
         e_setName = SubElement(e_set, etree.QName(NS_OAIPMH, 'setName'))
         e_setName.text = sanitize_unicode(oai_set.name)
         if oai_set.description:
-            e_setDescription = SubElement(e_set, etree.QName(NS_OAIPMH,
-                                                             'setDescription'))
+            e_setDescription = SubElement(
+                e_set, etree.QName(NS_OAIPMH, 'setDescription')
+            )
             e_dc = SubElement(
-                e_setDescription, etree.QName(NS_OAIDC, 'dc'),
-                nsmap=NSMAP_DESCRIPTION
+                e_setDescription,
+                etree.QName(NS_OAIDC, 'dc'),
+                nsmap=NSMAP_DESCRIPTION,
             )
             e_dc.set(etree.QName(NS_XSI, 'schemaLocation'), NS_OAIDC)
             e_description = SubElement(e_dc, etree.QName(NS_DC, 'description'))
@@ -219,7 +238,7 @@ def listmetadataformats(**kwargs):
 
     if 'identifier' in kwargs:
         # test if record exists
-        OAIIDProvider.get(pid_value=kwargs['identifier'])
+        fetch_pid_by_value(pid_value=kwargs['identifier'])
 
     for prefix, metadata in cfg.get('OAISERVER_METADATA_FORMATS', {}).items():
         e_metadataformat = SubElement(
@@ -259,8 +278,8 @@ def header(parent, identifier, datestamp, sets=None, deleted=False):
 def getrecord(**kwargs):
     """Create OAI-PMH response for verb Identify."""
     record_dumper = serializer(kwargs['metadataPrefix'])
-    pid = OAIIDProvider.get(pid_value=kwargs['identifier']).pid
-    record = Record.get_record(pid.object_uuid)
+    pid = fetch_pid_by_value(pid_value=kwargs['identifier'])
+    record = RDMRecord.get_record(pid.object_uuid)
 
     e_tree, e_getrecord = verb(**kwargs)
     e_record = SubElement(e_getrecord, etree.QName(NS_OAIPMH, 'record'))
@@ -271,8 +290,7 @@ def getrecord(**kwargs):
         datestamp=record.updated,
         sets=record.get('_oai', {}).get('sets', []),
     )
-    e_metadata = SubElement(e_record,
-                            etree.QName(NS_OAIPMH, 'metadata'))
+    e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, 'metadata'))
     e_metadata.append(record_dumper(pid, {'_source': record}))
 
     return e_tree
@@ -284,7 +302,7 @@ def listidentifiers(**kwargs):
     result = get_records(**kwargs)
 
     for record in result.items:
-        pid = oaiid_fetcher(record['id'], record['json']['_source'])
+        pid = oaiid_fetcher(record['json']['_source'])
         header(
             e_listidentifiers,
             identifier=pid.pid_value,
@@ -304,9 +322,8 @@ def listrecords(**kwargs):
     result = get_records(**kwargs)
 
     for record in result.items:
-        pid = oaiid_fetcher(record['id'], record['json']['_source'])
-        e_record = SubElement(e_listrecords,
-                              etree.QName(NS_OAIPMH, 'record'))
+        pid = oaiid_fetcher(record['json']['_source'])
+        e_record = SubElement(e_listrecords, etree.QName(NS_OAIPMH, 'record'))
         header(
             e_record,
             identifier=pid.pid_value,

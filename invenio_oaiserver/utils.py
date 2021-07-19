@@ -77,6 +77,13 @@ def dumps_etree(pid, record, **kwargs):
     return dumps_etree(to_marc21.do(record['_source']), **kwargs)
 
 
+def dublincore_etree(pid, record):
+    """Return dublin core etree."""
+    from invenio_rdm_records.resources.serializers.dublincore import \
+        DublinCoreXMLSerializer
+    return DublinCoreXMLSerializer().serialize_object_xml(record["_source"])
+
+
 def datetime_to_datestamp(dt, day_granularity=False):
     """Transform datetime to datestamp.
 

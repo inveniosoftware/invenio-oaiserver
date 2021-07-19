@@ -16,15 +16,18 @@ readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
 
 tests_require = [
-    'SQLAlchemy-Continuum>=1.3.6',
-    'invenio-indexer>=1.1.0',
-    'invenio-jsonschemas>=1.1.0',
+    # 'SQLAlchemy-Continuum>=1.3.6',
+    # 'invenio-indexer>=1.1.0',
+    'invenio-app>=1.3.0,<2.0.0',
+    'invenio-jsonschemas>=1.1.3',
     'invenio-marc21>=1.0.0a9',
-    'mock>=1.3.0',
-    'pytest-invenio>=1.4.0'
+    'pytest-invenio>=1.4.1,<2.0.0',
+    'pytest-mock>=1.6.0',
 ]
 
-invenio_search_version = '1.2.0'
+# Should follow inveniosoftware/invenio versions
+invenio_db_version = '>=1.0.9,<2.0.0'
+invenio_search_version = '>=1.4.0,<2.0.0'
 
 extras_require = {
     'admin': [
@@ -34,30 +37,24 @@ extras_require = {
         'invenio-celery>=1.2.0',
     ],
     'docs': [
-        'Sphinx>=3',
+        'Sphinx>=3,<3.4.2',
     ],
-    # Elasticsearch
-    'elasticsearch2': [
-        'invenio-search[elasticsearch2]>={}'.format(invenio_search_version)
-    ],
-    'elasticsearch5': [
-        'invenio-search[elasticsearch5]>={}'.format(invenio_search_version)
-    ],
+    # Elasticsearch version
     'elasticsearch6': [
-        'invenio-search[elasticsearch6]>={}'.format(invenio_search_version)
+        'invenio-search[elasticsearch6]{}'.format(invenio_search_version),
     ],
     'elasticsearch7': [
-        'invenio-search[elasticsearch7]>={}'.format(invenio_search_version)
+        'invenio-search[elasticsearch7]{}'.format(invenio_search_version),
     ],
-    # Database
+    # Databases
     'mysql': [
-        'invenio-db[mysql]>=1.0.0',
+        'invenio-db[mysql,versioning]{}'.format(invenio_db_version),
     ],
     'postgresql': [
-        'invenio-db[postgresql]>=1.0.4',
+        'invenio-db[postgresql,versioning]{}'.format(invenio_db_version),
     ],
     'sqlite': [
-        'invenio-db>=1.0.0',
+        'invenio-db[versioning]{}'.format(invenio_db_version),
     ],
     'tests': tests_require,
 }
@@ -66,7 +63,6 @@ extras_require['all'] = []
 for name, reqs in extras_require.items():
     if name[0] == ':' or name in (
             'mysql', 'postgresql', 'sqlite',
-            'elasticsearch2', 'elasticsearch5',
             'elasticsearch6', 'elasticsearch7'):
         continue
     extras_require['all'].extend(reqs)
@@ -77,12 +73,14 @@ setup_requires = [
 ]
 
 install_requires = [
-    'arrow>=0.13.0',
+    'arrow>=0.17.0',
+    'click<8.0,>=7.0',
     'dojson>=1.3.0',
+    'flask>=1.1.0,<=1.1.4',
     'invenio-base>=1.2.2',
     'invenio-i18n>=1.2.0',
     'invenio-pidstore>=1.2.0',
-    'invenio-records>=1.3.0',
+    'invenio-rdm-records>=0.31.9,<0.31.12',
     'invenio-rest>=1.2.1',
     'lxml>=4.3.0',
 ]

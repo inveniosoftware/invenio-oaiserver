@@ -10,24 +10,34 @@
 
 from __future__ import absolute_import, print_function
 
+import json
+
 from invenio_pidstore.errors import PersistentIdentifierError
 from invenio_pidstore.fetchers import FetchedPID
+from invenio_rdm_records.proxies import current_rdm_records
 
-from .provider import OAIIDProvider
+
+def fetch_pid_by_value(pid_value):
+    """Fetch a pid by provided value."""
+    pid_provider = current_rdm_records.records_service.get_provider('oai')
+    return pid_provider.get(pid_value)
 
 
-def oaiid_fetcher(record_uuid, data):
+def oaiid_fetcher(data):
     """Fetch a record's identifier.
 
-    :param record_uuid: The record UUID.
     :param data: The record data.
     :returns: A :class:`invenio_pidstore.fetchers.FetchedPID` instance.
     """
-    pid_value = data.get('_oai', {}).get('id')
-    if pid_value is None:
-        raise PersistentIdentifierError()
+    pid_value = data.get('pids', {}).get('oai', {}).get('identifier')
+
+    if not pid_value:
+        raise PersistentIdentifierError
+
+    pid_provider = current_rdm_records.records_service.get_provider('oai')
+
     return FetchedPID(
-        provider=OAIIDProvider,
-        pid_type=OAIIDProvider.pid_type,
+        provider=pid_provider,
+        pid_type="oai",
         pid_value=str(pid_value),
     )

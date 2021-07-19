@@ -18,6 +18,7 @@ from helpers import create_record, run_after_insert_oai_set
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_pidstore.minters import recid_minter
+from invenio_rdm_records.records.api import RDMRecord
 from invenio_records.api import Record
 from invenio_search import current_search
 from lxml import etree
@@ -237,7 +238,7 @@ def test_getrecord(app):
                 'title_statement': {'title': 'Test0'},
             }
             pid = oaiid_minter(record_id, data)
-            record = Record.create(data, id_=record_id)
+            record = RDMRecord.create(data, id_=record_id)
 
         db.session.commit()
         assert pid_value == pid.pid_value
@@ -314,7 +315,7 @@ def test_listmetadataformats_record(app):
             data = {'title_statement': {'title': 'Test0'}}
             recid_minter(record_id, data)
             pid = oaiid_minter(record_id, data)
-            Record.create(data, id_=record_id)
+            RDMRecord.create(data, id_=record_id)
             pid_value = pid.pid_value
 
         db.session.commit()
@@ -497,7 +498,7 @@ def test_listrecords(app):
                 data = {'title_statement': {'title': 'Test{0}'.format(idx)}}
                 recid_minter(record_id, data)
                 oaiid_minter(record_id, data)
-                record = Record.create(data, id_=record_id)
+                record = RDMRecord.create(data, id_=record_id)
                 record_ids.append(record_id)
 
         db.session.commit()
@@ -610,7 +611,7 @@ def test_listidentifiers(app):
             data = {'title_statement': {'title': 'Test0'}}
             recid_minter(record_id, data)
             pid = oaiid_minter(record_id, data)
-            record = Record.create(data, id_=record_id)
+            record = RDMRecord.create(data, id_=record_id)
 
         db.session.commit()
 
