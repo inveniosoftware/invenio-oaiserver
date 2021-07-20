@@ -41,7 +41,7 @@ class OAIServerSearch(RecordsSearch):
     class Meta:
         """Configuration for OAI server search."""
 
-        default_filter = Q('exists', field='pids.oai')
+        default_filter = Q('exists', field='_oai.id')
 
 
 def get_affected_records(spec=None, search_pattern=None):
@@ -152,14 +152,13 @@ def get_records(**kwargs):
             from datetime import datetime
 
             for result in self.response['hits']['hits']:
-                if 'oai' in result['_source']['pids']:
-                    yield {
-                        'id': result['_id'],
-                        'json': result,
-                        'updated': datetime.strptime(
-                            result['_source'][current_oaiserver.update_key][:19],
-                            '%Y-%m-%dT%H:%M:%S',
-                        ),
-                    }
+                yield {
+                    'id': result['_id'],
+                    'json': result,
+                    'updated': datetime.strptime(
+                        result['_source'][current_oaiserver.update_key][:19],
+                        '%Y-%m-%dT%H:%M:%S',
+                    ),
+                }
 
     return Pagination(response)

@@ -9,18 +9,15 @@
 """OAI-PMH 2.0 response generator."""
 
 from datetime import MINYEAR, datetime, timedelta
-from invenio_oaiserver.provider import OAIIDProvider
-from re import search
 
 import arrow
 from elasticsearch import VERSION as ES_VERSION
 from flask import current_app, url_for
-from invenio_db import db
-from invenio_rdm_records.records.api import RDMRecord
 from lxml import etree
 from lxml.etree import Element, ElementTree, SubElement
 
 from .models import OAISet
+from .provider import OAIIDProvider
 from .proxies import current_oaiserver
 from .query import get_records
 from .resumption_token import serialize
@@ -240,7 +237,7 @@ def listmetadataformats(**kwargs):
 
     if 'identifier' in kwargs:
         # test if record exists
-        OAIIDProvider.get(pid_value=kwargs['identifier']).pid
+        OAIIDProvider.get(pid_value=kwargs['identifier'])
 
     for prefix, metadata in cfg.get('OAISERVER_METADATA_FORMATS', {}).items():
         e_metadataformat = SubElement(
@@ -281,7 +278,7 @@ def getrecord(**kwargs):
     """Create OAI-PMH response for verb Identify."""
     record_dumper = serializer(kwargs['metadataPrefix'])
     pid = OAIIDProvider.get(pid_value=kwargs['identifier']).pid
-    record = RDMRecord.get_record(pid.object_uuid)
+    record = current_oaiserver.record_class.get_record(pid.object_uuid)
 
     e_tree, e_getrecord = verb(**kwargs)
     e_record = SubElement(e_getrecord, etree.QName(NS_OAIPMH, 'record'))
@@ -304,7 +301,7 @@ def listidentifiers(**kwargs):
     result = get_records(**kwargs)
 
     for record in result.items:
-        pid = current_oaiserver.oaiid_fetcher(record['json']['_source'])
+        pid = current_oaiserver.oaiid_fetcher(record['id'], record['json']['_source'])
         header(
             e_listidentifiers,
             identifier=pid.pid_value,
@@ -324,7 +321,7 @@ def listrecords(**kwargs):
     result = get_records(**kwargs)
 
     for record in result.items:
-        pid = current_oaiserver.oaiid_fetcher(record['json']['_source'])
+        pid = current_oaiserver.oaiid_fetcher(record['id'], record['json']['_source'])
         e_record = SubElement(e_listrecords, etree.QName(NS_OAIPMH, 'record'))
         header(
             e_record,

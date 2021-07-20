@@ -24,7 +24,6 @@ from invenio_indexer import InvenioIndexer
 from invenio_jsonschemas import InvenioJSONSchemas
 from invenio_marc21 import InvenioMARC21
 from invenio_pidstore import InvenioPIDStore
-from invenio_rdm_records import InvenioRDMRecords
 from invenio_records import InvenioRecords
 from invenio_search import InvenioSearch
 from sqlalchemy_utils.functions import create_database, database_exists, \
@@ -66,7 +65,6 @@ def app():
     FlaskCeleryExt(app)
     InvenioJSONSchemas(app)
     InvenioRecords(app)
-    InvenioRDMRecords(app)
     InvenioPIDStore(app)
     InvenioMARC21(app)
     client = Elasticsearch(hosts=[os.environ.get('ES_HOST', 'localhost')])

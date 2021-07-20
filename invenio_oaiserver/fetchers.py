@@ -9,27 +9,27 @@
 """Persistent identifier fetchers."""
 
 from __future__ import absolute_import, print_function
-from invenio_oaiserver.provider import OAIIDProvider
 
 from invenio_pidstore.errors import PersistentIdentifierError
 from invenio_pidstore.fetchers import FetchedPID
-from invenio_rdm_records.proxies import current_rdm_records
+
+from .provider import OAIIDProvider
 
 
-def oaiid_fetcher(data):
+def oaiid_fetcher(record_uuid, data):
     """Fetch a record's identifier.
 
+    :param record_uuid: The record UUID.
     :param data: The record data.
     :returns: A :class:`invenio_pidstore.fetchers.FetchedPID` instance.
     """
-    pid_value = data.get('pids', {}).get('oai', {}).get('identifier')
-
-    if not pid_value:
-        raise PersistentIdentifierError
+    pid_value = data.get('_oai', {}).get('id')
+    if pid_value is None:
+        raise PersistentIdentifierError()
 
     return FetchedPID(
         provider=OAIIDProvider,
-        pid_type="oai",
+        pid_type=OAIIDProvider.pid_type,
         pid_value=str(pid_value),
     )
 

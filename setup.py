@@ -80,7 +80,6 @@ install_requires = [
     'invenio-base>=1.2.2',
     'invenio-i18n>=1.2.0',
     'invenio-pidstore>=1.2.0',
-    'invenio-rdm-records>=0.31.9',
     'invenio-rest>=1.2.1',
     'lxml>=4.3.0',
 ]
