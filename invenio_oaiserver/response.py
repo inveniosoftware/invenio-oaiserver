@@ -9,6 +9,7 @@
 """OAI-PMH 2.0 response generator."""
 
 from datetime import MINYEAR, datetime, timedelta
+from re import search
 
 import arrow
 from elasticsearch import VERSION as ES_VERSION
@@ -20,7 +21,8 @@ from lxml.etree import Element, ElementTree, SubElement
 
 from .fetchers import fetch_pid_by_value, oaiid_fetcher
 from .models import OAISet
-from .query import OAIServerSearch, get_records
+from .proxies import current_oaiserver
+from .query import get_records
 from .resumption_token import serialize
 from .utils import datetime_to_datestamp, sanitize_unicode, serializer
 
@@ -126,7 +128,7 @@ def identify(**kwargs):
     )
     earliest_date = datetime(MINYEAR, 1, 1)
     earliest_record = (
-        OAIServerSearch(index=current_app.config['OAISERVER_RECORD_INDEX'])
+        current_oaiserver.search(index=current_app.config['OAISERVER_RECORD_INDEX'])
         .sort({"_created": {"order": "asc"}})[0:1]
         .execute()
     )

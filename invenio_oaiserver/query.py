@@ -70,7 +70,7 @@ def get_affected_records(spec=None, search_pattern=None):
     if search_pattern:
         queries.append(query_string_parser(search_pattern=search_pattern))
 
-    search = OAIServerSearch(
+    search = current_oaiserver.search(
         index=current_app.config['OAISERVER_RECORD_INDEX'],
     ).query(Q('bool', should=queries))
 
@@ -87,7 +87,7 @@ def get_records(**kwargs):
 
     if scroll_id is None:
         search = (
-            OAIServerSearch(
+            current_oaiserver.search(
                 index=current_app.config['OAISERVER_RECORD_INDEX'],
             )
             .params(

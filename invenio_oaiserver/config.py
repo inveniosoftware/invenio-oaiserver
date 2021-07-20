@@ -107,6 +107,8 @@ OAISERVER_REGISTER_SET_SIGNALS = True
 """Catch set insert/update/delete signals and update the `_oai` record
 field."""
 
+OAISERVER_SEARCH_CLS = 'invenio_oaiserver.query:OAIServerSearch'
+
 OAISERVER_QUERY_PARSER = 'elasticsearch_dsl:Q'
 """Define query parser for OIASet definition."""
 

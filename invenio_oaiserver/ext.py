@@ -12,6 +12,7 @@ from __future__ import absolute_import, print_function
 
 from invenio_records import signals as records_signals
 from sqlalchemy.event import contains, listen, remove
+from invenio_base.utils import obj_or_import_string
 
 from . import config
 
@@ -28,6 +29,10 @@ class _AppState(object):
         self.cache = cache
         if self.app.config['OAISERVER_REGISTER_RECORD_SIGNALS']:
             self.register_signals()
+
+    @property
+    def search(self):
+        return obj_or_import_string(self.app.config['OAISERVER_SEARCH_CLS'])
 
     @property
     def sets(self):
