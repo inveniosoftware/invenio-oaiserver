@@ -14,6 +14,7 @@ import re
 from functools import partial
 
 from flask import current_app
+from invenio_base.utils import obj_or_import_string
 from lxml import etree
 from lxml.builder import E
 from lxml.etree import Element
@@ -59,8 +60,8 @@ def serializer(metadata_prefix):
     metadataFormats = current_app.config['OAISERVER_METADATA_FORMATS']
     serializer_ = metadataFormats[metadata_prefix]['serializer']
     if isinstance(serializer_, tuple):
-        return partial(import_string(serializer_[0]), **serializer_[1])
-    return import_string(serializer_)
+        return partial(obj_or_import_string(serializer_[0]), **serializer_[1])
+    return obj_or_import_string(serializer_)
 
 
 def dumps_etree(pid, record, **kwargs):

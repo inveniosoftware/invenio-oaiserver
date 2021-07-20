@@ -109,6 +109,12 @@ field."""
 
 OAISERVER_SEARCH_CLS = 'invenio_oaiserver.query:OAIServerSearch'
 
+OAISERVER_ID_FETCHER = 'invenio_oaiserver.fetchers:oaiid_fetcher'
+
+OAISERVER_LAST_UPDATE_KEY = '_updated'
+
+OAISERVER_RECORD_SETS_FETCHER = 'invenio_oaiserver.fetchers:oai_record_sets_fetcher'
+
 OAISERVER_QUERY_PARSER = 'elasticsearch_dsl:Q'
 """Define query parser for OIASet definition."""
 

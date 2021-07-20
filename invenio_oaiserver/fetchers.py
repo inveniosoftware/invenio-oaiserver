@@ -22,7 +22,6 @@ def fetch_pid_by_value(pid_value):
     pid_provider = current_rdm_records.records_service.get_provider('oai')
     return pid_provider.get(pid_value)
 
-
 def oaiid_fetcher(data):
     """Fetch a record's identifier.
 
@@ -41,3 +40,7 @@ def oaiid_fetcher(data):
         pid_type="oai",
         pid_value=str(pid_value),
     )
+
+def oai_record_sets_fetcher(record):
+    """Fetch a record's sets."""
+    return record.get('_oai', {}).get('sets', [])

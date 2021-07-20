@@ -107,7 +107,7 @@ def get_records(**kwargs):
         if 'until' in kwargs:
             time_range['lte'] = kwargs['until']
         if time_range:
-            search = search.filter('range', **{'_updated': time_range})
+            search = search.filter('range', **{current_oaiserver.update_key: time_range})
 
         response = search.execute().to_dict()
     else:
@@ -157,7 +157,7 @@ def get_records(**kwargs):
                         'id': result['_id'],
                         'json': result,
                         'updated': datetime.strptime(
-                            result['_source']['updated'][:19],
+                            result['_source'][current_oaiserver.update_key][:19],
                             '%Y-%m-%dT%H:%M:%S',
                         ),
                     }

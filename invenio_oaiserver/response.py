@@ -19,7 +19,7 @@ from invenio_rdm_records.records.api import RDMRecord
 from lxml import etree
 from lxml.etree import Element, ElementTree, SubElement
 
-from .fetchers import fetch_pid_by_value, oaiid_fetcher
+from .fetchers import fetch_pid_by_value
 from .models import OAISet
 from .proxies import current_oaiserver
 from .query import get_records
@@ -290,7 +290,7 @@ def getrecord(**kwargs):
         e_record,
         identifier=pid.pid_value,
         datestamp=record.updated,
-        sets=record.get('_oai', {}).get('sets', []),
+        sets=current_oaiserver.oai_record_sets_fetcher(record),
     )
     e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, 'metadata'))
     e_metadata.append(record_dumper(pid, {'_source': record}))
@@ -304,12 +304,12 @@ def listidentifiers(**kwargs):
     result = get_records(**kwargs)
 
     for record in result.items:
-        pid = oaiid_fetcher(record['json']['_source'])
+        pid = current_oaiserver.oaiid_fetcher(record['json']['_source'])
         header(
             e_listidentifiers,
             identifier=pid.pid_value,
             datestamp=record['updated'],
-            sets=record['json']['_source'].get('_oai', {}).get('sets', []),
+            sets=current_oaiserver.oai_record_sets_fetcher(record['json']['_source']),
         )
 
     resumption_token(e_listidentifiers, result, **kwargs)
@@ -324,13 +324,13 @@ def listrecords(**kwargs):
     result = get_records(**kwargs)
 
     for record in result.items:
-        pid = oaiid_fetcher(record['json']['_source'])
+        pid = current_oaiserver.oaiid_fetcher(record['json']['_source'])
         e_record = SubElement(e_listrecords, etree.QName(NS_OAIPMH, 'record'))
         header(
             e_record,
             identifier=pid.pid_value,
             datestamp=record['updated'],
-            sets=record['json']['_source'].get('_oai', {}).get('sets', []),
+            sets=current_oaiserver.oai_record_sets_fetcher(record['json']['_source']),
         )
         e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, 'metadata'))
         e_metadata.append(record_dumper(pid, record['json']))
