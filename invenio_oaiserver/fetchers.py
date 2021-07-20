@@ -17,11 +17,6 @@ from invenio_pidstore.fetchers import FetchedPID
 from invenio_rdm_records.proxies import current_rdm_records
 
 
-def fetch_pid_by_value(pid_value):
-    """Fetch a pid by provided value."""
-    pid_provider = current_rdm_records.records_service.get_provider('oai')
-    return pid_provider.get(pid_value)
-
 def oaiid_fetcher(data):
     """Fetch a record's identifier.
 

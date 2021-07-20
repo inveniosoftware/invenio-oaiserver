@@ -9,6 +9,7 @@
 """OAI-PMH 2.0 response generator."""
 
 from datetime import MINYEAR, datetime, timedelta
+from invenio_oaiserver.provider import OAIIDProvider
 from re import search
 
 import arrow
@@ -19,7 +20,6 @@ from invenio_rdm_records.records.api import RDMRecord
 from lxml import etree
 from lxml.etree import Element, ElementTree, SubElement
 
-from .fetchers import fetch_pid_by_value
 from .models import OAISet
 from .proxies import current_oaiserver
 from .query import get_records
@@ -240,7 +240,7 @@ def listmetadataformats(**kwargs):
 
     if 'identifier' in kwargs:
         # test if record exists
-        fetch_pid_by_value(pid_value=kwargs['identifier'])
+        OAIIDProvider.get(pid_value=kwargs['identifier']).pid
 
     for prefix, metadata in cfg.get('OAISERVER_METADATA_FORMATS', {}).items():
         e_metadataformat = SubElement(
@@ -280,7 +280,7 @@ def header(parent, identifier, datestamp, sets=None, deleted=False):
 def getrecord(**kwargs):
     """Create OAI-PMH response for verb Identify."""
     record_dumper = serializer(kwargs['metadataPrefix'])
-    pid = fetch_pid_by_value(pid_value=kwargs['identifier'])
+    pid = OAIIDProvider.get(pid_value=kwargs['identifier']).pid
     record = RDMRecord.get_record(pid.object_uuid)
 
     e_tree, e_getrecord = verb(**kwargs)
