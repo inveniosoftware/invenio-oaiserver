@@ -9,8 +9,7 @@
 """Persistent identifier fetchers."""
 
 from __future__ import absolute_import, print_function
-
-import json
+from invenio_oaiserver.provider import OAIIDProvider
 
 from invenio_pidstore.errors import PersistentIdentifierError
 from invenio_pidstore.fetchers import FetchedPID
@@ -28,10 +27,8 @@ def oaiid_fetcher(data):
     if not pid_value:
         raise PersistentIdentifierError
 
-    pid_provider = current_rdm_records.records_service.get_provider('oai')
-
     return FetchedPID(
-        provider=pid_provider,
+        provider=OAIIDProvider,
         pid_type="oai",
         pid_value=str(pid_value),
     )

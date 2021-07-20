@@ -66,7 +66,7 @@ OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME = 1 * 60
 OAISERVER_METADATA_FORMATS = {
     'oai_dc': {
         'serializer': (
-            'invenio_oaiserver.utils:dublincore', {},
+            'invenio_oaiserver.utils:dublincore_etree', {},
         ),
         'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
         'namespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
@@ -111,7 +111,7 @@ OAISERVER_SEARCH_CLS = 'invenio_oaiserver.query:OAIServerSearch'
 
 OAISERVER_ID_FETCHER = 'invenio_oaiserver.fetchers:oaiid_fetcher'
 
-OAISERVER_LAST_UPDATE_KEY = '_updated'
+OAISERVER_LAST_UPDATE_KEY = "updated"
 
 OAISERVER_RECORD_SETS_FETCHER = 'invenio_oaiserver.fetchers:oai_record_sets_fetcher'
 

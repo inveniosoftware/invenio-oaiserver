@@ -48,7 +48,7 @@ class _AppState(object):
     @property
     def update_key(self):
         """Get record update key"""
-        return obj_or_import_string(self.app.config['OAISERVER_LAST_UPDATE_KEY'])
+        return self.app.config['OAISERVER_LAST_UPDATE_KEY']
 
     @property
     def sets(self):

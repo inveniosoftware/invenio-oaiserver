@@ -20,7 +20,7 @@ class OAIIDProvider(BaseProvider):
     pid_type = 'oai'
     """Type of persistent identifier."""
 
-    pid_provider = 'oai'
+    pid_provider = 'internal'
     """Provider name."""
 
     default_status = PIDStatus.RESERVED
