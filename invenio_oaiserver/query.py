@@ -71,7 +71,7 @@ def get_affected_records(spec=None, search_pattern=None):
     if search_pattern:
         queries.append(query_string_parser(search_pattern=search_pattern))
 
-    search = current_oaiserver.search(
+    search = current_oaiserver.search_cls(
         index=current_app.config['OAISERVER_RECORD_INDEX'],
     ).query(Q('bool', should=queries))
 
@@ -88,7 +88,7 @@ def get_records(**kwargs):
 
     if scroll_id is None:
         search = (
-            current_oaiserver.search(
+            current_oaiserver.search_cls(
                 index=current_app.config['OAISERVER_RECORD_INDEX'],
             )
             .params(
@@ -108,7 +108,7 @@ def get_records(**kwargs):
         if 'until' in kwargs:
             time_range['lte'] = kwargs['until']
         if time_range:
-            search = search.filter('range', **{current_oaiserver.update_key: time_range})
+            search = search.filter('range', **{current_oaiserver.last_update_key: time_range})
 
         response = search.execute().to_dict()
     else:
@@ -157,7 +157,7 @@ def get_records(**kwargs):
                     'id': result['_id'],
                     'json': result,
                     'updated': datetime.strptime(
-                        result['_source'][current_oaiserver.update_key][:19],
+                        result['_source'][current_oaiserver.last_update_key][:19],
                         '%Y-%m-%dT%H:%M:%S',
                     ),
                 }

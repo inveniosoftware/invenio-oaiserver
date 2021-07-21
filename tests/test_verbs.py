@@ -237,7 +237,7 @@ def test_getrecord(app):
                 'title_statement': {'title': 'Test0'},
             }
             pid = oaiid_minter(record_id, data)
-            record = current_oaiserver.record_class.create(data, id_=record_id)
+            record = current_oaiserver.record_cls.create(data, id_=record_id)
 
         db.session.commit()
         assert pid_value == pid.pid_value
@@ -314,7 +314,7 @@ def test_listmetadataformats_record(app):
             data = {'title_statement': {'title': 'Test0'}}
             recid_minter(record_id, data)
             pid = oaiid_minter(record_id, data)
-            current_oaiserver.record_class.create(data, id_=record_id)
+            current_oaiserver.record_cls.create(data, id_=record_id)
             pid_value = pid.pid_value
 
         db.session.commit()
@@ -497,7 +497,7 @@ def test_listrecords(app):
                 data = {'title_statement': {'title': 'Test{0}'.format(idx)}}
                 recid_minter(record_id, data)
                 oaiid_minter(record_id, data)
-                record = current_oaiserver.record_class.create(data, id_=record_id)
+                record = current_oaiserver.record_cls.create(data, id_=record_id)
                 record_ids.append(record_id)
 
         db.session.commit()
@@ -610,7 +610,7 @@ def test_listidentifiers(app):
             data = {'title_statement': {'title': 'Test0'}}
             recid_minter(record_id, data)
             pid = oaiid_minter(record_id, data)
-            record = current_oaiserver.record_class.create(data, id_=record_id)
+            record = current_oaiserver.record_cls.create(data, id_=record_id)
 
         db.session.commit()
 

@@ -32,7 +32,7 @@ class _AppState(object):
             self.register_signals()
 
     @property
-    def search(self):
+    def search_cls(self):
         """Get OAI Search class."""
         return obj_or_import_string(self.app.config['OAISERVER_SEARCH_CLS'])
 
@@ -42,19 +42,24 @@ class _AppState(object):
         return obj_or_import_string(self.app.config['OAISERVER_ID_FETCHER'])
 
     @property
-    def oai_record_sets_fetcher(self):
+    def record_sets_fetcher(self):
         """Get OAI record sets fetcher."""
         return obj_or_import_string(self.app.config['OAISERVER_RECORD_SETS_FETCHER'])
 
     @property
-    def record_class(self):
+    def record_cls(self):
         """Get the record class for record retrieval."""
         return obj_or_import_string(self.app.config['OAISERVER_RECORD_CLS'])
 
     @property
-    def update_key(self):
+    def last_update_key(self):
         """Get record update key"""
         return self.app.config['OAISERVER_LAST_UPDATE_KEY']
+
+    @property
+    def created_key(self):
+        """Get record created key"""
+        return self.app.config['OAISERVER_CREATED_KEY']
 
     @property
     def sets(self):

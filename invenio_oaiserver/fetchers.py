@@ -33,7 +33,3 @@ def oaiid_fetcher(record_uuid, data):
         pid_type=OAIIDProvider.pid_type,
         pid_value=str(pid_value),
     )
-
-def oai_record_sets_fetcher(record):
-    """Fetch a record's sets."""
-    return record.get('_oai', {}).get('sets', [])

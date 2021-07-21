@@ -180,3 +180,8 @@ def sanitize_unicode(value):
     """
     return re.sub(u'[\x00-\x08\x0B\x0C\x0E-\x1F\uD800-\uDFFF\uFFFE\uFFFF]',
                   '', value)
+
+
+def record_sets_fetcher(record):
+    """Fetch a record's sets."""
+    return record.get('_oai', {}).get('sets', [])

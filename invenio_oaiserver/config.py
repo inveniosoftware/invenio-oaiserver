@@ -118,10 +118,13 @@ OAISERVER_SEARCH_CLS = 'invenio_oaiserver.query:OAIServerSearch'
 OAISERVER_ID_FETCHER = 'invenio_oaiserver.fetchers:oaiid_fetcher'
 """OAI ID fetcher function."""
 
-OAISERVER_LAST_UPDATE_KEY = "updated"
+OAISERVER_LAST_UPDATE_KEY = "_updated"
 """Record update key."""
 
-OAISERVER_RECORD_SETS_FETCHER = 'invenio_oaiserver.fetchers:oai_record_sets_fetcher'
+OAISERVER_CREATED_KEY = "_created"
+"""Record created key."""
+
+OAISERVER_RECORD_SETS_FETCHER = 'invenio_oaiserver.utils:record_sets_fetcher'
 """Record's OAI sets function."""
 
 OAISERVER_RECORD_CLS = 'invenio_records.api:Record'
