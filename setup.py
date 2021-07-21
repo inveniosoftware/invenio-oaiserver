@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2019 CERN.
+# Copyright (C)      2021 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -21,7 +22,7 @@ tests_require = [
     'invenio-jsonschemas>=1.1.0',
     'invenio-marc21>=1.0.0a9',
     'mock>=1.3.0',
-    'pytest-invenio>=1.4.0'
+    'pytest-invenio>=1.4.1'
 ]
 
 invenio_search_version = '1.2.0'
@@ -34,7 +35,7 @@ extras_require = {
         'invenio-celery>=1.2.0',
     ],
     'docs': [
-        'Sphinx>=3',
+        'Sphinx>=3.3.1,<3.4.2',
     ],
     # Elasticsearch
     'elasticsearch2': [
@@ -51,13 +52,13 @@ extras_require = {
     ],
     # Database
     'mysql': [
-        'invenio-db[mysql]>=1.0.0',
+        'invenio-db[mysql]>=1.0.9',
     ],
     'postgresql': [
-        'invenio-db[postgresql]>=1.0.4',
+        'invenio-db[postgresql]>=1.0.9',
     ],
     'sqlite': [
-        'invenio-db>=1.0.0',
+        'invenio-db>=1.0.9',
     ],
     'tests': tests_require,
 }
@@ -73,15 +74,15 @@ for name, reqs in extras_require.items():
 
 setup_requires = [
     'Babel>=1.3',
-    'pytest-runner>=2.6.2',
+    'pytest-runner>=3.0.0,<5',
 ]
 
 install_requires = [
     'arrow>=0.13.0',
     'dojson>=1.3.0',
-    'invenio-base>=1.2.2',
-    'invenio-i18n>=1.2.0',
-    'invenio-pidstore>=1.2.0',
+    'invenio-base>=1.2.4',
+    'invenio-i18n>=1.3.0',
+    'invenio-pidstore>=1.2.2',
     'invenio-records>=1.3.0',
     'invenio-rest>=1.2.1',
     'lxml>=4.3.0',
@@ -136,6 +137,9 @@ setup(
         ],
         'invenio_pidstore.fetchers': [
             'oaiid = invenio_oaiserver.fetchers:oaiid_fetcher',
+        ],
+        'invenio_i18n.translations': [
+            'invenio_oaiserver = invenio_oaiserver',
         ],
     },
     extras_require=extras_require,
