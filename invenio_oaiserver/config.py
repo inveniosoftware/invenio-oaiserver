@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2021 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -112,14 +113,19 @@ OAISERVER_REGISTER_SET_SIGNALS = True
 field."""
 
 OAISERVER_SEARCH_CLS = 'invenio_oaiserver.query:OAIServerSearch'
+"""Class for record search."""
 
 OAISERVER_ID_FETCHER = 'invenio_oaiserver.fetchers:oaiid_fetcher'
+"""OAI ID fetcher function."""
 
 OAISERVER_LAST_UPDATE_KEY = "updated"
+"""Record update key."""
 
 OAISERVER_RECORD_SETS_FETCHER = 'invenio_oaiserver.fetchers:oai_record_sets_fetcher'
+"""Record's OAI sets function."""
 
 OAISERVER_RECORD_CLS = 'invenio_records.api:Record'
+"""Record retrieval class."""
 
 OAISERVER_QUERY_PARSER = 'elasticsearch_dsl:Q'
 """Define query parser for OIASet definition."""
