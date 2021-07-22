@@ -4,7 +4,6 @@
 # project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
 # 
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: invenio-oaiserver 1.0.0a7.dev20160708\n"

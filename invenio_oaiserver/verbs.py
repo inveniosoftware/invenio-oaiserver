@@ -91,8 +91,9 @@ class OAISchema(BaseSchema):
                 data['from_'] > data['until']:
             raise ValidationError('Date "from" must be before "until".')
         extra = set(request.values.keys()) - set([
-            getattr(f, 'load_from', None) or getattr(f, 'data_key', None) or
-            f.name for f in self.fields.values()
+            getattr(f, 'load_from', None) or getattr(
+                f, 'data_key', None) or f.name
+            for f in self.fields.values()
         ])
         if extra:
             raise ValidationError('You have passed too many arguments.')

@@ -82,6 +82,7 @@ And create the indices on Elasticsearch.
 
 >>> indices = list(ext_search.create(ignore=[400]))
 >>> ext_search.flush_and_refresh('_all')
+True
 
 Creating OAI sets
 -----------------
