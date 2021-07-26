@@ -18,6 +18,8 @@ history = open('CHANGES.rst').read()
 
 tests_require = [
     'SQLAlchemy-Continuum>=1.3.6',
+    'SQLAlchemy<1.4.0,>=1.2.18',
+    'SQLAlchemy-Utils<0.36,>=0.33.1',
     'invenio-indexer>=1.1.0',
     'invenio-jsonschemas>=1.1.0',
     'invenio-marc21>=1.0.0a9',
@@ -51,10 +53,10 @@ extras_require = {
         'invenio-db[mysql]>=1.0.9',
     ],
     'postgresql': [
-         'invenio-db[postgresql]>=1.0.9',
+        'invenio-db[postgresql]>=1.0.9',
     ],
     'sqlite': [
-         'invenio-db>=1.0.9',
+        'invenio-db>=1.0.9',
     ],
     'tests': tests_require,
 }
@@ -78,7 +80,7 @@ install_requires = [
     'dojson>=1.3.0',
     'flask>=1.1.0,<=1.1.4',
     'invenio-base>=1.2.4',
-    'invenio-i18n>=1.3.0',
+    'invenio-i18n>=1.2.0',
     'invenio-pidstore>=1.2.2',
     'invenio-rest>=1.2.1',
     'lxml>=4.3.0',
