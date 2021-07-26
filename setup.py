@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2019 CERN.
+# Copyright (C)      2021 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -16,13 +17,12 @@ readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
 
 tests_require = [
-    # 'SQLAlchemy-Continuum>=1.3.6',
-    # 'invenio-indexer>=1.1.0',
-    'invenio-app>=1.3.0,<2.0.0',
-    'invenio-jsonschemas>=1.1.3',
+    'SQLAlchemy-Continuum>=1.3.6',
+    'invenio-indexer>=1.1.0',
+    'invenio-jsonschemas>=1.1.0',
     'invenio-marc21>=1.0.0a9',
-    'pytest-invenio>=1.4.1,<2.0.0',
-    'pytest-mock>=1.6.0',
+    'mock>=1.3.0',
+    'pytest-invenio>=1.4.1',
 ]
 
 # Should follow inveniosoftware/invenio versions
@@ -48,13 +48,13 @@ extras_require = {
     ],
     # Databases
     'mysql': [
-        'invenio-db[mysql,versioning]{}'.format(invenio_db_version),
+        'invenio-db[mysql]>=1.0.9',
     ],
     'postgresql': [
-        'invenio-db[postgresql,versioning]{}'.format(invenio_db_version),
+         'invenio-db[postgresql]>=1.0.9',
     ],
     'sqlite': [
-        'invenio-db[versioning]{}'.format(invenio_db_version),
+         'invenio-db>=1.0.9',
     ],
     'tests': tests_require,
 }
@@ -69,17 +69,17 @@ for name, reqs in extras_require.items():
 
 setup_requires = [
     'Babel>=1.3',
-    'pytest-runner>=2.6.2',
-]
+    'pytest-runner>=3.0.0,<5',
+    ]
 
 install_requires = [
     'arrow>=0.17.0',
     'click<8.0,>=7.0',
     'dojson>=1.3.0',
     'flask>=1.1.0,<=1.1.4',
-    'invenio-base>=1.2.2',
-    'invenio-i18n>=1.2.0',
-    'invenio-pidstore>=1.2.0',
+    'invenio-base>=1.2.4',
+    'invenio-i18n>=1.3.0',
+    'invenio-pidstore>=1.2.2',
     'invenio-rest>=1.2.1',
     'lxml>=4.3.0',
 ]

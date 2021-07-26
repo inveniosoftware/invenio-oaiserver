@@ -11,9 +11,9 @@
 
 from __future__ import absolute_import, print_function
 
+from invenio_base.utils import obj_or_import_string
 from invenio_records import signals as records_signals
 from sqlalchemy.event import contains, listen, remove
-from invenio_base.utils import obj_or_import_string
 
 from . import config
 
@@ -53,12 +53,12 @@ class _AppState(object):
 
     @property
     def last_update_key(self):
-        """Get record update key"""
+        """Get record update key."""
         return self.app.config['OAISERVER_LAST_UPDATE_KEY']
 
     @property
     def created_key(self):
-        """Get record created key"""
+        """Get record created key."""
         return self.app.config['OAISERVER_CREATED_KEY']
 
     @property
