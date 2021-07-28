@@ -130,6 +130,9 @@ OAISERVER_RECORD_SETS_FETCHER = 'invenio_oaiserver.utils:record_sets_fetcher'
 OAISERVER_RECORD_CLS = 'invenio_records.api:Record'
 """Record retrieval class."""
 
+OAISERVER_GETRECORD_FETCHER = 'invenio_oaiserver.utils:getrecord_fetcher'
+"""Record data fetcher for serialization."""
+
 OAISERVER_QUERY_PARSER = 'elasticsearch_dsl:Q'
 """Define query parser for OIASet definition."""
 

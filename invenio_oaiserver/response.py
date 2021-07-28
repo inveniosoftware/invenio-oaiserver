@@ -278,7 +278,7 @@ def getrecord(**kwargs):
     """Create OAI-PMH response for verb Identify."""
     record_dumper = serializer(kwargs['metadataPrefix'])
     pid = OAIIDProvider.get(pid_value=kwargs['identifier']).pid
-    record = current_oaiserver.record_cls.get_record(pid.object_uuid)
+    record = current_oaiserver.record_fetcher(pid.object_uuid)
 
     e_tree, e_getrecord = verb(**kwargs)
     e_record = SubElement(e_getrecord, etree.QName(NS_OAIPMH, 'record'))
@@ -286,7 +286,7 @@ def getrecord(**kwargs):
     header(
         e_record,
         identifier=pid.pid_value,
-        datestamp=record.updated,
+        datestamp=record['updated'],
         sets=current_oaiserver.record_sets_fetcher(record),
     )
     e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, 'metadata'))

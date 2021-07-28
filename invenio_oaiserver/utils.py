@@ -18,7 +18,8 @@ from invenio_base.utils import obj_or_import_string
 from lxml import etree
 from lxml.builder import E
 from lxml.etree import Element
-from werkzeug.utils import import_string
+
+from .proxies import current_oaiserver
 
 try:
     from functools import lru_cache
@@ -185,3 +186,11 @@ def sanitize_unicode(value):
 def record_sets_fetcher(record):
     """Fetch a record's sets."""
     return record.get('_oai', {}).get('sets', [])
+
+
+def getrecord_fetcher(record_uuid):
+    """Fetch record data as dict for serialization."""
+    record = current_oaiserver.record_cls.get_record(record_uuid)
+    record_dict = record.dumps()
+    record_dict['updated'] = record.updated
+    return record_dict

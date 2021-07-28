@@ -52,6 +52,11 @@ class _AppState(object):
         return obj_or_import_string(self.app.config['OAISERVER_RECORD_CLS'])
 
     @property
+    def record_fetcher(self):
+        """Get the record fetcher class for record serialization."""
+        return obj_or_import_string(self.app.config['OAISERVER_GETRECORD_FETCHER'])
+
+    @property
     def last_update_key(self):
         """Get record update key."""
         return self.app.config['OAISERVER_LAST_UPDATE_KEY']

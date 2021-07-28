@@ -29,17 +29,17 @@ tests_require = [
 
 # Should follow inveniosoftware/invenio versions
 invenio_db_version = '>=1.0.9,<2.0.0'
-invenio_search_version = '>=1.4.0,<2.0.0'
+invenio_search_version = '>=1.4.2,<2.0.0'
 
 extras_require = {
     'admin': [
         'invenio-admin>=1.2.0',
     ],
     'celery': [
-        'invenio-celery>=1.2.0',
+        'invenio-celery>=1.2.2',
     ],
     'docs': [
-        'Sphinx>=3,<3.4.2',
+        'Sphinx>=3.1.0,<3.4.2',
     ],
     # Elasticsearch version
     'elasticsearch6': [
@@ -82,6 +82,7 @@ install_requires = [
     'invenio-base>=1.2.4',
     'invenio-i18n>=1.2.0',
     'invenio-pidstore>=1.2.2',
+    'invenio-records>=1.4.0',
     'invenio-rest>=1.2.1',
     'lxml>=4.3.0',
 ]
