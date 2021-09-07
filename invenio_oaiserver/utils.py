@@ -11,6 +11,7 @@
 from __future__ import absolute_import, print_function
 
 import re
+from datetime import datetime
 from functools import partial
 
 from flask import current_app
@@ -88,7 +89,10 @@ def datetime_to_datestamp(dt, day_granularity=False):
     """
     # assert dt.tzinfo is None  # only accept timezone naive datetimes
     # ignore microseconds
-    dt = dt.replace(microsecond=0)
+    if type(dt) == str:
+        dt = datetime.fromisoformat(dt)
+
+    dt = dt.replace(microsecond=0, tzinfo=None)
     result = dt.isoformat() + 'Z'
     if day_granularity:
         result = result[:-10]

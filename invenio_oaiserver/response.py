@@ -125,7 +125,9 @@ def identify(**kwargs):
     )
     earliest_date = datetime(MINYEAR, 1, 1)
     earliest_record = (
-        current_oaiserver.search_cls(index=current_app.config['OAISERVER_RECORD_INDEX'])
+        current_oaiserver.search_cls(
+            index=current_app.config['OAISERVER_RECORD_INDEX']
+        )
         .sort({current_oaiserver.created_key: {"order": "asc"}})[0:1]
         .execute()
     )
@@ -133,7 +135,9 @@ def identify(**kwargs):
         hit = earliest_record.hits.hits[0]
         if ES_VERSION[0] >= 7:
             hit = hit.to_dict()
-        created_date_str = hit.get("_source", {}).get(current_oaiserver.created_key)
+        created_date_str = hit.get("_source", {}).get(
+            current_oaiserver.created_key
+        )
         if created_date_str:
             earliest_date = (
                 arrow.get(created_date_str)
@@ -301,12 +305,16 @@ def listidentifiers(**kwargs):
     result = get_records(**kwargs)
 
     for record in result.items:
-        pid = current_oaiserver.oaiid_fetcher(record['id'], record['json']['_source'])
+        pid = current_oaiserver.oaiid_fetcher(
+            record['id'], record['json']['_source']
+        )
         header(
             e_listidentifiers,
             identifier=pid.pid_value,
             datestamp=record['updated'],
-            sets=current_oaiserver.record_sets_fetcher(record['json']['_source']),
+            sets=current_oaiserver.record_sets_fetcher(
+                record['json']['_source']
+            ),
         )
 
     resumption_token(e_listidentifiers, result, **kwargs)
@@ -321,13 +329,17 @@ def listrecords(**kwargs):
     result = get_records(**kwargs)
 
     for record in result.items:
-        pid = current_oaiserver.oaiid_fetcher(record['id'], record['json']['_source'])
+        pid = current_oaiserver.oaiid_fetcher(
+            record['id'], record['json']['_source']
+        )
         e_record = SubElement(e_listrecords, etree.QName(NS_OAIPMH, 'record'))
         header(
             e_record,
             identifier=pid.pid_value,
             datestamp=record['updated'],
-            sets=current_oaiserver.record_sets_fetcher(record['json']['_source']),
+            sets=current_oaiserver.record_sets_fetcher(
+                record['json']['_source']
+            ),
         )
         e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, 'metadata'))
         e_metadata.append(record_dumper(pid, record['json']))
