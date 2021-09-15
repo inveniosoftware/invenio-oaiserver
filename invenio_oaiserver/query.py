@@ -126,7 +126,7 @@ def get_records(**kwargs):
         def __init__(self, response):
             """Initilize pagination."""
             self.response = response
-            self.total = response['hits']['total']
+            self.total = response['hits']['total'] if ES_VERSION[0] < 7 else response['hits']['total']['value']
             self._scroll_id = response.get('_scroll_id')
 
             # clean descriptor on last page
@@ -137,10 +137,7 @@ def get_records(**kwargs):
         @cached_property
         def has_next(self):
             """Return True if there is next page."""
-            total = (
-                self.total if ES_VERSION[0] < 7 else self.total.get('value', 0)
-            )
-            return self.page * self.per_page <= total
+            return self.page * self.per_page <= self.total
 
         @cached_property
         def next_num(self):
