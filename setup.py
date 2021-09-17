@@ -78,7 +78,7 @@ install_requires = [
     'arrow>=0.17.0',
     'click<8.0,>=7.0',
     'dojson>=1.3.0',
-    'flask>=1.1.0,<=1.1.4',
+    'Flask>=1.0.4,<2.0',
     'invenio-base>=1.2.4',
     'invenio-i18n>=1.2.0',
     'invenio-pidstore>=1.2.2',
