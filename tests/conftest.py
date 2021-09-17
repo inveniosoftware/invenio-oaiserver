@@ -60,6 +60,7 @@ def app():
     if not hasattr(app, 'cli'):
         from flask_cli import FlaskCLI
         FlaskCLI(app)
+
     InvenioDB(app)
     FlaskCeleryExt(app)
     InvenioJSONSchemas(app)

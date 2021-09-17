@@ -150,7 +150,7 @@ def get_record_sets(record):
     """Find matching sets."""
     # get lists of sets with search_pattern equals to None but already in the
     # set list inside the record
-    record_sets = set(record.get('_oai', {}).get('sets', []))
+    record_sets = set(current_oaiserver.record_sets_fetcher(record))
     for spec in _build_cache():
         if spec in record_sets:
             yield spec

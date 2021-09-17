@@ -327,8 +327,8 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/', None),
-    'flask': ('https://flask.readthedocs.io/', None),
+    'python': ('https://docs.python.org/3/', None),
+    'flask': ('https://flask.palletsprojects.com/en/2.0.x/', None),
     'invenio_pidstore': ('https://invenio-pidstore.readthedocs.io/en/latest/', None),
     'invenio_records': ('https://invenio-records.readthedocs.io/en/latest/', None),
 }

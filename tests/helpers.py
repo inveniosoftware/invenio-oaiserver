@@ -25,6 +25,7 @@ from invenio_records import Record
 from invenio_records.models import RecordMetadata
 from invenio_search import current_search, current_search_client
 
+from invenio_oaiserver import current_oaiserver
 from invenio_oaiserver.minters import oaiid_minter
 from invenio_oaiserver.models import OAISet
 from invenio_oaiserver.receivers import after_insert_oai_set
@@ -47,7 +48,7 @@ def load_records(app, filename, schema, tries=5):
                     item_dict['$schema'] = schema
                     recid_minter(record_id, item_dict)
                     oaiid_minter(record_id, item_dict)
-                    record = Record.create(item_dict, id_=record_id)
+                    record = current_oaiserver.record_cls.create(item_dict, id_=record_id)
                     indexer.index(record)
                     records.append(record.id)
             db.session.commit()
@@ -92,6 +93,6 @@ def create_record(app, item_dict, mint_oaiid=True):
         recid_minter(record_id, item_dict)
         if mint_oaiid:
             oaiid_minter(record_id, item_dict)
-        record = Record.create(item_dict, id_=record_id)
+        record = current_oaiserver.record_cls.create(item_dict, id_=record_id)
         indexer.index(record)
         return record

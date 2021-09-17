@@ -170,8 +170,8 @@ def test_populate_oaisets(app, without_oaiset_signals, schema):
         record4_model = RecordMetadata.query.filter_by(
             id=record4_id).first().json
 
-        assert 'j with space' not in record4_model['_oai']['sets']
-        assert len(record4_model['_oai']['sets']) == 0
+        assert 'j with space' not in record4_model['_oai'].get('sets', [])
+        assert len(record4_model['_oai'].get('sets', [])) == 0
 
         current_oaiserver.unregister_signals_oaiset()
 
@@ -189,10 +189,10 @@ def test_populate_oaisets(app, without_oaiset_signals, schema):
         record3_model = RecordMetadata.query.filter_by(
             id=record3_id).first().json
 
-        assert 'i' in record3_model['_oai']['sets'], \
+        assert 'i' not in record3_model['_oai']['sets'], \
             'Set "i" is manually managed.'
         assert 'e' in record3_model['_oai']['sets']
-        assert len(record3_model['_oai']['sets']) == 2
+        assert len(record3_model['_oai']['sets']) == 1
 
         current_oaiserver.unregister_signals_oaiset()
 

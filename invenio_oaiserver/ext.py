@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2021 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -10,6 +11,7 @@
 
 from __future__ import absolute_import, print_function
 
+from invenio_base.utils import obj_or_import_string
 from invenio_records import signals as records_signals
 from sqlalchemy.event import contains, listen, remove
 
@@ -28,6 +30,41 @@ class _AppState(object):
         self.cache = cache
         if self.app.config['OAISERVER_REGISTER_RECORD_SIGNALS']:
             self.register_signals()
+
+    @property
+    def search_cls(self):
+        """Get OAI Search class."""
+        return obj_or_import_string(self.app.config['OAISERVER_SEARCH_CLS'])
+
+    @property
+    def oaiid_fetcher(self):
+        """Get OAI ID fetcher."""
+        return obj_or_import_string(self.app.config['OAISERVER_ID_FETCHER'])
+
+    @property
+    def record_sets_fetcher(self):
+        """Get OAI record sets fetcher."""
+        return obj_or_import_string(self.app.config['OAISERVER_RECORD_SETS_FETCHER'])
+
+    @property
+    def record_cls(self):
+        """Get the record class for record retrieval."""
+        return obj_or_import_string(self.app.config['OAISERVER_RECORD_CLS'])
+
+    @property
+    def record_fetcher(self):
+        """Get the record fetcher class for record serialization."""
+        return obj_or_import_string(self.app.config['OAISERVER_GETRECORD_FETCHER'])
+
+    @property
+    def last_update_key(self):
+        """Get record update key."""
+        return self.app.config['OAISERVER_LAST_UPDATE_KEY']
+
+    @property
+    def created_key(self):
+        """Get record created key."""
+        return self.app.config['OAISERVER_CREATED_KEY']
 
     @property
     def sets(self):

@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2016-2018 CERN.
+# Copyright (C) 2021 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -25,12 +26,14 @@ def query_string_parser(search_pattern):
         if isinstance(query_parser, six.string_types):
             query_parser = import_string(query_parser)
         current_oaiserver.query_parser = query_parser
-    query_parser_fields = current_app.config.get(
-        'OAISERVER_QUERY_PARSER_FIELDS', {}) or {}
+    query_parser_fields = (
+        current_app.config.get('OAISERVER_QUERY_PARSER_FIELDS', {}) or {}
+    )
     if query_parser_fields:
         query_parser_fields = dict(fields=query_parser_fields)
     return current_oaiserver.query_parser(
-        'query_string', query=search_pattern, **query_parser_fields)
+        'query_string', query=search_pattern, **query_parser_fields
+    )
 
 
 class OAIServerSearch(RecordsSearch):
@@ -68,7 +71,7 @@ def get_affected_records(spec=None, search_pattern=None):
     if search_pattern:
         queries.append(query_string_parser(search_pattern=search_pattern))
 
-    search = OAIServerSearch(
+    search = current_oaiserver.search_cls(
         index=current_app.config['OAISERVER_RECORD_INDEX'],
     ).query(Q('bool', should=queries))
 
@@ -84,13 +87,17 @@ def get_records(**kwargs):
     scroll_id = kwargs.get('resumptionToken', {}).get('scroll_id')
 
     if scroll_id is None:
-        search = OAIServerSearch(
-            index=current_app.config['OAISERVER_RECORD_INDEX'],
-        ).params(
-            scroll='{0}s'.format(scroll),
-        ).extra(
-            version=True,
-        )[(page_-1)*size_:page_*size_]
+        search = (
+            current_oaiserver.search_cls(
+                index=current_app.config['OAISERVER_RECORD_INDEX'],
+            )
+            .params(
+                scroll='{0}s'.format(scroll),
+            )
+            .extra(
+                version=True,
+            )[(page_ - 1) * size_: page_ * size_]
+        )
 
         if 'set' in kwargs:
             search = search.query('match', **{'_oai.sets': kwargs['set']})
@@ -101,7 +108,7 @@ def get_records(**kwargs):
         if 'until' in kwargs:
             time_range['lte'] = kwargs['until']
         if time_range:
-            search = search.filter('range', **{'_updated': time_range})
+            search = search.filter('range', **{current_oaiserver.last_update_key: time_range})
 
         response = search.execute().to_dict()
     else:
@@ -119,22 +126,18 @@ def get_records(**kwargs):
         def __init__(self, response):
             """Initilize pagination."""
             self.response = response
-            self.total = response['hits']['total']
+            self.total = response['hits']['total'] if ES_VERSION[0] < 7 else response['hits']['total']['value']
             self._scroll_id = response.get('_scroll_id')
 
             # clean descriptor on last page
             if not self.has_next:
-                current_search_client.clear_scroll(
-                    scroll_id=self._scroll_id
-                )
+                current_search_client.clear_scroll(scroll_id=self._scroll_id)
                 self._scroll_id = None
 
         @cached_property
         def has_next(self):
             """Return True if there is next page."""
-            total = self.total if ES_VERSION[0] < 7 else \
-                self.total.get('value', 0)
-            return self.page * self.per_page <= total
+            return self.page * self.per_page <= self.total
 
         @cached_property
         def next_num(self):
@@ -145,15 +148,15 @@ def get_records(**kwargs):
         def items(self):
             """Return iterator."""
             from datetime import datetime
+
             for result in self.response['hits']['hits']:
-                if '_oai' in result['_source']:
-                    yield {
-                        'id': result['_id'],
-                        'json': result,
-                        'updated': datetime.strptime(
-                            result['_source']['_updated'][:19],
-                            '%Y-%m-%dT%H:%M:%S'
-                        ),
-                    }
+                yield {
+                    'id': result['_id'],
+                    'json': result,
+                    'updated': datetime.strptime(
+                        result['_source'][current_oaiserver.last_update_key][:19],
+                        '%Y-%m-%dT%H:%M:%S',
+                    ),
+                }
 
     return Pagination(response)

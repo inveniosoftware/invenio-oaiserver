@@ -18,13 +18,13 @@ from helpers import create_record, run_after_insert_oai_set
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_pidstore.minters import recid_minter
-from invenio_records.api import Record
 from invenio_search import current_search
 from lxml import etree
 
 from invenio_oaiserver import current_oaiserver
 from invenio_oaiserver.minters import oaiid_minter
 from invenio_oaiserver.models import OAISet
+from invenio_oaiserver.proxies import current_oaiserver
 from invenio_oaiserver.response import NS_DC, NS_OAIDC, NS_OAIPMH
 from invenio_oaiserver.utils import datetime_to_datestamp, \
     eprints_description, friends_description, oai_identifier_description
@@ -237,7 +237,7 @@ def test_getrecord(app):
                 'title_statement': {'title': 'Test0'},
             }
             pid = oaiid_minter(record_id, data)
-            record = Record.create(data, id_=record_id)
+            record = current_oaiserver.record_cls.create(data, id_=record_id)
 
         db.session.commit()
         assert pid_value == pid.pid_value
@@ -314,7 +314,7 @@ def test_listmetadataformats_record(app):
             data = {'title_statement': {'title': 'Test0'}}
             recid_minter(record_id, data)
             pid = oaiid_minter(record_id, data)
-            Record.create(data, id_=record_id)
+            current_oaiserver.record_cls.create(data, id_=record_id)
             pid_value = pid.pid_value
 
         db.session.commit()
@@ -497,7 +497,7 @@ def test_listrecords(app):
                 data = {'title_statement': {'title': 'Test{0}'.format(idx)}}
                 recid_minter(record_id, data)
                 oaiid_minter(record_id, data)
-                record = Record.create(data, id_=record_id)
+                record = current_oaiserver.record_cls.create(data, id_=record_id)
                 record_ids.append(record_id)
 
         db.session.commit()
@@ -610,7 +610,7 @@ def test_listidentifiers(app):
             data = {'title_statement': {'title': 'Test0'}}
             recid_minter(record_id, data)
             pid = oaiid_minter(record_id, data)
-            record = Record.create(data, id_=record_id)
+            record = current_oaiserver.record_cls.create(data, id_=record_id)
 
         db.session.commit()
 
@@ -651,7 +651,7 @@ def test_listidentifiers(app):
             for granularity in (False, True):
                 result = c.get(
                     '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
-                    '&from={0}&until={1}&set=test0'.format(
+                    '&from={0}&until={1}'.format(
                         datetime_to_datestamp(
                             record.updated - timedelta(1),
                             day_granularity=granularity),
@@ -668,6 +668,54 @@ def test_listidentifiers(app):
                     namespaces=NAMESPACES
                 )
                 assert len(identifier) == 1
+
+        # TODO: Add test cases after sets have been reimplemented.
+
+        # Check set param
+        # with app.test_client() as c:
+        #     for granularity in (False, True):
+        #         result = c.get(
+        #             '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
+        #             '&set=test0'.format(
+        #                 datetime_to_datestamp(
+        #                     record.updated - timedelta(1),
+        #                     day_granularity=granularity),
+        #                 datetime_to_datestamp(
+        #                     record.updated + timedelta(1),
+        #                     day_granularity=granularity),
+        #             )
+        #         )
+        #         assert result.status_code == 200
+
+        #         tree = etree.fromstring(result.data)
+        #         identifier = tree.xpath(
+        #             '/x:OAI-PMH/x:ListIdentifiers/x:header/x:identifier',
+        #             namespaces=NAMESPACES
+        #         )
+        #         assert len(identifier) == 1
+
+        # Check from:until range and set param
+        # with app.test_client() as c:
+        #     for granularity in (False, True):
+        #         result = c.get(
+        #             '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
+        #             '&from={0}&until={1}&set=test0'.format(
+        #                 datetime_to_datestamp(
+        #                     record.updated - timedelta(1),
+        #                     day_granularity=granularity),
+        #                 datetime_to_datestamp(
+        #                     record.updated + timedelta(1),
+        #                     day_granularity=granularity),
+        #             )
+        #         )
+        #         assert result.status_code == 200
+
+        #         tree = etree.fromstring(result.data)
+        #         identifier = tree.xpath(
+        #             '/x:OAI-PMH/x:ListIdentifiers/x:header/x:identifier',
+        #             namespaces=NAMESPACES
+        #         )
+        #         assert len(identifier) == 1
 
 
 def test_list_sets_long(app):

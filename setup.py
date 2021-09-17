@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2019 CERN.
+# Copyright (C)      2021 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -17,47 +18,45 @@ history = open('CHANGES.rst').read()
 
 tests_require = [
     'SQLAlchemy-Continuum>=1.3.6',
+    'SQLAlchemy<1.4.0,>=1.2.18',
+    'SQLAlchemy-Utils<0.36,>=0.33.1',
     'invenio-indexer>=1.1.0',
     'invenio-jsonschemas>=1.1.0',
     'invenio-marc21>=1.0.0a9',
     'mock>=1.3.0',
-    'pytest-invenio>=1.4.0'
+    'pytest-invenio>=1.4.1',
 ]
 
-invenio_search_version = '1.2.0'
+# Should follow inveniosoftware/invenio versions
+invenio_db_version = '>=1.0.9,<2.0.0'
+invenio_search_version = '>=1.4.2,<2.0.0'
 
 extras_require = {
     'admin': [
         'invenio-admin>=1.2.0',
     ],
     'celery': [
-        'invenio-celery>=1.2.0',
+        'invenio-celery>=1.2.2',
     ],
     'docs': [
-        'Sphinx>=3',
+        'Sphinx>=3.1.0,<3.4.2',
     ],
-    # Elasticsearch
-    'elasticsearch2': [
-        'invenio-search[elasticsearch2]>={}'.format(invenio_search_version)
-    ],
-    'elasticsearch5': [
-        'invenio-search[elasticsearch5]>={}'.format(invenio_search_version)
-    ],
+    # Elasticsearch version
     'elasticsearch6': [
-        'invenio-search[elasticsearch6]>={}'.format(invenio_search_version)
+        'invenio-search[elasticsearch6]{}'.format(invenio_search_version),
     ],
     'elasticsearch7': [
-        'invenio-search[elasticsearch7]>={}'.format(invenio_search_version)
+        'invenio-search[elasticsearch7]{}'.format(invenio_search_version),
     ],
-    # Database
+    # Databases
     'mysql': [
-        'invenio-db[mysql]>=1.0.0',
+        'invenio-db[mysql]>=1.0.9',
     ],
     'postgresql': [
-        'invenio-db[postgresql]>=1.0.4',
+        'invenio-db[postgresql]>=1.0.9',
     ],
     'sqlite': [
-        'invenio-db>=1.0.0',
+        'invenio-db>=1.0.9',
     ],
     'tests': tests_require,
 }
@@ -66,23 +65,24 @@ extras_require['all'] = []
 for name, reqs in extras_require.items():
     if name[0] == ':' or name in (
             'mysql', 'postgresql', 'sqlite',
-            'elasticsearch2', 'elasticsearch5',
             'elasticsearch6', 'elasticsearch7'):
         continue
     extras_require['all'].extend(reqs)
 
 setup_requires = [
     'Babel>=1.3',
-    'pytest-runner>=2.6.2',
-]
+    'pytest-runner>=3.0.0,<5',
+    ]
 
 install_requires = [
-    'arrow>=0.13.0',
+    'arrow>=0.17.0',
+    'click<8.0,>=7.0',
     'dojson>=1.3.0',
-    'invenio-base>=1.2.2',
+    'flask>=1.1.0,<=1.1.4',
+    'invenio-base>=1.2.4',
     'invenio-i18n>=1.2.0',
-    'invenio-pidstore>=1.2.0',
-    'invenio-records>=1.3.0',
+    'invenio-pidstore>=1.2.2',
+    'invenio-records>=1.4.0',
     'invenio-rest>=1.2.1',
     'lxml>=4.3.0',
 ]

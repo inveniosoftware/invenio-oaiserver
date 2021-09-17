@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2016-2018 CERN.
+# Copyright (C) 2021 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -26,6 +27,7 @@ def oaiid_fetcher(record_uuid, data):
     pid_value = data.get('_oai', {}).get('id')
     if pid_value is None:
         raise PersistentIdentifierError()
+
     return FetchedPID(
         provider=OAIIDProvider,
         pid_type=OAIIDProvider.pid_type,
