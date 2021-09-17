@@ -8,6 +8,19 @@
 Changes
 =======
 
+Version 1.2.2 (released 2021-09-17)
+
+- Adds support for more easily integrating the OAI-PMH server in InvenioRDM.
+
+- Adds new configuration variables for dependency injection of search class,
+  ID fetcher, record getter tec.
+
+- The release is fully backward compatibility and does not change any
+  behaviour.
+
+- Fixes a bug with Elasticsearch 7 causing invalid OAI-PMH output for the
+  resumption token.
+
 Version 1.2.1 (released 2021-07-12)
 
 - Adds german translations
