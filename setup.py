@@ -3,6 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2015-2019 CERN.
 # Copyright (C)      2021 Graz University of Technology.
+# Copyright (C)      2021 TU Wien.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -78,8 +79,7 @@ install_requires = [
     'arrow>=0.17.0',
     'click<8.0,>=7.0',
     'dojson>=1.3.0',
-    'Flask>=1.0.4,<2.0',
-    'invenio-base>=1.2.4',
+    'invenio-base>=1.2.5',
     'invenio-i18n>=1.2.0',
     'invenio-pidstore>=1.2.2',
     'invenio-records>=1.4.0',
