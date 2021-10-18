@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version 1.2.3 (released 2021-10-18)
+
+- Unpin Flask version.
+
 Version 1.2.2 (released 2021-09-17)
 
 - Adds support for more easily integrating the OAI-PMH server in InvenioRDM.
