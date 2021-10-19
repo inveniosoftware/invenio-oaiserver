@@ -21,8 +21,8 @@ tests_require = [
     'SQLAlchemy-Continuum>=1.3.6',
     'SQLAlchemy<1.4.0,>=1.2.18',
     'SQLAlchemy-Utils<0.36,>=0.33.1',
-    'invenio-indexer>=1.1.0',
-    'invenio-jsonschemas>=1.1.0',
+    'invenio-indexer>=1.2.1',
+    'invenio-jsonschemas>=1.1.3',
     'invenio-marc21>=1.0.0a9',
     'mock>=1.3.0',
     'pytest-invenio>=1.4.1',
@@ -34,10 +34,10 @@ invenio_search_version = '>=1.4.2,<2.0.0'
 
 extras_require = {
     'admin': [
-        'invenio-admin>=1.2.0',
+        'invenio-admin>=1.3.0',
     ],
     'celery': [
-        'invenio-celery>=1.2.2',
+        'invenio-celery>=1.2.3',
     ],
     'docs': [
         'Sphinx>=3.1.0,<3.4.2',
@@ -71,19 +71,18 @@ for name, reqs in extras_require.items():
     extras_require['all'].extend(reqs)
 
 setup_requires = [
-    'Babel>=1.3',
+    'Babel>=2.8',
     'pytest-runner>=3.0.0,<5',
     ]
 
 install_requires = [
     'arrow>=0.17.0',
-    'click<8.0,>=7.0',
     'dojson>=1.3.0',
     'invenio-base>=1.2.5',
-    'invenio-i18n>=1.2.0',
+    'invenio-i18n>=1.3.1',
     'invenio-pidstore>=1.2.2',
-    'invenio-records>=1.4.0',
-    'invenio-rest>=1.2.1',
+    'invenio-records>=1.6.0',
+    'invenio-rest>=1.2.4',
     'lxml>=4.3.0',
 ]
 
