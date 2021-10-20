@@ -8,7 +8,7 @@
 Changes
 =======
 
-Version 1.2.3 (released 2021-10-18)
+Version 1.3.0 (released 2021-10-20)
 
 - Unpin Flask version.
 
