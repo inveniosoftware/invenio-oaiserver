@@ -40,7 +40,7 @@ extras_require = {
         'invenio-celery>=1.2.3',
     ],
     'docs': [
-        'Sphinx>=3.1.0,<3.4.2',
+        'Sphinx==4.2.0',
     ],
     # Elasticsearch version
     'elasticsearch6': [
@@ -72,8 +72,7 @@ for name, reqs in extras_require.items():
 
 setup_requires = [
     'Babel>=2.8',
-    'pytest-runner>=3.0.0,<5',
-    ]
+]
 
 install_requires = [
     'arrow>=0.17.0',
