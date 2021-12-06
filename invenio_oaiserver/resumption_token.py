@@ -53,7 +53,9 @@ class ResumptionToken(fields.Field):
         result = token_builder.loads(value, max_age=current_app.config[
             'OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME'])
         result['token'] = value
-        result['kwargs'] = self.root.load(result['kwargs'], partial=True).data
+        # TODO: remove?
+        # this loads the arguments from the token, which is not necessary as the resumptionToken keyword is exclusive
+        # result['kwargs'] = self.root.load(result['kwargs'], partial=True).data
         return result
 
 

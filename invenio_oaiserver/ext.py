@@ -57,6 +57,11 @@ class _AppState(object):
         return obj_or_import_string(self.app.config['OAISERVER_GETRECORD_FETCHER'])
 
     @property
+    def set_records_query_fetcher(self):
+        """Get query to retrieve records based on set"""
+        return obj_or_import_string(self.app.config['OAISERVER_SET_RECORDS_QUERY_FETCHER'])
+
+    @property
     def last_update_key(self):
         """Get record update key."""
         return self.app.config['OAISERVER_LAST_UPDATE_KEY']

@@ -15,6 +15,7 @@ from elasticsearch_dsl import Q
 from flask import current_app
 from invenio_search import RecordsSearch, current_search_client
 from werkzeug.utils import cached_property, import_string
+from invenio_oaiserver.errors import OAINoRecordsMatchError
 
 from . import current_oaiserver
 
@@ -100,7 +101,7 @@ def get_records(**kwargs):
         )
 
         if 'set' in kwargs:
-            search = search.query('match', **{'_oai.sets': kwargs['set']})
+            search = search.query(current_oaiserver.set_records_query_fetcher(kwargs['set']))
 
         time_range = {}
         if 'from_' in kwargs:
@@ -128,6 +129,9 @@ def get_records(**kwargs):
             self.response = response
             self.total = response['hits']['total'] if ES_VERSION[0] < 7 else response['hits']['total']['value']
             self._scroll_id = response.get('_scroll_id')
+
+            if (self.total == 0):
+                raise OAINoRecordsMatchError()
 
             # clean descriptor on last page
             if not self.has_next:

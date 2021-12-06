@@ -18,10 +18,11 @@ from invenio_indexer.api import RecordIndexer
 from invenio_indexer.utils import schema_to_index
 from invenio_search import current_search, current_search_client
 from invenio_search.utils import build_index_name
+from invenio_oaiserver.query import query_string_parser
+from invenio_oaiserver.utils import record_sets_fetcher
 
 from .models import OAISet
 from .proxies import current_oaiserver
-from .query import query_string_parser
 
 
 def _build_percolator_index_name(index):
@@ -168,3 +169,86 @@ def get_record_sets(record):
         if set_name.startswith(prefix):
             name = set_name[prefix_len:]
             yield name
+
+
+def record_in_set(record, set_spec):
+    percolator_index = _build_percolator_index_name("rdmrecords-records-record-v4.0.0")
+    result = percolate_query(percolator_index=percolator_index, percolator_ids=[set_spec], documents=[record])
+    return len(result) > 0
+
+
+def create_percolate_query(percolator_ids=None, documents=None, document_es_ids=None, document_es_indices=None):
+    queries = []
+
+    # documents or (document_es_ids and document_es_indices) has to be set
+    if documents is not None:
+        queries.append({
+            "percolate" : {
+                "field": "query",
+                "documents" : documents,
+            }
+        })
+    elif (document_es_ids is not None and document_es_indices is not None and len(document_es_ids) == len(document_es_indices)):
+        queries.extend( [{
+            "percolate" : {
+                "field" : "query",
+                "index" : es_index,
+                "id"    : es_id,
+                "name"  : f"{es_index}:{es_id}",
+            }
+        } for (es_id, es_index) in zip(document_es_ids, document_es_indices)])
+    else:
+        return {}
+        
+    if percolator_ids:
+        queries.append({
+            "ids": {
+                "values" : percolator_ids
+                }
+            })
+    
+    query = {
+        "query" : {
+            "bool" : {
+                "must" : queries
+            }
+        }
+    }
+
+    return query
+
+def percolate_query(percolator_index, percolator_ids=None, documents=None, document_es_ids=None, document_es_indices=None):
+    # TODO: remove before merging. only for testing purposes
+    index_sets()
+    
+    query = create_percolate_query(percolator_ids=percolator_ids, documents=documents, document_es_ids=document_es_ids, document_es_indices=document_es_indices)
+    result = current_search_client.search(index=percolator_index, body=query, scroll='1m', size=20)
+    # TODO: clear scroll?
+    # TOOO: iterate over scroll?
+    return result["hits"]["hits"]
+
+
+def find_sets_for_record(record):
+    """Fetch a record's sets."""
+    hits = percolate_query(percolator_index="rdmrecords-records-record-v4.0.0-percolators", documents=[record])
+    return [s["_id"] for s in hits]
+
+
+def index_sets():
+    # should be done when a set is created or updated
+    sets = OAISet.query.all()
+    if not sets:
+        return []
+
+    index = "rdmrecords-records-record-v4.0.0"
+    percolator_doc_type = _get_percolator_doc_type(index)
+    # only created if it does not exist
+    _create_percolator_mapping(index, percolator_doc_type)
+
+    for set in sets:
+        query = query_string_parser(set.search_pattern)
+        current_search_client.index(
+                index=_build_percolator_index_name(index),
+                id=set.spec,
+                body={'query': query.to_dict()}
+            )
