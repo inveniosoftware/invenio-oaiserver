@@ -150,9 +150,6 @@ class ResumptionVerbs(Verbs):
     class ListRecords(OAISchema, ResumptionTokenSchema):
         """Arguments for ListRecords verb."""
 
-        metadataPrefix = fields.Str(load_only=True,
-                                    validate=validate_metadata_prefix)
-
     class ListSets(OAISchema, ResumptionTokenSchema):
         """Arguments for ListSets verb."""
 
