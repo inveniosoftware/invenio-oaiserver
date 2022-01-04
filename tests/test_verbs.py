@@ -425,7 +425,7 @@ def test_listsets_invalid_name(app):
         current_oaiserver.unregister_signals_oaiset()
         with db.session.begin_nested():
             a = OAISet(spec='test', name=u'uni\x01co\x0bde',
-                       description='test desc')
+                       description=u'uni\x01co\x0bde')
             db.session.add(a)
 
         with app.test_client() as c:
@@ -435,6 +435,9 @@ def test_listsets_invalid_name(app):
 
         assert tree.xpath('/x:OAI-PMH/x:ListSets/x:set/x:setName',
                           namespaces=NAMESPACES)[0].text == 'unicode'
+        assert tree.xpath(
+            '/x:OAI-PMH/x:ListSets/x:set/x:setDescription/y:dc/z:description',
+            namespaces=NAMESPACES)[0].text == 'unicode'
 
 
 def test_fail_missing_metadataPrefix(app):

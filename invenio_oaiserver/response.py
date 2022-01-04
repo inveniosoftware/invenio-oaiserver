@@ -228,7 +228,7 @@ def listsets(**kwargs):
             )
             e_dc.set(etree.QName(NS_XSI, 'schemaLocation'), NS_OAIDC)
             e_description = SubElement(e_dc, etree.QName(NS_DC, 'description'))
-            e_description.text = oai_set.description
+            e_description.text = sanitize_unicode(oai_set.description)
 
     resumption_token(e_listsets, oai_sets, **kwargs)
     return e_tree
