@@ -1,12 +1,16 @@
 ..
     This file is part of Invenio.
-    Copyright (C) 2016-2019 CERN.
+    Copyright (C) 2016-2021 CERN.
 
     Invenio is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
 
 Changes
 =======
+
+Version 1.1.1.post1 (released 2022-01-04)
+
+- Sanitize unicode for OAI Set description ``ListSets`` response.
 
 Version 1.1.1 (released 2019-07-31)
 
