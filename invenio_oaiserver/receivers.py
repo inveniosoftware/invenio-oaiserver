@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2016-2018 CERN.
+# Copyright (C) 2022 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -36,23 +37,23 @@ class OAIServerUpdater(object):
 def after_insert_oai_set(mapper, connection, target):
     """Update records on OAISet insertion."""
     _new_percolator(spec=target.spec, search_pattern=target.search_pattern)
-    sleep(2)
-    update_affected_records.delay(search_pattern=target.search_pattern)
+    # sleep(2)
+    # update_affected_records.delay(search_pattern=target.search_pattern)
 
 
 def after_update_oai_set(mapper, connection, target):
     """Update records on OAISet update."""
     _delete_percolator(spec=target.spec, search_pattern=target.search_pattern)
     _new_percolator(spec=target.spec, search_pattern=target.search_pattern)
-    sleep(2)
-    update_affected_records.delay(
-        spec=target.spec, search_pattern=target.search_pattern)
+    # sleep(2)
+    # update_affected_records.delay(
+    #     spec=target.spec, search_pattern=target.search_pattern)
 
 
 def after_delete_oai_set(mapper, connection, target):
     """Update records on OAISet deletion."""
     _delete_percolator(spec=target.spec, search_pattern=target.search_pattern)
-    sleep(2)
-    update_affected_records.delay(
-        spec=target.spec
-    )
+    # sleep(2)
+    # update_affected_records.delay(
+    #     spec=target.spec
+    # )
