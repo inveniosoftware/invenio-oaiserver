@@ -2,7 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2016-2018 CERN.
-# Copyright (C) 2021 Graz University of Technology.
+# Copyright (C) 2022 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -79,14 +79,14 @@ def get_affected_records(spec=None, search_pattern=None):
     for result in search.scan():
         yield result.meta.id
 
-
+    
 def get_records(**kwargs):
     """Get records paginated."""
     page_ = kwargs.get('resumptionToken', {}).get('page', 1)
     size_ = current_app.config['OAISERVER_PAGE_SIZE']
     scroll = current_app.config['OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME']
     scroll_id = kwargs.get('resumptionToken', {}).get('scroll_id')
-
+    
     if scroll_id is None:
         search = (
             current_oaiserver.search_cls(
