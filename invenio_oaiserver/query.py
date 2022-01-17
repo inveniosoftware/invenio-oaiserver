@@ -15,6 +15,7 @@ from elasticsearch_dsl import Q
 from flask import current_app
 from invenio_search import RecordsSearch, current_search_client
 from werkzeug.utils import cached_property, import_string
+
 from invenio_oaiserver.errors import OAINoRecordsMatchError
 
 from . import current_oaiserver
@@ -79,14 +80,14 @@ def get_affected_records(spec=None, search_pattern=None):
     for result in search.scan():
         yield result.meta.id
 
-    
+
 def get_records(**kwargs):
     """Get records paginated."""
     page_ = kwargs.get('resumptionToken', {}).get('page', 1)
     size_ = current_app.config['OAISERVER_PAGE_SIZE']
     scroll = current_app.config['OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME']
     scroll_id = kwargs.get('resumptionToken', {}).get('scroll_id')
-    
+
     if scroll_id is None:
         search = (
             current_oaiserver.search_cls(

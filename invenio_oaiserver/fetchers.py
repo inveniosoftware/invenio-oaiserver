@@ -10,14 +10,14 @@
 """Persistent identifier fetchers."""
 
 from __future__ import absolute_import, print_function
-from elasticsearch_dsl.query import Q
 
+from elasticsearch_dsl.query import Q
 from invenio_pidstore.errors import PersistentIdentifierError
 from invenio_pidstore.fetchers import FetchedPID
 
 from .models import OAISet
-from .query import query_string_parser
 from .provider import OAIIDProvider
+from .query import query_string_parser
 
 
 def oaiid_fetcher(record_uuid, data):
@@ -39,18 +39,18 @@ def oaiid_fetcher(record_uuid, data):
 
 
 def set_records_query_fetcher(setSpec):
-    """Fetch query to retrieve records based on provided set spec"""
+    """Fetch query to retrieve records based on provided set spec."""
     return Q('match', **{'_oai.sets': setSpec})
-    
-    
+
+
 # TODO: move to invenio_rdm_records
 def rdm_records_set_records_query_fetcher(setSpec):
-    """Fetch query to retrieve records based on provided set spec"""
+    """Fetch query to retrieve records based on provided set spec."""
     set = OAISet.query.filter(OAISet.spec == setSpec).first()
     if set is None:
         # raise error that no matches can be found ?
         query = Q('match_none')
     else:
         query = Q(query_string_parser(set.search_pattern))
-        
+
     return query
