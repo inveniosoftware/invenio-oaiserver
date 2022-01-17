@@ -10,6 +10,8 @@
 
 from __future__ import absolute_import
 
+import time
+
 from flask import Blueprint, make_response
 from invenio_pidstore.errors import PIDDoesNotExistError
 from itsdangerous import BadSignature
@@ -86,7 +88,7 @@ def no_records_error(exception):
             422,
             {'Content-Type': 'text/xml'})
 
-import time
+
 @blueprint.route('/oai2d', methods=['GET', 'POST'])
 @use_args(make_request_validator)
 def response(args):

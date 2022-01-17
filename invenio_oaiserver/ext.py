@@ -58,7 +58,7 @@ class _AppState(object):
 
     @property
     def set_records_query_fetcher(self):
-        """Get query to retrieve records based on set"""
+        """Get query to retrieve records based on set."""
         return obj_or_import_string(self.app.config['OAISERVER_SET_RECORDS_QUERY_FETCHER'])
 
     @property
