@@ -17,7 +17,7 @@ from flask import current_app, url_for
 from lxml import etree
 from lxml.etree import Element, ElementTree, SubElement
 
-from invenio_oaiserver.percolator import sets_search_all
+from invenio_oaiserver.percolator import create_new_set, sets_search_all
 
 from .models import OAISet
 from .provider import OAIIDProvider
