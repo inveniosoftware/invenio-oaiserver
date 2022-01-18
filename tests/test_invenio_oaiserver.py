@@ -65,7 +65,7 @@ def test_no_id_prefix():
     with pytest.warns(UserWarning, match='specify the OAISERVER_ID_PREFIX'):
         app = Flask('testapp')
         ext = InvenioOAIServer(app)
-        expected_id_prefix = 'oai:{0}:recid/'.format(socket.gethostname())
+        expected_id_prefix = 'oai:{0}:'.format(socket.gethostname())
         assert app.config['OAISERVER_ID_PREFIX'] == expected_id_prefix
 
 

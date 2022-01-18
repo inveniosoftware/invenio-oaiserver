@@ -51,7 +51,7 @@ The legitimate values are ``YYYY-MM-DD`` and ``YYYY-MM-DDThh:mm:ssZ``
 with meanings as defined in ISO8601.
 """
 
-OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME = 10 * 60
+OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME = 1 * 60
 """The expiration time of a resumption token in seconds.
 
 **Default: 60 seconds = 1 minute**.
