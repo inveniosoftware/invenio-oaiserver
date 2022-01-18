@@ -73,7 +73,6 @@ class OAISet(db.Model, Timestamp):
             raise OAISetSpecUpdateError("Updating spec is not allowed.")
         return value
 
-
     # TODO: Add and remove can be implemented but it will require to
     # update the `search_pattern`
 
@@ -99,7 +98,6 @@ class OAISet(db.Model, Timestamp):
 
     #     record['_oai']['sets'] = [
     #         s for s in record['_oai']['sets'] if s != self.spec]
-
 
     # TODO: has_record can be implemented but it will require to
     # to do a full search.

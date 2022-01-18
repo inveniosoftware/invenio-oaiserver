@@ -12,6 +12,7 @@
 from __future__ import absolute_import, print_function
 
 import json
+import warnings
 
 from elasticsearch import VERSION as ES_VERSION
 from elasticsearch.helpers.actions import scan
@@ -128,8 +129,9 @@ def _new_percolator(spec, search_pattern):
                     id='oaiset-{}'.format(spec),
                     body={'query': query}
                 )
-            except:
+            except Exception as e:
                 # caught on schemas, which do not contain the query field
+                warnings.warn(e)
                 pass
 
 
@@ -153,32 +155,26 @@ def create_percolate_query(
     """Create percolate query for provided arguments."""
     queries = []
     # documents or (document_es_ids and document_es_indices) has to be set
+    # TODO: discuss if this is needed or documents alone is enough.
     if documents is not None:
-        queries.append(
-            {
-                "percolate": {
-                    "field": "query",
-                    "documents": documents,
-                }
+        queries.append({
+            "percolate": {
+                "field": "query",
+                "documents": documents,
             }
-        )
+        })
     elif (
         document_es_ids is not None and document_es_indices
         is not None and len(document_es_ids) == len(document_es_indices)
     ):
-        queries.extend(
-            [
-                {
-                    "percolate": {
-                        "field": "query",
-                        "index": es_index,
-                        "id": es_id,
-                        "name": f"{es_index}:{es_id}",
-                    }
-                }
-                for (es_id, es_index) in zip(document_es_ids, document_es_indices)
-            ]
-        )
+        queries.extend([{
+            "percolate": {
+                "field": "query",
+                "index": es_index,
+                "id": es_id,
+                "name": f"{es_index}:{es_id}",
+            }
+        } for (es_id, es_index) in zip(document_es_ids, document_es_indices)])
     else:
         raise Exception(
             "Either documents or (document_es_ids and document_es_indices) must be specified."
@@ -287,11 +283,10 @@ def create_new_set():
     db.session.commit()
 
 
-import time
-
-
 def index_sets():
     """Index all sets."""
+    import time
+
     sets = OAISet.query.all()
     if not sets:
         return []
@@ -305,6 +300,8 @@ def index_sets():
 
 def print_estimated_time(start_time, num_total_elements, num_current_element):
     """Calculate and print estimated remaining time."""
+    import time
+
     current_time = time.time()
     total_time_so_far = current_time - start_time
     average_time = total_time_so_far / (num_current_element + 1)
