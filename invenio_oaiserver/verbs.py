@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2022 RERO.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -14,6 +15,7 @@ from flask import current_app, request
 from invenio_rest.serializer import BaseSchema
 from marshmallow import ValidationError, fields, utils, validates_schema
 from marshmallow.fields import DateTime as _DateTime
+from marshmallow.utils import isoformat
 
 from .resumption_token import ResumptionTokenSchema
 
@@ -60,12 +62,19 @@ class DateTime(_DateTime):
             _DateTime.DATEFORMAT_DESERIALIZATION_FUNCS,
             permissive=from_iso_permissive
         )
+        DATEFORMAT_SERIALIZATION_FUNCS = dict(
+            _DateTime.DATEFORMAT_SERIALIZATION_FUNCS,
+            permissive=isoformat
+        )
     except AttributeError:
         DESERIALIZATION_FUNCS = dict(
             _DateTime.DESERIALIZATION_FUNCS,
             permissive=from_iso_permissive
         )
-
+        SERIALIZATION_FUNCS = dict(
+            _DateTime.SERIALIZATION_FUNCS,
+            permissive=isoformat
+        )
 
 class OAISchema(BaseSchema):
     """Base OAI argument schema."""
