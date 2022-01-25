@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2021-2022 Graz University of Technology.
 # Copyright (C) 2022 RERO.
 #
 # Invenio is free software; you can redistribute it and/or modify it
@@ -75,6 +76,7 @@ class DateTime(_DateTime):
             _DateTime.SERIALIZATION_FUNCS,
             permissive=isoformat
         )
+
 
 class OAISchema(BaseSchema):
     """Base OAI argument schema."""
