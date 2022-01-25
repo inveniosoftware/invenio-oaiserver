@@ -8,8 +8,6 @@
 
 """Models for storing information about OAIServer state."""
 
-from datetime import datetime
-
 from flask_babelex import lazy_gettext as _
 from invenio_db import db
 from sqlalchemy.event import listen
@@ -18,7 +16,6 @@ from sqlalchemy_utils import Timestamp
 
 from .errors import OAISetSpecUpdateError
 from .proxies import current_oaiserver
-from .utils import datetime_to_datestamp
 
 
 class OAISet(db.Model, Timestamp):
@@ -76,52 +73,42 @@ class OAISet(db.Model, Timestamp):
             raise OAISetSpecUpdateError("Updating spec is not allowed.")
         return value
 
-    def add_record(self, record):
-        """Add a record to the OAISet.
+    # TODO: Add and remove can be implemented but it will require to
+    # update the `search_pattern`
 
-        :param record: Record to be added.
-        :type record: `invenio_records.api.Record` or derivative.
-        """
-        record.setdefault('_oai', {}).setdefault('sets', [])
+    # def add_record(self, record):
+    #     """Add a record to the OAISet.
 
-        assert not self.has_record(record)
+    #     :param record: Record to be added.
+    #     :type record: `invenio_records.api.Record` or derivative.
+    #     """
+    #     record.setdefault('_oai', {}).setdefault('sets', [])
 
-        record['_oai']['sets'].append(self.spec)
+    #     assert not self.has_record(record)
 
-    def remove_record(self, record):
-        """Remove a record from the OAISet.
+    #     record['_oai']['sets'].append(self.spec)
 
-        :param record: Record to be removed.
-        :type record: `invenio_records.api.Record` or derivative.
-        """
-        assert self.has_record(record)
+    # def remove_record(self, record):
+    #     """Remove a record from the OAISet.
 
-        record['_oai']['sets'] = [
-            s for s in record['_oai']['sets'] if s != self.spec]
+    #     :param record: Record to be removed.
+    #     :type record: `invenio_records.api.Record` or derivative.
+    #     """
+    #     assert self.has_record(record)
 
-    def has_record(self, record):
-        """Check if the record blongs to the OAISet.
+    #     record['_oai']['sets'] = [
+    #         s for s in record['_oai']['sets'] if s != self.spec]
 
-        :param record: Record to be checked.
-        :type record: `invenio_records.api.Record` or derivative.
-        """
-        return self.spec in record.get('_oai', {}).get('sets', [])
+    # TODO: has_record can be implemented but it will require to
+    # to do a full search.
 
+    # def has_record(self, record):
+    #     """Check if the record blongs to the OAISet.
 
-def oaiset_removed_or_inserted(mapper, connection, target):
-    """Invalidate cache on collection insert or delete."""
-    current_oaiserver.sets = None
+    #     :param record: Record to be checked.
+    #     :type record: `invenio_records.api.Record` or derivative.
+    #     """
+    #     return self.spec in record.get('_oai', {}).get('sets', [])
 
-
-def oaiset_attribute_changed(target, value, oldvalue, initiator):
-    """Invalidate cache if dbquery change."""
-    if value != oldvalue:
-        current_oaiserver.sets = None
-
-
-# update cache with list of collections
-listen(OAISet, 'after_insert', oaiset_removed_or_inserted)
-listen(OAISet, 'after_delete', oaiset_removed_or_inserted)
-listen(OAISet.search_pattern, 'set', oaiset_attribute_changed)
 
 __all__ = ('OAISet', )

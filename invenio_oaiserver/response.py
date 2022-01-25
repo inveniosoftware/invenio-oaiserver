@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2019 CERN.
+# Copyright (C) 2022 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -15,6 +16,8 @@ from elasticsearch import VERSION as ES_VERSION
 from flask import current_app, url_for
 from lxml import etree
 from lxml.etree import Element, ElementTree, SubElement
+
+from invenio_oaiserver.percolator import create_new_set, sets_search_all
 
 from .models import OAISet
 from .provider import OAIIDProvider
@@ -280,7 +283,13 @@ def header(parent, identifier, datestamp, sets=None, deleted=False):
 
 def getrecord(**kwargs):
     """Create OAI-PMH response for verb Identify."""
-    record_dumper = serializer(kwargs['metadataPrefix'])
+    metadataPrefix = (
+        kwargs.get('resumptionToken').get('metadataPrefix')
+        if kwargs.get('resumptionToken')
+        else kwargs['metadataPrefix']
+    )
+    record_dumper = serializer(metadataPrefix)
+
     pid = OAIIDProvider.get(pid_value=kwargs['identifier']).pid
     record = current_oaiserver.record_fetcher(pid.object_uuid)
 
@@ -304,7 +313,10 @@ def listidentifiers(**kwargs):
     e_tree, e_listidentifiers = verb(**kwargs)
     result = get_records(**kwargs)
 
-    for record in result.items:
+    all_records = [record for record in result.items]
+    records_sets = sets_search_all([r['json']['_source'] for r in all_records])
+
+    for index, record in enumerate(all_records):
         pid = current_oaiserver.oaiid_fetcher(
             record['id'], record['json']['_source']
         )
@@ -312,9 +324,7 @@ def listidentifiers(**kwargs):
             e_listidentifiers,
             identifier=pid.pid_value,
             datestamp=record['updated'],
-            sets=current_oaiserver.record_sets_fetcher(
-                record['json']['_source']
-            ),
+            sets=records_sets[index],
         )
 
     resumption_token(e_listidentifiers, result, **kwargs)
@@ -323,12 +333,20 @@ def listidentifiers(**kwargs):
 
 def listrecords(**kwargs):
     """Create OAI-PMH response for verb ListRecords."""
-    record_dumper = serializer(kwargs['metadataPrefix'])
+    metadataPrefix = (
+        kwargs.get('resumptionToken').get('metadataPrefix')
+        if kwargs.get('resumptionToken')
+        else kwargs['metadataPrefix']
+    )
+    record_dumper = serializer(metadataPrefix)
 
     e_tree, e_listrecords = verb(**kwargs)
     result = get_records(**kwargs)
 
-    for record in result.items:
+    all_records = [record for record in result.items]
+    records_sets = sets_search_all([r['json']['_source'] for r in all_records])
+
+    for index, record in enumerate(all_records):
         pid = current_oaiserver.oaiid_fetcher(
             record['id'], record['json']['_source']
         )
@@ -337,9 +355,7 @@ def listrecords(**kwargs):
             e_record,
             identifier=pid.pid_value,
             datestamp=record['updated'],
-            sets=current_oaiserver.record_sets_fetcher(
-                record['json']['_source']
-            ),
+            sets=records_sets[index],
         )
         e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, 'metadata'))
         e_metadata.append(record_dumper(pid, record['json']))

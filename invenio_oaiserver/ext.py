@@ -2,7 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
-# Copyright (C) 2021 Graz University of Technology.
+# Copyright (C) 2021-2022 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -57,6 +57,11 @@ class _AppState(object):
         return obj_or_import_string(self.app.config['OAISERVER_GETRECORD_FETCHER'])
 
     @property
+    def set_records_query_fetcher(self):
+        """Get query to retrieve records based on set."""
+        return obj_or_import_string(self.app.config['OAISERVER_SET_RECORDS_QUERY_FETCHER'])
+
+    @property
     def last_update_key(self):
         """Get record update key."""
         return self.app.config['OAISERVER_LAST_UPDATE_KEY']
@@ -82,14 +87,6 @@ class _AppState(object):
 
     def register_signals(self):
         """Register signals."""
-        from .receivers import OAIServerUpdater
-
-        # Register Record signals to update OAI informations
-        self.update_function = OAIServerUpdater()
-        records_signals.before_record_insert.connect(self.update_function,
-                                                     weak=False)
-        records_signals.before_record_update.connect(self.update_function,
-                                                     weak=False)
         if self.app.config['OAISERVER_REGISTER_SET_SIGNALS']:
             self.register_signals_oaiset()
 
@@ -105,11 +102,6 @@ class _AppState(object):
     def unregister_signals(self):
         """Unregister signals."""
         # Unregister Record signals
-        if hasattr(self, 'update_function'):
-            records_signals.before_record_insert.disconnect(
-                self.update_function)
-            records_signals.before_record_update.disconnect(
-                self.update_function)
         self.unregister_signals_oaiset()
 
     def unregister_signals_oaiset(self):
@@ -168,7 +160,7 @@ class InvenioOAIServer(object):
             import warnings
 
             app.config['OAISERVER_ID_PREFIX'] = \
-                'oai:{0}:recid/'.format(socket.gethostname())
+                'oai:{0}:'.format(socket.gethostname())
             warnings.warn(
                 """Please specify the OAISERVER_ID_PREFIX configuration."""
                 """default value is: {0}""".format(
