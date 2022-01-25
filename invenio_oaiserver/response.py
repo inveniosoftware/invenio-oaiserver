@@ -283,7 +283,13 @@ def header(parent, identifier, datestamp, sets=None, deleted=False):
 
 def getrecord(**kwargs):
     """Create OAI-PMH response for verb Identify."""
-    record_dumper = serializer(kwargs['metadataPrefix'])
+    metadataPrefix = (
+        kwargs.get('resumptionToken').get('metadataPrefix')
+        if kwargs.get('resumptionToken')
+        else kwargs['metadataPrefix']
+    )
+    record_dumper = serializer(metadataPrefix)
+
     pid = OAIIDProvider.get(pid_value=kwargs['identifier']).pid
     record = current_oaiserver.record_fetcher(pid.object_uuid)
 
@@ -327,7 +333,12 @@ def listidentifiers(**kwargs):
 
 def listrecords(**kwargs):
     """Create OAI-PMH response for verb ListRecords."""
-    record_dumper = serializer(kwargs['metadataPrefix'])
+    metadataPrefix = (
+        kwargs.get('resumptionToken').get('metadataPrefix')
+        if kwargs.get('resumptionToken')
+        else kwargs['metadataPrefix']
+    )
+    record_dumper = serializer(metadataPrefix)
 
     e_tree, e_listrecords = verb(**kwargs)
     result = get_records(**kwargs)

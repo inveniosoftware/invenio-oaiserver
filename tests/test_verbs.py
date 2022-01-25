@@ -597,7 +597,6 @@ def test_listrecords(app):
                 assert result.status_code == 200
 
 
-
 def test_listidentifiers(app):
     """Test verb ListIdentifiers."""
     from invenio_oaiserver.models import OAISet
