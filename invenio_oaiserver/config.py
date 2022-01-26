@@ -127,7 +127,7 @@ OAISERVER_CREATED_KEY = "_created"
 OAISERVER_RECORD_SETS_FETCHER = 'invenio_oaiserver.percolator:find_sets_for_record'
 """Record's OAI sets function."""
 
-OAISERVER_SET_RECORDS_QUERY_FETCHER = 'invenio_oaiserver.fetchers:rdm_records_set_records_query_fetcher'
+OAISERVER_SET_RECORDS_QUERY_FETCHER = 'invenio_oaiserver.fetchers:set_records_query_fetcher'
 
 OAISERVER_RECORD_CLS = 'invenio_records.api:Record'
 """Record retrieval class."""

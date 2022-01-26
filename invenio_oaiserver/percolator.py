@@ -24,7 +24,6 @@ from invenio_search.utils import build_index_name
 
 from invenio_oaiserver.query import query_string_parser
 
-from .models import OAISet
 from .proxies import current_oaiserver
 
 
@@ -184,7 +183,6 @@ def create_percolate_query(
         queries.append({"ids": {"values": percolator_ids}})
 
     query = {"query": {"bool": {"must": queries}}}
-
     return query
 
 
@@ -216,7 +214,7 @@ def sets_search_all(records):
     if not records:
         return []
 
-    # records should all have the same index. maybe add index as parameter?
+    # TODO: records should all have the same index. maybe add index as parameter?
     record_index, doc_type = RecordIndexer()._record_to_index(records[0])
     _create_percolator_mapping(record_index, doc_type)
     percolator_index = _build_percolator_index_name(record_index)
@@ -241,71 +239,3 @@ def sets_search_all(records):
 def find_sets_for_record(record):
     """Fetch a record's sets."""
     return sets_search_all([record])[0]
-
-
-# TODO: Remove everything below before merging
-def remove_sets():
-    """Remove specified sets."""
-    from invenio_db import db
-
-    specs = []
-    index = current_app.config.get('OAISERVER_RECORD_INDEX')
-
-    for spec in specs:
-        try:
-            db_set = OAISet.query.filter_by(spec=spec).one()
-            print(db_set)
-            db.session.delete(db_set)
-            db.session.commit()
-        except Exception as e:
-            print(f"Exception during set removal ({spec}):", e)
-
-        _delete_percolator(spec, "***")
-        current_search_client.delete(
-            index=_build_percolator_index_name(index), id=spec, ignore=[404]
-        )
-
-
-def create_new_set():
-    """Create a new set."""
-    from datetime import datetime
-
-    from invenio_db import db
-
-    name = f"published-{datetime.now()}"
-    s = OAISet(
-        spec=name,
-        name=name,
-        description="created via python orm",
-        search_pattern="is_published:true",
-    )
-    db.session.add(s)
-    db.session.commit()
-
-
-def index_sets():
-    """Index all sets."""
-    import time
-
-    sets = OAISet.query.all()
-    if not sets:
-        return []
-
-    x0 = time.time()
-    num_total = len(sets)
-    for index, set in enumerate(sets):
-        _new_percolator(set.spec, set.search_pattern)
-        print_estimated_time(x0, num_total, index)
-
-
-def print_estimated_time(start_time, num_total_elements, num_current_element):
-    """Calculate and print estimated remaining time."""
-    import time
-
-    current_time = time.time()
-    total_time_so_far = current_time - start_time
-    average_time = total_time_so_far / (num_current_element + 1)
-    estimated_time = (num_total_elements - num_current_element) * average_time
-    print(
-        f"{num_current_element}/{num_total_elements} took {total_time_so_far:.2f}. Estimate: {estimated_time:.2f}"
-    )
