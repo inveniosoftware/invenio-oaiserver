@@ -3,6 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2015-2019 CERN.
 # Copyright (C) 2022 RERO.
+# Copyright (C) 2022 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -486,7 +487,7 @@ def test_listrecords_fail_missing_metadataPrefix(app):
 
 def test_listrecords(app):
     """Test ListRecords."""
-    total = 22
+    total = 32
     record_ids = []
 
     with app.test_request_context():
@@ -556,13 +557,39 @@ def test_listrecords(app):
         assert len(tree.xpath('/x:OAI-PMH/x:ListRecords/x:record/x:metadata',
                               namespaces=NAMESPACES)) == 10
 
-
         # Second resumption token
         resumption_token = tree.xpath(
             '/x:OAI-PMH/x:ListRecords/x:resumptionToken', namespaces=NAMESPACES
         )[0]
         assert resumption_token.text
         # Get data for resumption token
+        with app.test_client() as c:
+            result = c.get(
+                '/oai2d?verb=ListRecords&resumptionToken={0}'.format(
+                    resumption_token.text
+                )
+            )
+
+        tree = etree.fromstring(result.data)
+        assert len(tree.xpath('/x:OAI-PMH', namespaces=NAMESPACES)) == 1
+        assert len(tree.xpath('/x:OAI-PMH/x:ListRecords',
+                              namespaces=NAMESPACES)) == 1
+        assert len(tree.xpath('/x:OAI-PMH/x:ListRecords/x:record',
+                              namespaces=NAMESPACES)) == 10
+        assert len(tree.xpath('/x:OAI-PMH/x:ListRecords/x:record/x:header',
+                              namespaces=NAMESPACES)) == 10
+        assert len(tree.xpath('/x:OAI-PMH/x:ListRecords/x:record/x:header'
+                              '/x:identifier', namespaces=NAMESPACES)) == 10
+        assert len(tree.xpath('/x:OAI-PMH/x:ListRecords/x:record/x:header'
+                              '/x:datestamp', namespaces=NAMESPACES)) == 10
+        assert len(tree.xpath('/x:OAI-PMH/x:ListRecords/x:record/x:metadata',
+                              namespaces=NAMESPACES)) == 10
+
+        # Third resumption token
+        resumption_token = tree.xpath(
+            '/x:OAI-PMH/x:ListRecords/x:resumptionToken', namespaces=NAMESPACES
+        )[0]
+        assert resumption_token.text
         with app.test_client() as c:
             result = c.get(
                 '/oai2d?verb=ListRecords&resumptionToken={0}'.format(
@@ -584,20 +611,6 @@ def test_listrecords(app):
                               '/x:datestamp', namespaces=NAMESPACES)) == 2
         assert len(tree.xpath('/x:OAI-PMH/x:ListRecords/x:record/x:metadata',
                               namespaces=NAMESPACES)) == 2
-
-        # Third resumption token
-        resumption_token = tree.xpath(
-            '/x:OAI-PMH/x:ListRecords/x:resumptionToken', namespaces=NAMESPACES
-        )[0]
-        assert resumption_token.text
-        with app.test_client() as c:
-            result = c.get(
-                '/oai2d?verb=ListRecords&resumptionToken={0}'.format(
-                    resumption_token.text
-                )
-            )
-
-        tree = etree.fromstring(result.data)
 
         # No fourth resumption token
         resumption_token = tree.xpath(

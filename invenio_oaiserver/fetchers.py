@@ -40,12 +40,6 @@ def oaiid_fetcher(record_uuid, data):
 
 def set_records_query_fetcher(setSpec):
     """Fetch query to retrieve records based on provided set spec."""
-    return Q('match', **{'_oai.sets': setSpec})
-
-
-# TODO: move to invenio_rdm_records
-def rdm_records_set_records_query_fetcher(setSpec):
-    """Fetch query to retrieve records based on provided set spec."""
     set = OAISet.query.filter(OAISet.spec == setSpec).first()
     if set is None:
         # raise error that no matches can be found ?
