@@ -101,12 +101,6 @@ class OAISchema(BaseSchema):
         if 'from_' in data and 'until' in data and \
                 data['from_'] > data['until']:
             raise ValidationError('Date "from" must be before "until".')
-        extra = set(request.values.keys()) - set([
-            getattr(f, 'load_from', None) or getattr(
-                f, 'data_key', None) or f.name for f in self.fields.values()
-        ])
-        if extra:
-            raise ValidationError('You have passed too many arguments.')
 
 
 class Verbs(object):
@@ -165,9 +159,21 @@ class ResumptionVerbs(Verbs):
         """Arguments for ListSets verb."""
 
 
+def check_extra_params_in_request(verb):
+    """Check for extra arguments in incomming request."""
+    extra = set(request.values.keys()) - set([
+        getattr(f, 'load_from', None) or getattr(
+            f, 'data_key', None) or f.name for f in verb.fields.values()
+    ])
+    if extra:
+        raise ValidationError({'_schema': ['You have passed too many arguments.']})
+
+
 def make_request_validator(request):
     """Validate arguments in incomming request."""
     verb = request.values.get('verb', '', type=str)
     resumption_token = request.values.get('resumptionToken', None)
     schema = Verbs if resumption_token is None else ResumptionVerbs
-    return getattr(schema, verb, OAISchema)(partial=False)
+    initialized_verb = getattr(schema, verb, OAISchema)(partial=False)
+    check_extra_params_in_request(initialized_verb)
+    return initialized_verb

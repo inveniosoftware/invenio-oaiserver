@@ -10,8 +10,6 @@
 
 from __future__ import absolute_import
 
-import time
-
 from flask import Blueprint, make_response
 from invenio_pidstore.errors import PIDDoesNotExistError
 from itsdangerous import BadSignature
@@ -93,7 +91,6 @@ def no_records_error(exception):
 @use_args(make_request_validator)
 def response(args):
     """Response endpoint."""
-    start = time.time()
     e_tree = getattr(xml, args['verb'].lower())(**args)
 
     response = make_response(etree.tostring(
@@ -102,7 +99,5 @@ def response(args):
         xml_declaration=True,
         encoding='UTF-8',
     ))
-    end = time.time()
-    print("took:", end - start)
     response.headers['Content-Type'] = 'text/xml'
     return response
