@@ -33,8 +33,11 @@ def serialize(pagination, **kwargs):
         salt=kwargs['verb'],
     )
     schema = _schema_from_verb(kwargs['verb'], partial=False)
+    schema_kwargs = kwargs.copy()
+    schema_kwargs.update(schema_kwargs.get('resumptionToken', {}))
+
     data = dict(seed=random.random(), page=pagination.next_num,
-                kwargs=schema.dump(kwargs).data)
+                kwargs=schema.dump(schema_kwargs).data)
     scroll_id = getattr(pagination, '_scroll_id', None)
     if scroll_id:
         data['scroll_id'] = scroll_id
@@ -55,12 +58,10 @@ class ResumptionToken(fields.Field):
             'OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME'])
         result['token'] = value
 
-        # TODO: remove?
-        # this loads the arguments from the token, which is not necessary as
-        # the resumptionToken keyword is exclusive and will lead to an error
-        # that other arguments have to be provided as well.
+        schema_kwargs = result['kwargs'].copy()
+        schema_kwargs['verb'] = data['verb']
 
-        # result['kwargs'] = self.root.load(result['kwargs'], partial=True).data
+        result['kwargs'] = _schema_from_verb(data['verb']).load(schema_kwargs).data
         return result
 
 

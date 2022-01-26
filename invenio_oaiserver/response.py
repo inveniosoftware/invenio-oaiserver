@@ -283,12 +283,7 @@ def header(parent, identifier, datestamp, sets=None, deleted=False):
 
 def getrecord(**kwargs):
     """Create OAI-PMH response for verb Identify."""
-    metadataPrefix = (
-        kwargs.get('resumptionToken').get('metadataPrefix')
-        if kwargs.get('resumptionToken')
-        else kwargs['metadataPrefix']
-    )
-    record_dumper = serializer(metadataPrefix)
+    record_dumper = serializer(kwargs['metadataPrefix'])
 
     pid = OAIIDProvider.get(pid_value=kwargs['identifier']).pid
     record = current_oaiserver.record_fetcher(pid.object_uuid)
