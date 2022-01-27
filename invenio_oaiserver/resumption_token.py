@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2016-2018 CERN.
+# Copyright (C) 2022 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -53,7 +54,13 @@ class ResumptionToken(fields.Field):
         result = token_builder.loads(value, max_age=current_app.config[
             'OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME'])
         result['token'] = value
-        result['kwargs'] = self.root.load(result['kwargs'], partial=True).data
+
+        # TODO: remove?
+        # this loads the arguments from the token, which is not necessary as
+        # the resumptionToken keyword is exclusive and will lead to an error
+        # that other arguments have to be provided as well.
+
+        # result['kwargs'] = self.root.load(result['kwargs'], partial=True).data
         return result
 
 

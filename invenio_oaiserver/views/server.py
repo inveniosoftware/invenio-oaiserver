@@ -10,6 +10,8 @@
 
 from __future__ import absolute_import
 
+import time
+
 from flask import Blueprint, make_response
 from invenio_pidstore.errors import PIDDoesNotExistError
 from itsdangerous import BadSignature
@@ -18,6 +20,7 @@ from marshmallow.exceptions import ValidationError
 from webargs.flaskparser import use_args
 
 from .. import response as xml
+from ..errors import OAINoRecordsMatchError
 from ..verbs import make_request_validator
 
 blueprint = Blueprint(
@@ -77,10 +80,20 @@ def resumptiontoken_error(exception):
     ])), 422, {'Content-Type': 'text/xml'})
 
 
+@blueprint.errorhandler(OAINoRecordsMatchError)
+def no_records_error(exception):
+    """Handle no records match Exceptions."""
+    return (etree.tostring(xml.error([('noRecordsMatch',
+                                       '')])),
+            422,
+            {'Content-Type': 'text/xml'})
+
+
 @blueprint.route('/oai2d', methods=['GET', 'POST'])
 @use_args(make_request_validator)
 def response(args):
     """Response endpoint."""
+    start = time.time()
     e_tree = getattr(xml, args['verb'].lower())(**args)
 
     response = make_response(etree.tostring(
@@ -89,5 +102,7 @@ def response(args):
         xml_declaration=True,
         encoding='UTF-8',
     ))
+    end = time.time()
+    print("took:", end - start)
     response.headers['Content-Type'] = 'text/xml'
     return response

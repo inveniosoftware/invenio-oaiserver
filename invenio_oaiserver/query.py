@@ -2,7 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2016-2018 CERN.
-# Copyright (C) 2021 Graz University of Technology.
+# Copyright (C) 2022 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -15,6 +15,8 @@ from elasticsearch_dsl import Q
 from flask import current_app
 from invenio_search import RecordsSearch, current_search_client
 from werkzeug.utils import cached_property, import_string
+
+from invenio_oaiserver.errors import OAINoRecordsMatchError
 
 from . import current_oaiserver
 
@@ -45,40 +47,6 @@ class OAIServerSearch(RecordsSearch):
         default_filter = Q('exists', field='_oai.id')
 
 
-def get_affected_records(spec=None, search_pattern=None):
-    """Get list of affected records.
-
-    :param spec: The record spec.
-    :param search_pattern: The search pattern.
-    :returns: An iterator to lazily find results.
-    """
-    # spec       pattern    query
-    # ---------- ---------- -------
-    # None       None       None
-    # None       Y          Y
-    # X          None       X
-    # X          ''         X
-    # X          Y          X OR Y
-
-    if spec is None and search_pattern is None:
-        return
-
-    queries = []
-
-    if spec is not None:
-        queries.append(Q('match', **{'_oai.sets': spec}))
-
-    if search_pattern:
-        queries.append(query_string_parser(search_pattern=search_pattern))
-
-    search = current_oaiserver.search_cls(
-        index=current_app.config['OAISERVER_RECORD_INDEX'],
-    ).query(Q('bool', should=queries))
-
-    for result in search.scan():
-        yield result.meta.id
-
-
 def get_records(**kwargs):
     """Get records paginated."""
     page_ = kwargs.get('resumptionToken', {}).get('page', 1)
@@ -100,7 +68,7 @@ def get_records(**kwargs):
         )
 
         if 'set' in kwargs:
-            search = search.query('match', **{'_oai.sets': kwargs['set']})
+            search = search.query(current_oaiserver.set_records_query_fetcher(kwargs['set']))
 
         time_range = {}
         if 'from_' in kwargs:
@@ -128,6 +96,9 @@ def get_records(**kwargs):
             self.response = response
             self.total = response['hits']['total'] if ES_VERSION[0] < 7 else response['hits']['total']['value']
             self._scroll_id = response.get('_scroll_id')
+
+            if (self.total == 0):
+                raise OAINoRecordsMatchError()
 
             # clean descriptor on last page
             if not self.has_next:
