@@ -12,7 +12,6 @@
 from __future__ import absolute_import, print_function
 
 import json
-import warnings
 
 from elasticsearch import VERSION as ES_VERSION
 from elasticsearch.helpers.actions import scan
@@ -130,7 +129,7 @@ def _new_percolator(spec, search_pattern):
                 )
             except Exception as e:
                 # caught on schemas, which do not contain the query field
-                warnings.warn(e)
+                current_app.logger.warning(e)
                 pass
 
 
