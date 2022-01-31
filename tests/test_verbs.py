@@ -744,53 +744,51 @@ def test_listidentifiers(app):
                 )
                 assert len(identifier) == 1
 
-        # TODO: Add test cases after sets have been reimplemented.
+        # check set param
+        with app.test_client() as c:
+            for granularity in (False, True):
+                result = c.get(
+                    '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
+                    '&set=test0'.format(
+                        datetime_to_datestamp(
+                            record.updated - timedelta(1),
+                            day_granularity=granularity),
+                        datetime_to_datestamp(
+                            record.updated + timedelta(1),
+                            day_granularity=granularity),
+                    )
+                )
+                assert result.status_code == 200
 
-        # Check set param
-        # with app.test_client() as c:
-        #     for granularity in (False, True):
-        #         result = c.get(
-        #             '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
-        #             '&set=test0'.format(
-        #                 datetime_to_datestamp(
-        #                     record.updated - timedelta(1),
-        #                     day_granularity=granularity),
-        #                 datetime_to_datestamp(
-        #                     record.updated + timedelta(1),
-        #                     day_granularity=granularity),
-        #             )
-        #         )
-        #         assert result.status_code == 200
+                tree = etree.fromstring(result.data)
+                identifier = tree.xpath(
+                    '/x:OAI-PMH/x:ListIdentifiers/x:header/x:identifier',
+                    namespaces=NAMESPACES
+                )
+                assert len(identifier) == 1
 
-        #         tree = etree.fromstring(result.data)
-        #         identifier = tree.xpath(
-        #             '/x:OAI-PMH/x:ListIdentifiers/x:header/x:identifier',
-        #             namespaces=NAMESPACES
-        #         )
-        #         assert len(identifier) == 1
+        # check from:until range and set param
+        with app.test_client() as c:
+            for granularity in (False, True):
+                result = c.get(
+                    '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
+                    '&from={0}&until={1}&set=test0'.format(
+                        datetime_to_datestamp(
+                            record.updated - timedelta(1),
+                            day_granularity=granularity),
+                        datetime_to_datestamp(
+                            record.updated + timedelta(1),
+                            day_granularity=granularity),
+                    )
+                )
+                assert result.status_code == 200
 
-        # Check from:until range and set param
-        # with app.test_client() as c:
-        #     for granularity in (False, True):
-        #         result = c.get(
-        #             '/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc'
-        #             '&from={0}&until={1}&set=test0'.format(
-        #                 datetime_to_datestamp(
-        #                     record.updated - timedelta(1),
-        #                     day_granularity=granularity),
-        #                 datetime_to_datestamp(
-        #                     record.updated + timedelta(1),
-        #                     day_granularity=granularity),
-        #             )
-        #         )
-        #         assert result.status_code == 200
-
-        #         tree = etree.fromstring(result.data)
-        #         identifier = tree.xpath(
-        #             '/x:OAI-PMH/x:ListIdentifiers/x:header/x:identifier',
-        #             namespaces=NAMESPACES
-        #         )
-        #         assert len(identifier) == 1
+                tree = etree.fromstring(result.data)
+                identifier = tree.xpath(
+                    '/x:OAI-PMH/x:ListIdentifiers/x:header/x:identifier',
+                    namespaces=NAMESPACES
+                )
+                assert len(identifier) == 1
 
 
 def test_list_sets_long(app):
