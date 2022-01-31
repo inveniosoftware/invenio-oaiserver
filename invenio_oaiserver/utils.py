@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2015-2022 CERN.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Utilities."""
 
-from __future__ import absolute_import, print_function
-
 import re
 from datetime import datetime
-from functools import partial
+from functools import lru_cache, partial
 
 from flask import current_app
 from invenio_base.utils import obj_or_import_string
@@ -21,12 +19,6 @@ from lxml.builder import E
 from lxml.etree import Element
 
 from .proxies import current_oaiserver
-
-try:
-    from functools import lru_cache
-except ImportError:  # pragma: no cover
-    from functools32 import lru_cache
-
 
 ns = {
     None: 'http://datacite.org/schema/kernel-4',

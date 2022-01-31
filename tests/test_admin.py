@@ -8,8 +8,6 @@
 
 """Test admin interface."""
 
-from __future__ import absolute_import, print_function
-
 from flask import url_for
 from flask_admin import Admin, menu
 from invenio_db import db

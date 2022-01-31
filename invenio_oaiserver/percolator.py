@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2017-2018 CERN.
+# Copyright (C) 2017-2022 CERN.
 # Copyright (C) 2022 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Percolator."""
-
-from __future__ import absolute_import, print_function
 
 import json
 
@@ -22,8 +20,6 @@ from invenio_search import current_search, current_search_client
 from invenio_search.utils import build_index_name
 
 from invenio_oaiserver.query import query_string_parser
-
-from .proxies import current_oaiserver
 
 
 def _build_percolator_index_name(index):

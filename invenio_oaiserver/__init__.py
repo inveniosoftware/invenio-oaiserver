@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2015-2022 CERN.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -181,8 +181,6 @@ repository
 <https://raw.githubusercontent.com/eprints/eprints/3.3/lib/static/oai2.xsl>`_
 (GPLv3 licensed).
 """
-
-from __future__ import absolute_import, print_function
 
 from .ext import InvenioOAIServer
 from .proxies import current_oaiserver

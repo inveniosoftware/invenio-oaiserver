@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2015-2022 CERN.
 # Copyright (C) 2022 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
@@ -11,12 +11,10 @@
 
 from flask_babelex import lazy_gettext as _
 from invenio_db import db
-from sqlalchemy.event import listen
 from sqlalchemy.orm import validates
 from sqlalchemy_utils import Timestamp
 
 from .errors import OAISetSpecUpdateError
-from .proxies import current_oaiserver
 
 
 class OAISet(db.Model, Timestamp):
