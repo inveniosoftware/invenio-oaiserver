@@ -51,13 +51,13 @@ extras_require = {
     ],
     # Databases
     'mysql': [
-        'invenio-db[mysql]>=1.0.9',
+        'invenio-db[mysql]{}'.format(invenio_db_version),
     ],
     'postgresql': [
-        'invenio-db[postgresql]>=1.0.9',
+        'invenio-db[postgresql]{}'.format(invenio_db_version),
     ],
     'sqlite': [
-        'invenio-db>=1.0.9',
+        'invenio-db{}'.format(invenio_db_version),
     ],
     'tests': tests_require,
 }
