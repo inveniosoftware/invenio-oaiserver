@@ -10,11 +10,9 @@
 
 """OAI-PMH verbs."""
 
-from __future__ import absolute_import
-
 from flask import current_app, request
 from invenio_rest.serializer import BaseSchema
-from marshmallow import ValidationError, fields, utils, validates_schema
+from marshmallow import ValidationError, fields, validates_schema
 from marshmallow.fields import DateTime as _DateTime
 from marshmallow.utils import isoformat
 

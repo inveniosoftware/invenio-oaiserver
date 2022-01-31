@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2015-2022 CERN.
 # Copyright (C) 2021-2022 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
@@ -9,10 +9,7 @@
 
 """Invenio-OAIServer extension implementation."""
 
-from __future__ import absolute_import, print_function
-
 from invenio_base.utils import obj_or_import_string
-from invenio_records import signals as records_signals
 from sqlalchemy.event import contains, listen, remove
 
 from . import config

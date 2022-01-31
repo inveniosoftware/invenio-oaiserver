@@ -10,8 +10,6 @@
 
 """Test OAI verbs."""
 
-from __future__ import absolute_import
-
 import uuid
 from copy import deepcopy
 from datetime import datetime, timedelta

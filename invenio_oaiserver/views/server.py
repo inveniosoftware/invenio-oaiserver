@@ -9,8 +9,6 @@
 
 """OAI-PMH 2.0 server."""
 
-from __future__ import absolute_import
-
 from flask import Blueprint, make_response
 from invenio_pidstore.errors import PIDDoesNotExistError
 from itsdangerous import BadSignature

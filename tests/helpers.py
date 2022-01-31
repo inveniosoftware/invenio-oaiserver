@@ -9,8 +9,6 @@
 
 """Utilities for loading test records."""
 
-from __future__ import absolute_import, print_function
-
 import uuid
 
 import mock
@@ -21,7 +19,6 @@ from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_pidstore.minters import recid_minter
 from invenio_pidstore.models import PersistentIdentifier
-from invenio_records import Record
 from invenio_records.models import RecordMetadata
 from invenio_search import current_search, current_search_client
 

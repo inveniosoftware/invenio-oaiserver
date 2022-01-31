@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015-2019 CERN.
+# Copyright (C) 2015-2022 CERN.
 # Copyright (C)      2021 Graz University of Technology.
 # Copyright (C)      2021 TU Wien.
 #
@@ -148,10 +148,10 @@ setup(
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Development Status :: 5 - Production/Stable',
     ],
 )

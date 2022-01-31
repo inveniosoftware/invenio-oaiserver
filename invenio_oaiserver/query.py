@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2016-2018 CERN.
+# Copyright (C) 2016-2022 CERN.
 # Copyright (C) 2022 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
@@ -9,7 +9,6 @@
 
 """Query parser."""
 
-import six
 from elasticsearch import VERSION as ES_VERSION
 from elasticsearch_dsl import Q
 from flask import current_app
@@ -25,7 +24,7 @@ def query_string_parser(search_pattern):
     """Elasticsearch query string parser."""
     if not hasattr(current_oaiserver, 'query_parser'):
         query_parser = current_app.config['OAISERVER_QUERY_PARSER']
-        if isinstance(query_parser, six.string_types):
+        if isinstance(query_parser, str):
             query_parser = import_string(query_parser)
         current_oaiserver.query_parser = query_parser
     query_parser_fields = (
