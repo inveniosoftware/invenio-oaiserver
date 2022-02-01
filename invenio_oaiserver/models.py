@@ -72,42 +72,5 @@ class OAISet(db.Model, Timestamp):
             raise OAISetSpecUpdateError("Updating spec is not allowed.")
         return value
 
-    # TODO: Add and remove can be implemented but it will require to
-    # update the `search_pattern`
-
-    # def add_record(self, record):
-    #     """Add a record to the OAISet.
-
-    #     :param record: Record to be added.
-    #     :type record: `invenio_records.api.Record` or derivative.
-    #     """
-    #     record.setdefault('_oai', {}).setdefault('sets', [])
-
-    #     assert not self.has_record(record)
-
-    #     record['_oai']['sets'].append(self.spec)
-
-    # def remove_record(self, record):
-    #     """Remove a record from the OAISet.
-
-    #     :param record: Record to be removed.
-    #     :type record: `invenio_records.api.Record` or derivative.
-    #     """
-    #     assert self.has_record(record)
-
-    #     record['_oai']['sets'] = [
-    #         s for s in record['_oai']['sets'] if s != self.spec]
-
-    # TODO: has_record can be implemented but it will require to
-    # to do a full search.
-
-    # def has_record(self, record):
-    #     """Check if the record blongs to the OAISet.
-
-    #     :param record: Record to be checked.
-    #     :type record: `invenio_records.api.Record` or derivative.
-    #     """
-    #     return self.spec in record.get('_oai', {}).get('sets', [])
-
 
 __all__ = ('OAISet', )
