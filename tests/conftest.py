@@ -128,15 +128,6 @@ def without_oaiset_signals(app):
     current_oaiserver.register_signals_oaiset()
 
 
-@pytest.yield_fixture
-def without_oaiset_signals(app):
-    """Temporary disable oaiset signals."""
-    from invenio_oaiserver import current_oaiserver
-    current_oaiserver.unregister_signals_oaiset()
-    yield
-    current_oaiserver.register_signals_oaiset()
-
-
 @pytest.fixture
 def schema():
     """Get record schema."""

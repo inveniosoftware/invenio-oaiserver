@@ -134,7 +134,6 @@ def _delete_percolator(spec, search_pattern):
     # Create the percolator doc_type in the existing index for >= ES5
     for index, mapping_path in current_search.mappings.items():
         percolator_doc_type = _get_percolator_doc_type(index)
-        _create_percolator_mapping(index, percolator_doc_type)
         current_search_client.delete(
             index=_build_percolator_index_name(index),
             doc_type=percolator_doc_type,
