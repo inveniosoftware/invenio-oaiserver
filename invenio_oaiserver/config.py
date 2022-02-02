@@ -3,6 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
 # Copyright (C) 2021 Graz University of Technology.
+# Copyright (C) 2020 - 2021 TU Wien.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -85,7 +86,18 @@ OAISERVER_METADATA_FORMATS = {
         'schema': 'http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd',
         'namespace': 'http://www.loc.gov/MARC21/slim',
     },
+    'datacite': {
+        'serializer': 'invenio_oaiserver.utils:datacite_etree',
+        'schema': 'http://schema.datacite.org/meta/nonexistant/nonexistant.xsd',
+        'namespace': 'http://datacite.org/schema/nonexistant',
+    },
+    'oai_datacite': {
+        'serializer': ('invenio_oaiserver.utils:oai_datacite_etree'),
+        'schema': 'http://schema.datacite.org/oai/oai-1.1/oai.xsd',
+        'namespace': 'http://schema.datacite.org/oai/oai-1.1/',
+    },
 }
+
 """Define the metadata formats available from a repository.
 
 Every key represents a ``metadataPrefix`` and its value has a following
