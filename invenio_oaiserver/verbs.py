@@ -125,8 +125,9 @@ class Verbs(object):
         """Arguments for ListIdentifiers verb."""
 
         from_ = DateTime(
-            format='permissive', load_from='from',
-            data_key='from', dump_to='from')
+            format='permissive',
+            metadata={'load_from': 'from', 'data_key': 'from', 'dump_to': 'from'},
+        )
         until = DateTime(format='permissive')
         set = fields.Str()
         metadataPrefix = fields.Str(required=True,
