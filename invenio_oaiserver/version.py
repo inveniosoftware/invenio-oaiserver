@@ -12,4 +12,4 @@ This file is imported by ``invenio_oaiserver.__init__``,
 and parsed by ``setup.py``.
 """
 
-__version__ = '1.3.0'
+__version__ = '1.4.0'
