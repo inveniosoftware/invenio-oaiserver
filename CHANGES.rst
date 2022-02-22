@@ -1,12 +1,18 @@
 ..
     This file is part of Invenio.
-    Copyright (C) 2016-2020 CERN.
+    Copyright (C) 2016-2022 CERN.
 
     Invenio is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
 
 Changes
 =======
+
+Version 1.4.0 (released 2022-02-22)
+
+- OAI-PMH sets reimplementation via percolator queries during result fetching.
+- Removes Python 2.7 support.
+- Resumption token argument fixes.
 
 Version 1.3.0 (released 2021-10-20)
 
