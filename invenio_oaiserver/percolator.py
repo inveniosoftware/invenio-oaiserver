@@ -57,40 +57,6 @@ def _create_percolator_mapping(index, doc_type, mapping_path=None):
                 )
 
 
-def _percolate_query(index, doc_type, percolator_doc_type, document):
-    """Get results for a percolate query."""
-    index = _build_percolator_index_name(index)
-    if ES_VERSION[0] in (2, 5):
-        results = current_search_client.percolate(
-            index=index,
-            doc_type=doc_type,
-            allow_no_indices=True,
-            ignore_unavailable=True,
-            body={'doc': document},
-        )
-        return results['matches']
-    elif ES_VERSION[0] in (6, 7):
-        es_client_params = dict(
-            index=index,
-            doc_type=percolator_doc_type,
-            allow_no_indices=True,
-            ignore_unavailable=True,
-            body={
-                'query': {
-                    'percolate': {
-                        'field': 'query',
-                        'document_type': percolator_doc_type,
-                        'document': document,
-                    }
-                }
-            },
-        )
-        if ES_VERSION[0] == 7:
-            es_client_params.pop('doc_type')
-        results = current_search_client.search(**es_client_params)
-        return results['hits']['hits']
-
-
 def _get_percolator_doc_type(index):
     es_ver = ES_VERSION[0]
     if es_ver == 2:
@@ -110,7 +76,11 @@ def _new_percolator(spec, search_pattern):
     """Create new percolator associated with the new set."""
     if spec and search_pattern:
         query = query_string_parser(search_pattern=search_pattern).to_dict()
+        oai_records_index = current_app.config["OAISERVER_RECORD_INDEX"]
         for index, mapping_path in current_search.mappings.items():
+            # Skip indices/mappings not used by OAI-PMH
+            if not index.startswith(oai_records_index):
+                continue
             # Create the percolator doc_type in the existing index for >= ES5
             # TODO: Consider doing this only once in app initialization
             try:
@@ -124,15 +94,17 @@ def _new_percolator(spec, search_pattern):
                     body={'query': query}
                 )
             except Exception as e:
-                # caught on schemas, which do not contain the query field
                 current_app.logger.warning(e)
-                pass
 
 
 def _delete_percolator(spec, search_pattern):
     """Delete percolator associated with the removed/updated oaiset."""
+    oai_records_index = current_app.config["OAISERVER_RECORD_INDEX"]
     # Create the percolator doc_type in the existing index for >= ES5
     for index, mapping_path in current_search.mappings.items():
+        # Skip indices/mappings not used by OAI-PMH
+        if not index.startswith(oai_records_index):
+            continue
         percolator_doc_type = _get_percolator_doc_type(index)
         current_search_client.delete(
             index=_build_percolator_index_name(index),
