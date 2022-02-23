@@ -1,14 +1,15 @@
 # Translations template for invenio-oaiserver.
-# Copyright (C) 2021 CERN
+# Copyright (C) 2022 CERN
 # This file is distributed under the same license as the invenio-oaiserver
 # project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: invenio-oaiserver 1.2.0\n"
+"Project-Id-Version: invenio-oaiserver 1.4.0\n"
 "Report-Msgid-Bugs-To: info@inveniosoftware.org\n"
-"POT-Creation-Date: 2021-06-16 13:36+0200\n"
+"POT-Creation-Date: 2022-02-23 12:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,35 +26,35 @@ msgstr ""
 msgid "Sets"
 msgstr ""
 
-#: invenio_oaiserver/models.py:36
+#: invenio_oaiserver/models.py:32
 msgid "Identifier"
 msgstr ""
 
-#: invenio_oaiserver/models.py:37
+#: invenio_oaiserver/models.py:33
 msgid "Identifier of the set."
 msgstr ""
 
-#: invenio_oaiserver/models.py:45
+#: invenio_oaiserver/models.py:41
 msgid "Long name"
 msgstr ""
 
-#: invenio_oaiserver/models.py:46
+#: invenio_oaiserver/models.py:42
 msgid "Long name of the set."
 msgstr ""
 
-#: invenio_oaiserver/models.py:56
+#: invenio_oaiserver/models.py:52
 msgid "Description"
 msgstr ""
 
-#: invenio_oaiserver/models.py:57
+#: invenio_oaiserver/models.py:53
 msgid "Description of the set."
 msgstr ""
 
-#: invenio_oaiserver/models.py:66
+#: invenio_oaiserver/models.py:62
 msgid "Search pattern"
 msgstr ""
 
-#: invenio_oaiserver/models.py:67
+#: invenio_oaiserver/models.py:63
 msgid "Search pattern to select records"
 msgstr ""
 
