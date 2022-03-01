@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version 1.4.1 (released 2022-03-01)
+
+- Fixes marshmallow deprecation warning.
+
 Version 1.4.0 (released 2022-02-22)
 
 - OAI-PMH sets reimplementation via percolator queries during result fetching.
