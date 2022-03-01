@@ -125,8 +125,9 @@ class Verbs(object):
         """Arguments for ListIdentifiers verb."""
 
         from_ = DateTime(
-            format='permissive', load_from='from',
-            data_key='from', dump_to='from')
+            format='permissive',
+            metadata={'load_from': 'from', 'data_key': 'from', 'dump_to': 'from'},
+        )
         until = DateTime(format='permissive')
         set = fields.Str()
         metadataPrefix = fields.Str(required=True,
@@ -160,8 +161,8 @@ class ResumptionVerbs(Verbs):
 def check_extra_params_in_request(verb):
     """Check for extra arguments in incomming request."""
     extra = set(request.values.keys()) - set([
-        getattr(f, 'load_from', None) or getattr(
-            f, 'data_key', None) or f.name for f in verb.fields.values()
+        f.metadata.get('load_from', None) or f.metadata
+        .get('data_key', None) or f.name for f in verb.fields.values()
     ])
     if extra:
         raise ValidationError({'_schema': ['You have passed too many arguments.']})
