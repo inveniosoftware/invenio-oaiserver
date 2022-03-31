@@ -18,10 +18,7 @@ readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
 
 tests_require = [
-    'SQLAlchemy-Continuum>=1.3.6',
-    'SQLAlchemy<1.4.0,>=1.2.18',
-    'SQLAlchemy-Utils<0.36,>=0.33.1',
-    'invenio-indexer>=1.2.1',
+    'invenio-indexer>=1.2.2',
     'invenio-jsonschemas>=1.1.3',
     'invenio-marc21>=1.0.0a9',
     'mock>=1.3.0',
@@ -29,7 +26,7 @@ tests_require = [
 ]
 
 # Should follow inveniosoftware/invenio versions
-invenio_db_version = '>=1.0.9,<2.0.0'
+invenio_db_version = '>=1.0.14,<2.0.0'
 invenio_search_version = '>=1.4.2,<2.0.0'
 
 extras_require = {
@@ -40,7 +37,7 @@ extras_require = {
         'invenio-celery>=1.2.3',
     ],
     'docs': [
-        'Sphinx==4.2.0',
+        'Sphinx==4.5.0',
     ],
     # Elasticsearch version
     'elasticsearch6': [
@@ -77,8 +74,8 @@ setup_requires = [
 install_requires = [
     'arrow>=0.17.0',
     'dojson>=1.3.0',
-    'invenio-base>=1.2.5',
-    'invenio-i18n>=1.3.1',
+    'invenio-base>=1.2.11',
+    'invenio-i18n>=1.3.2',
     'invenio-pidstore>=1.2.2',
     'invenio-records>=1.6.0',
     'invenio-rest>=1.2.4',
