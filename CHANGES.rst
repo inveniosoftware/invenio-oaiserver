@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version 1.4.2 (released 2022-05-23)
+
+- Adds support for Flask v2.1
+
 Version 1.4.1 (released 2022-03-01)
 
 - Fixes marshmallow deprecation warning.
