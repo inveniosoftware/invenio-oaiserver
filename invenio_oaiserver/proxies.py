@@ -11,7 +11,5 @@
 from flask import current_app
 from werkzeug.local import LocalProxy
 
-current_oaiserver = LocalProxy(
-    lambda: current_app.extensions['invenio-oaiserver']
-)
+current_oaiserver = LocalProxy(lambda: current_app.extensions["invenio-oaiserver"])
 """Helper proxy to access state object."""

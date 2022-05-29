@@ -20,7 +20,7 @@ from .errors import OAISetSpecUpdateError
 class OAISet(db.Model, Timestamp):
     """Information about OAI set."""
 
-    __tablename__ = 'oaiserver_set'
+    __tablename__ = "oaiserver_set"
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -29,8 +29,8 @@ class OAISet(db.Model, Timestamp):
         nullable=False,
         unique=True,
         info=dict(
-            label=_('Identifier'),
-            description=_('Identifier of the set.'),
+            label=_("Identifier"),
+            description=_("Identifier of the set."),
         ),
     )
     """Set identifier."""
@@ -38,8 +38,8 @@ class OAISet(db.Model, Timestamp):
     name = db.Column(
         db.String(255),
         info=dict(
-            label=_('Long name'),
-            description=_('Long name of the set.'),
+            label=_("Long name"),
+            description=_("Long name of the set."),
         ),
         index=True,
     )
@@ -49,8 +49,8 @@ class OAISet(db.Model, Timestamp):
         db.Text,
         nullable=True,
         info=dict(
-            label=_('Description'),
-            description=_('Description of the set.'),
+            label=_("Description"),
+            description=_("Description of the set."),
         ),
     )
     """Human readable description."""
@@ -59,13 +59,13 @@ class OAISet(db.Model, Timestamp):
         db.Text,
         nullable=True,
         info=dict(
-            label=_('Search pattern'),
-            description=_('Search pattern to select records'),
-        )
+            label=_("Search pattern"),
+            description=_("Search pattern to select records"),
+        ),
     )
     """Search pattern to get records."""
 
-    @validates('spec')
+    @validates("spec")
     def validate_spec(self, key, value):
         """Forbit updates of set identifier."""
         if self.spec and self.spec != value:
@@ -73,4 +73,4 @@ class OAISet(db.Model, Timestamp):
         return value
 
 
-__all__ = ('OAISet', )
+__all__ = ("OAISet",)

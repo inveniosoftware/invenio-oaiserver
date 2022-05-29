@@ -21,10 +21,10 @@ from ..errors import OAINoRecordsMatchError
 from ..verbs import make_request_validator
 
 blueprint = Blueprint(
-    'invenio_oaiserver',
+    "invenio_oaiserver",
     __name__,
-    static_folder='../static',
-    template_folder='../templates',
+    static_folder="../static",
+    template_folder="../templates",
 )
 
 
@@ -32,71 +32,87 @@ blueprint = Blueprint(
 @blueprint.errorhandler(422)
 def validation_error(exception):
     """Return formatter validation error."""
-    messages = getattr(exception, 'messages', None)
+    messages = getattr(exception, "messages", None)
     if messages is None:
-        messages = getattr(exception, 'data', {'messages': None})['messages']
+        messages = getattr(exception, "data", {"messages": None})["messages"]
 
     def extract_errors():
         """Extract errors from exception."""
         if isinstance(messages, dict):
             for field, message in messages.items():
-                if field == 'verb':
-                    yield 'badVerb', '\n'.join(message)
+                if field == "verb":
+                    yield "badVerb", "\n".join(message)
                 else:
-                    yield 'badArgument', '\n'.join(message)
+                    yield "badArgument", "\n".join(message)
         else:
             for field in exception.field_names:
-                if field == 'verb':
-                    yield 'badVerb', '\n'.join(messages)
+                if field == "verb":
+                    yield "badVerb", "\n".join(messages)
                 else:
-                    yield 'badArgument', '\n'.join(messages)
+                    yield "badArgument", "\n".join(messages)
 
             if not exception.field_names:
-                yield 'badArgument', '\n'.join(messages)
+                yield "badArgument", "\n".join(messages)
 
-    return (etree.tostring(xml.error(extract_errors())),
-            422,
-            {'Content-Type': 'text/xml'})
+    return (
+        etree.tostring(xml.error(extract_errors())),
+        422,
+        {"Content-Type": "text/xml"},
+    )
 
 
 @blueprint.errorhandler(PIDDoesNotExistError)
 def pid_error(exception):
     """Handle PID Exceptions."""
-    return (etree.tostring(xml.error([('idDoesNotExist',
-                                       'No matching identifier')])),
-            422,
-            {'Content-Type': 'text/xml'})
+    return (
+        etree.tostring(xml.error([("idDoesNotExist", "No matching identifier")])),
+        422,
+        {"Content-Type": "text/xml"},
+    )
 
 
 @blueprint.errorhandler(BadSignature)
 def resumptiontoken_error(exception):
     """Handle resumption token exceptions."""
-    return (etree.tostring(xml.error([(
-        'badResumptionToken',
-        'The value of the resumptionToken argument is invalid or expired.')
-    ])), 422, {'Content-Type': 'text/xml'})
+    return (
+        etree.tostring(
+            xml.error(
+                [
+                    (
+                        "badResumptionToken",
+                        "The value of the resumptionToken argument is invalid or expired.",
+                    )
+                ]
+            )
+        ),
+        422,
+        {"Content-Type": "text/xml"},
+    )
 
 
 @blueprint.errorhandler(OAINoRecordsMatchError)
 def no_records_error(exception):
     """Handle no records match Exceptions."""
-    return (etree.tostring(xml.error([('noRecordsMatch',
-                                       '')])),
-            422,
-            {'Content-Type': 'text/xml'})
+    return (
+        etree.tostring(xml.error([("noRecordsMatch", "")])),
+        422,
+        {"Content-Type": "text/xml"},
+    )
 
 
-@blueprint.route('/oai2d', methods=['GET', 'POST'])
+@blueprint.route("/oai2d", methods=["GET", "POST"])
 @use_args(make_request_validator)
 def response(args):
     """Response endpoint."""
-    e_tree = getattr(xml, args['verb'].lower())(**args)
+    e_tree = getattr(xml, args["verb"].lower())(**args)
 
-    response = make_response(etree.tostring(
-        e_tree,
-        pretty_print=True,
-        xml_declaration=True,
-        encoding='UTF-8',
-    ))
-    response.headers['Content-Type'] = 'text/xml'
+    response = make_response(
+        etree.tostring(
+            e_tree,
+            pretty_print=True,
+            xml_declaration=True,
+            encoding="UTF-8",
+        )
+    )
+    response.headers["Content-Type"] = "text/xml"
     return response
