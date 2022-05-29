@@ -20,6 +20,7 @@ from marshmallow import fields
 def _schema_from_verb(verb, partial=False):
     """Return an instance of schema for given verb."""
     from .verbs import Verbs
+
     return getattr(Verbs, verb)(partial=partial)
 
 
@@ -29,18 +30,21 @@ def serialize(pagination, **kwargs):
         return
 
     token_builder = URLSafeTimedSerializer(
-        current_app.config['SECRET_KEY'],
-        salt=kwargs['verb'],
+        current_app.config["SECRET_KEY"],
+        salt=kwargs["verb"],
     )
-    schema = _schema_from_verb(kwargs['verb'], partial=False)
+    schema = _schema_from_verb(kwargs["verb"], partial=False)
     schema_kwargs = kwargs.copy()
-    schema_kwargs.update(schema_kwargs.get('resumptionToken', {}))
+    schema_kwargs.update(schema_kwargs.get("resumptionToken", {}))
 
-    data = dict(seed=random.random(), page=pagination.next_num,
-                kwargs=schema.dump(schema_kwargs).data)
-    scroll_id = getattr(pagination, '_scroll_id', None)
+    data = dict(
+        seed=random.random(),
+        page=pagination.next_num,
+        kwargs=schema.dump(schema_kwargs).data,
+    )
+    scroll_id = getattr(pagination, "_scroll_id", None)
     if scroll_id:
-        data['scroll_id'] = scroll_id
+        data["scroll_id"] = scroll_id
 
     return token_builder.dumps(data)
 
@@ -51,17 +55,18 @@ class ResumptionToken(fields.Field):
     def _deserialize(self, value, attr, data, **kwargs):
         """Serialize resumption token."""
         token_builder = URLSafeTimedSerializer(
-            current_app.config['SECRET_KEY'],
-            salt=data['verb'],
+            current_app.config["SECRET_KEY"],
+            salt=data["verb"],
         )
-        result = token_builder.loads(value, max_age=current_app.config[
-            'OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME'])
-        result['token'] = value
+        result = token_builder.loads(
+            value, max_age=current_app.config["OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME"]
+        )
+        result["token"] = value
 
-        schema_kwargs = result['kwargs'].copy()
-        schema_kwargs['verb'] = data['verb']
+        schema_kwargs = result["kwargs"].copy()
+        schema_kwargs["verb"] = data["verb"]
 
-        result['kwargs'] = _schema_from_verb(data['verb']).load(schema_kwargs).data
+        result["kwargs"] = _schema_from_verb(data["verb"]).load(schema_kwargs).data
         return result
 
 
@@ -75,7 +80,7 @@ class ResumptionTokenSchema(BaseSchema):
         result = super(ResumptionTokenSchema, self).load(
             data, many=many, partial=partial
         )
-        result.data.get('resumptionToken', {}).update(
-            result.data.get('resumptionToken', {}).get('kwargs', {})
+        result.data.get("resumptionToken", {}).update(
+            result.data.get("resumptionToken", {}).get("kwargs", {})
         )
         return result

@@ -21,18 +21,12 @@ from invenio_oaiserver.receivers import after_update_oai_set
 
 @pytest.fixture()
 def test0(app, without_oaiset_signals, schema):
-    _ = create_record(app, {
-        'title_statement': {'title': 'Test0'},
-        '$schema': schema
-    })
+    _ = create_record(app, {"title_statement": {"title": "Test0"}, "$schema": schema})
     current_search.flush_and_refresh("records")
 
 
 def create_oaiset(name, title_pattern):
-    oaiset = OAISet(
-        spec=name,
-        search_pattern=f"title_statement.title:{title_pattern}"
-    )
+    oaiset = OAISet(spec=name, search_pattern=f"title_statement.title:{title_pattern}")
     db.session.add(oaiset)
     db.session.commit()
     run_after_insert_oai_set()
@@ -54,10 +48,7 @@ def test_empty_set(without_oaiset_signals, test0):
 
 def test_set_with_records(app, without_oaiset_signals, test0, schema):
     # create extra record
-    _ = create_record(app, {
-        'title_statement': {'title': 'Test1'},
-        '$schema': schema
-    })
+    _ = create_record(app, {"title_statement": {"title": "Test1"}, "$schema": schema})
     current_search.flush_and_refresh("records")
 
     # create and query set
@@ -79,7 +70,7 @@ def test_search_pattern_change(without_oaiset_signals, test0):
     assert rec["json"]["_source"]["title_statement"]["title"] == "Test0"
 
     # change search pattern
-    oaiset.search_pattern = 'title_statement.title:Test1'
+    oaiset.search_pattern = "title_statement.title:Test1"
     db.session.merge(oaiset)
     db.session.commit()
     after_update_oai_set(None, None, oaiset)

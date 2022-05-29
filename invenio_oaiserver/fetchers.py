@@ -25,7 +25,7 @@ def oaiid_fetcher(record_uuid, data):
     :param data: The record data.
     :returns: A :class:`invenio_pidstore.fetchers.FetchedPID` instance.
     """
-    pid_value = data.get('_oai', {}).get('id')
+    pid_value = data.get("_oai", {}).get("id")
     if pid_value is None:
         raise PersistentIdentifierError()
 
@@ -41,7 +41,7 @@ def set_records_query_fetcher(setSpec):
     set = OAISet.query.filter(OAISet.spec == setSpec).first()
     if set is None:
         # raise error that no matches can be found ?
-        query = Q('match_none')
+        query = Q("match_none")
     else:
         query = Q(query_string_parser(set.search_pattern))
 

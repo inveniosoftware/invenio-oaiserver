@@ -22,18 +22,18 @@ from . import current_oaiserver
 
 def query_string_parser(search_pattern):
     """Elasticsearch query string parser."""
-    if not hasattr(current_oaiserver, 'query_parser'):
-        query_parser = current_app.config['OAISERVER_QUERY_PARSER']
+    if not hasattr(current_oaiserver, "query_parser"):
+        query_parser = current_app.config["OAISERVER_QUERY_PARSER"]
         if isinstance(query_parser, str):
             query_parser = import_string(query_parser)
         current_oaiserver.query_parser = query_parser
     query_parser_fields = (
-        current_app.config.get('OAISERVER_QUERY_PARSER_FIELDS', {}) or {}
+        current_app.config.get("OAISERVER_QUERY_PARSER_FIELDS", {}) or {}
     )
     if query_parser_fields:
         query_parser_fields = dict(fields=query_parser_fields)
     return current_oaiserver.query_parser(
-        'query_string', query=search_pattern, **query_parser_fields
+        "query_string", query=search_pattern, **query_parser_fields
     )
 
 
@@ -43,45 +43,49 @@ class OAIServerSearch(RecordsSearch):
     class Meta:
         """Configuration for OAI server search."""
 
-        default_filter = Q('exists', field='_oai.id')
+        default_filter = Q("exists", field="_oai.id")
 
 
 def get_records(**kwargs):
     """Get records paginated."""
-    page_ = kwargs.get('resumptionToken', {}).get('page', 1)
-    size_ = current_app.config['OAISERVER_PAGE_SIZE']
-    scroll = current_app.config['OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME']
-    scroll_id = kwargs.get('resumptionToken', {}).get('scroll_id')
+    page_ = kwargs.get("resumptionToken", {}).get("page", 1)
+    size_ = current_app.config["OAISERVER_PAGE_SIZE"]
+    scroll = current_app.config["OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME"]
+    scroll_id = kwargs.get("resumptionToken", {}).get("scroll_id")
 
     if scroll_id is None:
         search = (
             current_oaiserver.search_cls(
-                index=current_app.config['OAISERVER_RECORD_INDEX'],
+                index=current_app.config["OAISERVER_RECORD_INDEX"],
             )
             .params(
-                scroll='{0}s'.format(scroll),
+                scroll="{0}s".format(scroll),
             )
             .extra(
                 version=True,
-            )[(page_ - 1) * size_: page_ * size_]
+            )[(page_ - 1) * size_ : page_ * size_]
         )
 
-        if 'set' in kwargs:
-            search = search.query(current_oaiserver.set_records_query_fetcher(kwargs['set']))
+        if "set" in kwargs:
+            search = search.query(
+                current_oaiserver.set_records_query_fetcher(kwargs["set"])
+            )
 
         time_range = {}
-        if 'from_' in kwargs:
-            time_range['gte'] = kwargs['from_']
-        if 'until' in kwargs:
-            time_range['lte'] = kwargs['until']
+        if "from_" in kwargs:
+            time_range["gte"] = kwargs["from_"]
+        if "until" in kwargs:
+            time_range["lte"] = kwargs["until"]
         if time_range:
-            search = search.filter('range', **{current_oaiserver.last_update_key: time_range})
+            search = search.filter(
+                "range", **{current_oaiserver.last_update_key: time_range}
+            )
 
         response = search.execute().to_dict()
     else:
         response = current_search_client.scroll(
             scroll_id=scroll_id,
-            scroll='{0}s'.format(scroll),
+            scroll="{0}s".format(scroll),
         )
 
     class Pagination(object):
@@ -93,10 +97,14 @@ def get_records(**kwargs):
         def __init__(self, response):
             """Initilize pagination."""
             self.response = response
-            self.total = response['hits']['total'] if ES_VERSION[0] < 7 else response['hits']['total']['value']
-            self._scroll_id = response.get('_scroll_id')
+            self.total = (
+                response["hits"]["total"]
+                if ES_VERSION[0] < 7
+                else response["hits"]["total"]["value"]
+            )
+            self._scroll_id = response.get("_scroll_id")
 
-            if (self.total == 0):
+            if self.total == 0:
                 raise OAINoRecordsMatchError()
 
             # clean descriptor on last page
@@ -119,13 +127,13 @@ def get_records(**kwargs):
             """Return iterator."""
             from datetime import datetime
 
-            for result in self.response['hits']['hits']:
+            for result in self.response["hits"]["hits"]:
                 yield {
-                    'id': result['_id'],
-                    'json': result,
-                    'updated': datetime.strptime(
-                        result['_source'][current_oaiserver.last_update_key][:19],
-                        '%Y-%m-%dT%H:%M:%S',
+                    "id": result["_id"],
+                    "json": result,
+                    "updated": datetime.strptime(
+                        result["_source"][current_oaiserver.last_update_key][:19],
+                        "%Y-%m-%dT%H:%M:%S",
                     ),
                 }
 

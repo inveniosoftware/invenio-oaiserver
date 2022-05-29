@@ -47,7 +47,7 @@ def _create_percolator_mapping(index, doc_type, mapping_path=None):
         if not mapping_path:
             mapping_path = current_search.mappings[index]
         if not current_search_client.indices.exists(percolator_index):
-            with open(mapping_path, 'r') as body:
+            with open(mapping_path, "r") as body:
                 mapping = json.load(body)
                 mapping["mappings"]["properties"].update(
                     PERCOLATOR_MAPPING["properties"]
@@ -60,16 +60,16 @@ def _create_percolator_mapping(index, doc_type, mapping_path=None):
 def _get_percolator_doc_type(index):
     es_ver = ES_VERSION[0]
     if es_ver == 2:
-        return '.percolator'
+        return ".percolator"
     elif es_ver == 5:
-        return 'percolators'
+        return "percolators"
     elif es_ver in (6, 7):
         mapping_path = current_search.mappings[index]
         _, doc_type = schema_to_index(mapping_path)
         return doc_type
 
 
-PERCOLATOR_MAPPING = {'properties': {'query': {'type': 'percolator'}}}
+PERCOLATOR_MAPPING = {"properties": {"query": {"type": "percolator"}}}
 
 
 def _new_percolator(spec, search_pattern):
@@ -85,13 +85,12 @@ def _new_percolator(spec, search_pattern):
             # TODO: Consider doing this only once in app initialization
             try:
                 percolator_doc_type = _get_percolator_doc_type(index)
-                _create_percolator_mapping(
-                    index, percolator_doc_type, mapping_path)
+                _create_percolator_mapping(index, percolator_doc_type, mapping_path)
                 current_search_client.index(
                     index=_build_percolator_index_name(index),
                     doc_type=percolator_doc_type,
-                    id='oaiset-{}'.format(spec),
-                    body={'query': query}
+                    id="oaiset-{}".format(spec),
+                    body={"query": query},
                 )
             except Exception as e:
                 current_app.logger.warning(e)
@@ -109,7 +108,7 @@ def _delete_percolator(spec, search_pattern):
         current_search_client.delete(
             index=_build_percolator_index_name(index),
             doc_type=percolator_doc_type,
-            id='oaiset-{}'.format(spec),
+            id="oaiset-{}".format(spec),
             ignore=[404],
         )
 
@@ -122,24 +121,32 @@ def create_percolate_query(
     # documents or (document_es_ids and document_es_indices) has to be set
     # TODO: discuss if this is needed or documents alone is enough.
     if documents is not None:
-        queries.append({
-            "percolate": {
-                "field": "query",
-                "documents": documents,
+        queries.append(
+            {
+                "percolate": {
+                    "field": "query",
+                    "documents": documents,
+                }
             }
-        })
+        )
     elif (
-        document_es_ids is not None and document_es_indices
-        is not None and len(document_es_ids) == len(document_es_indices)
+        document_es_ids is not None
+        and document_es_indices is not None
+        and len(document_es_ids) == len(document_es_indices)
     ):
-        queries.extend([{
-            "percolate": {
-                "field": "query",
-                "index": es_index,
-                "id": es_id,
-                "name": f"{es_index}:{es_id}",
-            }
-        } for (es_id, es_index) in zip(document_es_ids, document_es_indices)])
+        queries.extend(
+            [
+                {
+                    "percolate": {
+                        "field": "query",
+                        "index": es_index,
+                        "id": es_id,
+                        "name": f"{es_index}:{es_id}",
+                    }
+                }
+                for (es_id, es_index) in zip(document_es_ids, document_es_indices)
+            ]
+        )
     else:
         raise Exception(
             "Either documents or (document_es_ids and document_es_indices) must be specified."
@@ -188,7 +195,7 @@ def sets_search_all(records):
 
     result = percolate_query(percolator_index, documents=records)
 
-    prefix = 'oaiset-'
+    prefix = "oaiset-"
     prefix_len = len(prefix)
 
     for s in result:

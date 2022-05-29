@@ -15,10 +15,10 @@ from invenio_pidstore.providers.base import BaseProvider
 class OAIIDProvider(BaseProvider):
     """OAI-PMH identifier provider."""
 
-    pid_type = 'oai'
+    pid_type = "oai"
     """Type of persistent identifier."""
 
-    pid_provider = 'oai'
+    pid_provider = "oai"
     """Provider name."""
 
     default_status = PIDStatus.RESERVED
@@ -31,11 +31,12 @@ class OAIIDProvider(BaseProvider):
         :param object_type: The object type. (Default: ``None``)
         :param object_uuid: The object UUID. (Default: ``None``)
         """
-        assert 'pid_value' in kwargs
+        assert "pid_value" in kwargs
 
-        kwargs.setdefault('status', cls.default_status)
+        kwargs.setdefault("status", cls.default_status)
         if object_type and object_uuid:
-            kwargs['status'] = PIDStatus.REGISTERED
+            kwargs["status"] = PIDStatus.REGISTERED
 
         return super(OAIIDProvider, cls).create(
-            object_type=object_type, object_uuid=object_uuid, **kwargs)
+            object_type=object_type, object_uuid=object_uuid, **kwargs
+        )

@@ -21,27 +21,24 @@ from lxml.etree import Element
 from .proxies import current_oaiserver
 
 ns = {
-    None: 'http://datacite.org/schema/kernel-4',
-    'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-    'xml': 'xml',
+    None: "http://datacite.org/schema/kernel-4",
+    "xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    "xml": "xml",
 }
 
-NS_EPRINTS = {None: 'http://www.openarchives.org/OAI/2.0/eprints'}
-EPRINTS_SCHEMA_LOCATION = 'http://www.openarchives.org/OAI/2.0/eprints'
-EPRINTS_SCHEMA_LOCATION_XSD = \
-    'http://www.openarchives.org/OAI/2.0/eprints.xsd'
+NS_EPRINTS = {None: "http://www.openarchives.org/OAI/2.0/eprints"}
+EPRINTS_SCHEMA_LOCATION = "http://www.openarchives.org/OAI/2.0/eprints"
+EPRINTS_SCHEMA_LOCATION_XSD = "http://www.openarchives.org/OAI/2.0/eprints.xsd"
 
-NS_OAI_IDENTIFIER = {None:
-                     'http://www.openarchives.org/OAI/2.0/oai-identifier'}
-OAI_IDENTIFIER_SCHEMA_LOCATION = \
-    'http://www.openarchives.org/OAI/2.0/oai-identifier'
-OAI_IDENTIFIER_SCHEMA_LOCATION_XSD = \
-    'http://www.openarchives.org/OAI/2.0/oai-identifier.xsd'
+NS_OAI_IDENTIFIER = {None: "http://www.openarchives.org/OAI/2.0/oai-identifier"}
+OAI_IDENTIFIER_SCHEMA_LOCATION = "http://www.openarchives.org/OAI/2.0/oai-identifier"
+OAI_IDENTIFIER_SCHEMA_LOCATION_XSD = (
+    "http://www.openarchives.org/OAI/2.0/oai-identifier.xsd"
+)
 
-NS_FRIENDS = {None: 'http://www.openarchives.org/OAI/2.0/friends/'}
-FRIENDS_SCHEMA_LOCATION = 'http://www.openarchives.org/OAI/2.0/friends/'
-FRIENDS_SCHEMA_LOCATION_XSD = \
-    'http://www.openarchives.org/OAI/2.0/friends/.xsd'
+NS_FRIENDS = {None: "http://www.openarchives.org/OAI/2.0/friends/"}
+FRIENDS_SCHEMA_LOCATION = "http://www.openarchives.org/OAI/2.0/friends/"
+FRIENDS_SCHEMA_LOCATION_XSD = "http://www.openarchives.org/OAI/2.0/friends/.xsd"
 
 
 @lru_cache(maxsize=100)
@@ -51,8 +48,8 @@ def serializer(metadata_prefix):
     :param metadata_prefix: One of the metadata identifiers configured in
         ``OAISERVER_METADATA_FORMATS``.
     """
-    metadataFormats = current_app.config['OAISERVER_METADATA_FORMATS']
-    serializer_ = metadataFormats[metadata_prefix]['serializer']
+    metadataFormats = current_app.config["OAISERVER_METADATA_FORMATS"]
+    serializer_ = metadataFormats[metadata_prefix]["serializer"]
     if isinstance(serializer_, tuple):
         return partial(obj_or_import_string(serializer_[0]), **serializer_[1])
     return obj_or_import_string(serializer_)
@@ -69,7 +66,7 @@ def dumps_etree(pid, record, **kwargs):
     from dojson.contrib.to_marc21 import to_marc21
     from dojson.contrib.to_marc21.utils import dumps_etree
 
-    return dumps_etree(to_marc21.do(record['_source']), **kwargs)
+    return dumps_etree(to_marc21.do(record["_source"]), **kwargs)
 
 
 def datetime_to_datestamp(dt, day_granularity=False):
@@ -85,14 +82,15 @@ def datetime_to_datestamp(dt, day_granularity=False):
         dt = datetime.fromisoformat(dt)
 
     dt = dt.replace(microsecond=0, tzinfo=None)
-    result = dt.isoformat() + 'Z'
+    result = dt.isoformat() + "Z"
     if day_granularity:
         result = result[:-10]
     return result
 
 
-def eprints_description(metadataPolicy, dataPolicy,
-                        submissionPolicy=None, content=None):
+def eprints_description(
+    metadataPolicy, dataPolicy, submissionPolicy=None, content=None
+):
     """Generate the eprints element for the identify response.
 
     The eprints container is used by the e-print community to describe
@@ -100,37 +98,38 @@ def eprints_description(metadataPolicy, dataPolicy,
     For the full specification and schema definition visit:
     http://www.openarchives.org/OAI/2.0/guidelines-eprints.htm
     """
-    eprints = Element(etree.QName(NS_EPRINTS[None], 'eprints'),
-                      nsmap=NS_EPRINTS)
-    eprints.set(etree.QName(ns['xsi'], 'schemaLocation'),
-                '{0} {1}'.format(EPRINTS_SCHEMA_LOCATION,
-                                 EPRINTS_SCHEMA_LOCATION_XSD))
+    eprints = Element(etree.QName(NS_EPRINTS[None], "eprints"), nsmap=NS_EPRINTS)
+    eprints.set(
+        etree.QName(ns["xsi"], "schemaLocation"),
+        "{0} {1}".format(EPRINTS_SCHEMA_LOCATION, EPRINTS_SCHEMA_LOCATION_XSD),
+    )
     if content:
-        contentElement = etree.Element('content')
+        contentElement = etree.Element("content")
         for key, value in content.items():
             contentElement.append(E(key, value))
         eprints.append(contentElement)
 
-    metadataPolicyElement = etree.Element('metadataPolicy')
+    metadataPolicyElement = etree.Element("metadataPolicy")
     for key, value in metadataPolicy.items():
         metadataPolicyElement.append(E(key, value))
         eprints.append(metadataPolicyElement)
 
-    dataPolicyElement = etree.Element('dataPolicy')
+    dataPolicyElement = etree.Element("dataPolicy")
     for key, value in dataPolicy.items():
         dataPolicyElement.append(E(key, value))
         eprints.append(dataPolicyElement)
 
     if submissionPolicy:
-        submissionPolicyElement = etree.Element('submissionPolicy')
+        submissionPolicyElement = etree.Element("submissionPolicy")
         for key, value in submissionPolicy.items():
             submissionPolicyElement.append(E(key, value))
         eprints.append(submissionPolicyElement)
     return etree.tostring(eprints, pretty_print=True)
 
 
-def oai_identifier_description(scheme, repositoryIdentifier,
-                               delimiter, sampleIdentifier):
+def oai_identifier_description(
+    scheme, repositoryIdentifier, delimiter, sampleIdentifier
+):
     """Generate the oai-identifier element for the identify response.
 
     The OAI identifier format is intended to provide persistent resource
@@ -138,16 +137,19 @@ def oai_identifier_description(scheme, repositoryIdentifier,
     For the full specification and schema definition visit:
     http://www.openarchives.org/OAI/2.0/guidelines-oai-identifier.htm
     """
-    oai_identifier = Element(etree.QName(NS_OAI_IDENTIFIER[None],
-                             'oai_identifier'),
-                             nsmap=NS_OAI_IDENTIFIER)
-    oai_identifier.set(etree.QName(ns['xsi'], 'schemaLocation'),
-                       '{0} {1}'.format(OAI_IDENTIFIER_SCHEMA_LOCATION,
-                                        OAI_IDENTIFIER_SCHEMA_LOCATION_XSD))
-    oai_identifier.append(E('scheme', scheme))
-    oai_identifier.append(E('repositoryIdentifier', repositoryIdentifier))
-    oai_identifier.append(E('delimiter', delimiter))
-    oai_identifier.append(E('sampleIdentifier', sampleIdentifier))
+    oai_identifier = Element(
+        etree.QName(NS_OAI_IDENTIFIER[None], "oai_identifier"), nsmap=NS_OAI_IDENTIFIER
+    )
+    oai_identifier.set(
+        etree.QName(ns["xsi"], "schemaLocation"),
+        "{0} {1}".format(
+            OAI_IDENTIFIER_SCHEMA_LOCATION, OAI_IDENTIFIER_SCHEMA_LOCATION_XSD
+        ),
+    )
+    oai_identifier.append(E("scheme", scheme))
+    oai_identifier.append(E("repositoryIdentifier", repositoryIdentifier))
+    oai_identifier.append(E("delimiter", delimiter))
+    oai_identifier.append(E("sampleIdentifier", sampleIdentifier))
     return etree.tostring(oai_identifier, pretty_print=True)
 
 
@@ -159,13 +161,13 @@ def friends_description(baseURLs):
     For the schema definition visit:
     http://www.openarchives.org/OAI/2.0/guidelines-friends.htm
     """
-    friends = Element(etree.QName(NS_FRIENDS[None], 'friends'),
-                      nsmap=NS_FRIENDS)
-    friends.set(etree.QName(ns['xsi'], 'schemaLocation'),
-                '{0} {1}'.format(FRIENDS_SCHEMA_LOCATION,
-                                 FRIENDS_SCHEMA_LOCATION_XSD))
+    friends = Element(etree.QName(NS_FRIENDS[None], "friends"), nsmap=NS_FRIENDS)
+    friends.set(
+        etree.QName(ns["xsi"], "schemaLocation"),
+        "{0} {1}".format(FRIENDS_SCHEMA_LOCATION, FRIENDS_SCHEMA_LOCATION_XSD),
+    )
     for baseURL in baseURLs:
-        friends.append(E('baseURL', baseURL))
+        friends.append(E("baseURL", baseURL))
     return etree.tostring(friends, pretty_print=True)
 
 
@@ -175,18 +177,17 @@ def sanitize_unicode(value):
     Following W3C recommandation : https://www.w3.org/TR/REC-xml/#charsets
     Based on https://lsimons.wordpress.com/2011/03/17/stripping-illegal-characters-out-of-xml-in-python/ # noqa
     """
-    return re.sub(u'[\x00-\x08\x0B\x0C\x0E-\x1F\uD800-\uDFFF\uFFFE\uFFFF]',
-                  '', value)
+    return re.sub("[\x00-\x08\x0B\x0C\x0E-\x1F\uD800-\uDFFF\uFFFE\uFFFF]", "", value)
 
 
 def record_sets_fetcher(record):
     """Fetch a record's sets."""
-    return record.get('_oai', {}).get('sets', [])
+    return record.get("_oai", {}).get("sets", [])
 
 
 def getrecord_fetcher(record_uuid):
     """Fetch record data as dict for serialization."""
     record = current_oaiserver.record_cls.get_record(record_uuid)
     record_dict = record.dumps()
-    record_dict['updated'] = record.updated
+    record_dict["updated"] = record.updated
     return record_dict
