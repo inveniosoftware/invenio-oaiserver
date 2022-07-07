@@ -13,7 +13,6 @@ import shutil
 import tempfile
 
 import pytest
-from elasticsearch import Elasticsearch
 from flask import Flask
 from flask_celeryext import FlaskCeleryExt
 from helpers import load_records, remove_records
@@ -24,6 +23,7 @@ from invenio_marc21 import InvenioMARC21
 from invenio_pidstore import InvenioPIDStore
 from invenio_records import InvenioRecords
 from invenio_search import InvenioSearch
+from invenio_search.engine import SearchEngine
 from sqlalchemy_utils.functions import create_database, database_exists, drop_database
 
 from invenio_oaiserver import InvenioOAIServer
@@ -66,7 +66,7 @@ def app():
     InvenioRecords(app)
     InvenioPIDStore(app)
     InvenioMARC21(app)
-    client = Elasticsearch(hosts=[os.environ.get("ES_HOST", "localhost")])
+    client = SearchEngine(hosts=["localhost"])
     search = InvenioSearch(app, client=client)
     search.register_mappings("records", "data")
     InvenioIndexer(app)

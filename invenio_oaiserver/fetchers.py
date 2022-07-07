@@ -9,9 +9,9 @@
 
 """Persistent identifier fetchers."""
 
-from elasticsearch_dsl.query import Q
 from invenio_pidstore.errors import PersistentIdentifierError
 from invenio_pidstore.fetchers import FetchedPID
+from invenio_search.engine import dsl
 
 from .models import OAISet
 from .provider import OAIIDProvider
@@ -41,8 +41,8 @@ def set_records_query_fetcher(setSpec):
     set = OAISet.query.filter(OAISet.spec == setSpec).first()
     if set is None:
         # raise error that no matches can be found ?
-        query = Q("match_none")
+        query = dsl.Q("match_none")
     else:
-        query = Q(query_string_parser(set.search_pattern))
+        query = dsl.Q(query_string_parser(set.search_pattern))
 
     return query

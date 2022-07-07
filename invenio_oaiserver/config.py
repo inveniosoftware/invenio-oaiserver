@@ -9,6 +9,7 @@
 
 """The details of the configuration options for OAI-PMH server."""
 
+import invenio_search
 import pkg_resources
 
 OAISERVER_PAGE_SIZE = 10
@@ -26,7 +27,7 @@ format ``oai:<hostname>:recid/``.
 """
 
 OAISERVER_RECORD_INDEX = "records"
-"""Specify an Elastic index with records that should be exposed via OAI-PMH."""
+"""Specify a search index with records that should be exposed via OAI-PMH."""
 
 # The version of the OAI-PMH supported by the repository.
 OAISERVER_PROTOCOL_VERSION = "2.0"
@@ -59,7 +60,7 @@ OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME = 1 * 60
 .. note::
 
     Setting longer expiration time may have a negative impact on your
-    Elasticsearch cluster as it might need to keep open cursors.
+    search cluster as it might need to keep open cursors.
 
     https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
 """
@@ -139,7 +140,7 @@ OAISERVER_RECORD_CLS = "invenio_records.api:Record"
 OAISERVER_GETRECORD_FETCHER = "invenio_oaiserver.utils:getrecord_fetcher"
 """Record data fetcher for serialization."""
 
-OAISERVER_QUERY_PARSER = "elasticsearch_dsl:Q"
+OAISERVER_QUERY_PARSER = invenio_search.engine.dsl.Q
 """Define query parser for OIASet definition."""
 
 OAISERVER_QUERY_PARSER_FIELDS = []
