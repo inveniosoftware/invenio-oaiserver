@@ -12,7 +12,6 @@
 from datetime import MINYEAR, datetime, timedelta
 
 import arrow
-from elasticsearch import VERSION as ES_VERSION
 from flask import current_app, url_for
 from lxml import etree
 from lxml.etree import Element, ElementTree, SubElement
@@ -130,8 +129,7 @@ def identify(**kwargs):
     )
     if len(earliest_record.hits.hits) > 0:
         hit = earliest_record.hits.hits[0]
-        if ES_VERSION[0] >= 7:
-            hit = hit.to_dict()
+        hit = hit.to_dict()
         created_date_str = hit.get("_source", {}).get(current_oaiserver.created_key)
         if created_date_str:
             earliest_date = (

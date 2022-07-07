@@ -15,13 +15,13 @@ OAIServer consists of:
 
 - OAI-PMH 2.0 compatible endpoint.
 - Persistent identifier minters, fetchers and providers.
-- Backend for formatting Elasticsearch results.
+- Backend for formatting Search results.
 
 Initialization
 --------------
 
 .. note::
-   You need to have Elasticsearch and a message queue service (e.g. RabbitMQ)
+   You need to have Search and a message queue service (e.g. RabbitMQ)
    running and available on their default ports at 127.0.0.1.
 
 First create a Flask application (Flask-CLI is not needed for Flask
@@ -90,7 +90,7 @@ in this example we use an in-memory SQLite database):
     from invenio_db import db
     db.create_all()
 
-And create the indices on Elasticsearch.
+And create the indices on Search.
 
 .. code-block:: python
 

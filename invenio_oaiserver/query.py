@@ -9,10 +9,9 @@
 
 """Query parser."""
 
-from elasticsearch import VERSION as ES_VERSION
-from elasticsearch_dsl import Q
 from flask import current_app
 from invenio_search import RecordsSearch, current_search_client
+from invenio_search.engine import dsl
 from werkzeug.utils import cached_property, import_string
 
 from invenio_oaiserver.errors import OAINoRecordsMatchError
@@ -21,7 +20,7 @@ from . import current_oaiserver
 
 
 def query_string_parser(search_pattern):
-    """Elasticsearch query string parser."""
+    """Search query string parser."""
     if not hasattr(current_oaiserver, "query_parser"):
         query_parser = current_app.config["OAISERVER_QUERY_PARSER"]
         if isinstance(query_parser, str):
@@ -43,7 +42,7 @@ class OAIServerSearch(RecordsSearch):
     class Meta:
         """Configuration for OAI server search."""
 
-        default_filter = Q("exists", field="_oai.id")
+        default_filter = dsl.Q("exists", field="_oai.id")
 
 
 def get_records(**kwargs):
@@ -97,11 +96,7 @@ def get_records(**kwargs):
         def __init__(self, response):
             """Initilize pagination."""
             self.response = response
-            self.total = (
-                response["hits"]["total"]
-                if ES_VERSION[0] < 7
-                else response["hits"]["total"]["value"]
-            )
+            self.total = response["hits"]["total"]["value"]
             self._scroll_id = response.get("_scroll_id")
 
             if self.total == 0:
