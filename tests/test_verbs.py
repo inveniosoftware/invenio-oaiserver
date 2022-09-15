@@ -444,7 +444,9 @@ def test_listsets(app):
     with app.test_request_context():
         current_oaiserver.unregister_signals_oaiset()
         with db.session.begin_nested():
-            a = OAISet(spec="test", name="Test", description="test desc")
+            a = OAISet(
+                spec="test", name="Test", description="test desc", system_created=False
+            )
             db.session.add(a)
 
         with app.test_client() as c:
@@ -516,7 +518,10 @@ def test_listsets_invalid_name(app):
         current_oaiserver.unregister_signals_oaiset()
         with db.session.begin_nested():
             a = OAISet(
-                spec="test", name="uni\x01co\x0bde", description="uni\x01co\x0bde"
+                spec="test",
+                name="uni\x01co\x0bde",
+                description="uni\x01co\x0bde",
+                system_created=False,
             )
             db.session.add(a)
 
@@ -887,6 +892,7 @@ def test_listidentifiers(app):
                 name="Test0",
                 description="test desc 0",
                 search_pattern="title_statement.title:Test0",
+                system_created=False,
             )
             db.session.add(oaiset)
         db.session.commit()
@@ -1026,6 +1032,7 @@ def test_list_sets_long(app):
                     name="Test{0}".format(i),
                     description="test desc {0}".format(i),
                     search_pattern="title_statement.title:Test{0}".format(i),
+                    system_created=False,
                 )
                 db.session.add(oaiset)
         db.session.commit()

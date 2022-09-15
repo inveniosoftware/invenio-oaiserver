@@ -26,7 +26,11 @@ def test0(app, without_oaiset_signals, schema):
 
 
 def create_oaiset(name, title_pattern):
-    oaiset = OAISet(spec=name, search_pattern=f"title_statement.title:{title_pattern}")
+    oaiset = OAISet(
+        spec=name,
+        search_pattern=f"title_statement.title:{title_pattern}",
+        system_created=False,
+    )
     db.session.add(oaiset)
     db.session.commit()
     run_after_insert_oai_set()
