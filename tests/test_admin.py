@@ -47,6 +47,7 @@ def test_admin(app):
             name="test_name",
             description="some test description",
             search_pattern="title_statement.title:Test0",
+            system_created=False,
         )
         db.session.add(test_set)
         db.session.commit()

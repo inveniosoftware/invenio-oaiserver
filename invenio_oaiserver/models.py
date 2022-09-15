@@ -65,6 +65,16 @@ class OAISet(db.Model, Timestamp):
     )
     """Search pattern to get records."""
 
+    system_created = db.Column(
+        db.Boolean,
+        nullable=False,
+        info=dict(
+            label=_("System created"),
+            description=_("System created set"),
+        ),
+    )
+    """System created field."""
+
     @validates("spec")
     def validate_spec(self, key, value):
         """Forbit updates of set identifier."""
