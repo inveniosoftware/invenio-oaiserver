@@ -8,6 +8,11 @@
 Changes
 =======
 
+Version 1.5.0 (released 2022-09-21)
+
+- Adds system created flag field to oai-pmh set model
+  to mark auto created sets
+
 Version 1.4.2 (released 2022-05-23)
 
 - Adds support for Flask v2.1
