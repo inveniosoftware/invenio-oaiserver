@@ -8,6 +8,15 @@
 Changes
 =======
 
+Version 2.0.0 (released 2022-09-25)
+
+- Add support to OpenSearch
+- Drop support to Elasticsearch < 7
+- Upper pin Invenio dependencies
+- Breaking: rename kwargs `document_es_ids` to `document_search_ids` and
+  `document_es_indices` to `document_search_indices` in funcs
+  `create_percolate_query` and `percolate_query`
+
 Version 1.5.0 (released 2022-09-21)
 
 - Adds system created flag field to oai-pmh set model
