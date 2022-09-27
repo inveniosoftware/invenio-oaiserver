@@ -8,6 +8,11 @@
 Changes
 =======
 
+Version 2.0.1 (released 2022-09-27)
+
+- Bump invenio-records
+- Remove invenio-marc21 from tests
+
 Version 2.0.0 (released 2022-09-25)
 
 - Add support to OpenSearch
