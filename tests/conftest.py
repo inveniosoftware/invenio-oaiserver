@@ -19,7 +19,6 @@ from helpers import load_records, remove_records
 from invenio_db import InvenioDB, db
 from invenio_indexer import InvenioIndexer
 from invenio_jsonschemas import InvenioJSONSchemas
-from invenio_marc21 import InvenioMARC21
 from invenio_pidstore import InvenioPIDStore
 from invenio_records import InvenioRecords
 from invenio_search import InvenioSearch
@@ -65,7 +64,6 @@ def app():
     InvenioJSONSchemas(app)
     InvenioRecords(app)
     InvenioPIDStore(app)
-    InvenioMARC21(app)
     client = SearchEngine(hosts=["localhost"])
     search = InvenioSearch(app, client=client)
     search.register_mappings("records", "data")
