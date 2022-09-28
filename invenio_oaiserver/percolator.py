@@ -27,7 +27,7 @@ def _build_percolator_index_name(index):
     return build_index_name(index, suffix=suffix, app=current_app)
 
 
-def _create_percolator_mapping(index, doc_type, mapping_path=None):
+def _create_percolator_mapping(index, mapping_path=None):
     """Update mappings with the percolator field.
 
     .. note::
@@ -45,12 +45,6 @@ def _create_percolator_mapping(index, doc_type, mapping_path=None):
             current_search_client.indices.create(index=percolator_index, body=mapping)
 
 
-def _get_percolator_doc_type(index):
-    mapping_path = current_search.mappings[index]
-    _, doc_type = schema_to_index(mapping_path)
-    return doc_type
-
-
 PERCOLATOR_MAPPING = {"properties": {"query": {"type": "percolator"}}}
 
 
@@ -66,11 +60,9 @@ def _new_percolator(spec, search_pattern):
             # Create the percolator doc_type in the existing index for >= ES5
             # TODO: Consider doing this only once in app initialization
             try:
-                percolator_doc_type = _get_percolator_doc_type(index)
-                _create_percolator_mapping(index, percolator_doc_type, mapping_path)
+                _create_percolator_mapping(index, mapping_path)
                 current_search_client.index(
                     index=_build_percolator_index_name(index),
-                    doc_type=percolator_doc_type,
                     id="oaiset-{}".format(spec),
                     body={"query": query},
                 )
@@ -86,10 +78,8 @@ def _delete_percolator(spec, search_pattern):
         # Skip indices/mappings not used by OAI-PMH
         if not index.startswith(oai_records_index):
             continue
-        percolator_doc_type = _get_percolator_doc_type(index)
         current_search_client.delete(
             index=_build_percolator_index_name(index),
-            doc_type=percolator_doc_type,
             id="oaiset-{}".format(spec),
             ignore=[404],
         )
@@ -175,8 +165,8 @@ def sets_search_all(records):
         return []
 
     # TODO: records should all have the same index. maybe add index as parameter?
-    record_index, doc_type = RecordIndexer()._record_to_index(records[0])
-    _create_percolator_mapping(record_index, doc_type)
+    record_index = RecordIndexer()._record_to_index(records[0])
+    _create_percolator_mapping(record_index)
     percolator_index = _build_percolator_index_name(record_index)
     record_sets = [[] for _ in range(len(records))]
 

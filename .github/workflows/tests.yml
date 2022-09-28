@@ -32,9 +32,9 @@ jobs:
       matrix:
           python-version: [3.7, 3.8, 3.9]
           requirements-level: [pypi]
-          db-service: [postgresql10, postgresql13, mysql8]
-          mq-service: [rabbitmq, redis]
-          search-service: [opensearch1,elasticsearch7]
+          db-service: [postgresql10,postgresql13,mysql8]
+          mq-service: [rabbitmq,redis]
+          search-service: [opensearch2,elasticsearch7]
           exclude:
           - db-service: postgresql10
             python-version: 3.7
@@ -42,7 +42,7 @@ jobs:
           - db-service: postgresql13
             python-version: 3.7
 
-          - search-service: opensearch1
+          - search-service: opensearch2
             python-version: 3.7
 
           - search-service: elasticsearch7
