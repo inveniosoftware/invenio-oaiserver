@@ -8,6 +8,11 @@
 Changes
 =======
 
+Version 2.1.0 (released 2022-10-03)
+
+- Add support to OpenSearch v2
+- Remove `doc_type` using search APIs
+
 Version 2.0.1 (released 2022-09-27)
 
 - Bump invenio-records
