@@ -13,7 +13,6 @@ import json
 
 from flask import current_app
 from invenio_indexer.api import RecordIndexer
-from invenio_indexer.utils import schema_to_index
 from invenio_search import current_search, current_search_client
 from invenio_search.engine import search
 from invenio_search.utils import build_index_name
