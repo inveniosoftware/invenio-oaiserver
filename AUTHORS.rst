@@ -23,6 +23,7 @@ Contributors
 - Leonardo Rossi
 - Nicola Tarocco
 - Nicolas Harraudeau
+- Sam Arbid (KTH)
 - Samuele Kaplun
 - Sebastian Witowski
 - Tibor Simko
