@@ -7,22 +7,22 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: invenio-oaiserver 1.4.2\n"
+"Project-Id-Version: invenio-oaiserver 2.1.0\n"
 "Report-Msgid-Bugs-To: info@inveniosoftware.org\n"
-"POT-Creation-Date: 2022-05-27 10:03+0200\n"
+"POT-Creation-Date: 2022-10-12 09:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.10.1\n"
+"Generated-By: Babel 2.10.3\n"
 
-#: invenio_oaiserver/admin.py:46
+#: invenio_oaiserver/admin.py:59
 msgid "OAI-PMH"
 msgstr ""
 
-#: invenio_oaiserver/admin.py:47
+#: invenio_oaiserver/admin.py:60
 msgid "Sets"
 msgstr ""
 
@@ -56,5 +56,13 @@ msgstr ""
 
 #: invenio_oaiserver/models.py:63
 msgid "Search pattern to select records"
+msgstr ""
+
+#: invenio_oaiserver/models.py:72
+msgid "System created"
+msgstr ""
+
+#: invenio_oaiserver/models.py:73
+msgid "System created set"
 msgstr ""
 
