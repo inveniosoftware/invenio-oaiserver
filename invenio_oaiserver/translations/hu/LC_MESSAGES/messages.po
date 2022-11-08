@@ -4,6 +4,9 @@
 # project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 # 
+# Translators:
+# Andrea Dömötör, 2022
+# 
 #, fuzzy
 msgid ""
 msgstr ""
@@ -11,58 +14,59 @@ msgstr ""
 "Report-Msgid-Bugs-To: info@inveniosoftware.org\n"
 "POT-Creation-Date: 2022-10-12 09:18+0000\n"
 "PO-Revision-Date: 2016-08-19 09:55+0000\n"
-"Language-Team: Danish (https://www.transifex.com/inveniosoftware/teams/23537/da/)\n"
+"Last-Translator: Andrea Dömötör, 2022\n"
+"Language-Team: Hungarian (https://www.transifex.com/inveniosoftware/teams/23537/hu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.10.3\n"
-"Language: da\n"
+"Language: hu\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: invenio_oaiserver/admin.py:59
 msgid "OAI-PMH"
-msgstr ""
+msgstr "OAI-PMH"
 
 #: invenio_oaiserver/admin.py:60
 msgid "Sets"
-msgstr ""
+msgstr "Gyűjtemények"
 
 #: invenio_oaiserver/models.py:32
 msgid "Identifier"
-msgstr ""
+msgstr "Azonosító"
 
 #: invenio_oaiserver/models.py:33
 msgid "Identifier of the set."
-msgstr ""
+msgstr "Gyűjtemény azonosítója."
 
 #: invenio_oaiserver/models.py:41
 msgid "Long name"
-msgstr ""
+msgstr "Hosszú név"
 
 #: invenio_oaiserver/models.py:42
 msgid "Long name of the set."
-msgstr ""
+msgstr "Gyűjtemény hosszú neve."
 
 #: invenio_oaiserver/models.py:52
 msgid "Description"
-msgstr ""
+msgstr "Leírás"
 
 #: invenio_oaiserver/models.py:53
 msgid "Description of the set."
-msgstr ""
+msgstr "Gyűjtemény leírása."
 
 #: invenio_oaiserver/models.py:62
 msgid "Search pattern"
-msgstr ""
+msgstr "Keresési minta"
 
 #: invenio_oaiserver/models.py:63
 msgid "Search pattern to select records"
-msgstr ""
+msgstr "Keresési mintázat a rekordok kiválasztásához"
 
 #: invenio_oaiserver/models.py:72
 msgid "System created"
-msgstr ""
+msgstr "Rendszer által létrehozva"
 
 #: invenio_oaiserver/models.py:73
 msgid "System created set"
-msgstr ""
+msgstr "Rendszer által létrehozott készlet"

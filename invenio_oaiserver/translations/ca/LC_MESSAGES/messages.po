@@ -4,6 +4,10 @@
 # project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 # 
+# Translators:
+# Tibor Simko <tibor.simko@cern.ch>, 2016
+# Ferran Jorba <Ferran.Jorba@uab.cat>, 2018
+# 
 #, fuzzy
 msgid ""
 msgstr ""
@@ -11,53 +15,54 @@ msgstr ""
 "Report-Msgid-Bugs-To: info@inveniosoftware.org\n"
 "POT-Creation-Date: 2022-10-12 09:18+0000\n"
 "PO-Revision-Date: 2016-08-19 09:55+0000\n"
-"Language-Team: Danish (https://www.transifex.com/inveniosoftware/teams/23537/da/)\n"
+"Last-Translator: Ferran Jorba <Ferran.Jorba@uab.cat>, 2018\n"
+"Language-Team: Catalan (https://www.transifex.com/inveniosoftware/teams/23537/ca/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.10.3\n"
-"Language: da\n"
+"Language: ca\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: invenio_oaiserver/admin.py:59
 msgid "OAI-PMH"
-msgstr ""
+msgstr "OAI-PMH"
 
 #: invenio_oaiserver/admin.py:60
 msgid "Sets"
-msgstr ""
+msgstr "Sets"
 
 #: invenio_oaiserver/models.py:32
 msgid "Identifier"
-msgstr ""
+msgstr "Identificador"
 
 #: invenio_oaiserver/models.py:33
 msgid "Identifier of the set."
-msgstr ""
+msgstr "Identificador del set."
 
 #: invenio_oaiserver/models.py:41
 msgid "Long name"
-msgstr ""
+msgstr "Nom llarg"
 
 #: invenio_oaiserver/models.py:42
 msgid "Long name of the set."
-msgstr ""
+msgstr "Nom llarg del set."
 
 #: invenio_oaiserver/models.py:52
 msgid "Description"
-msgstr ""
+msgstr "Descripció"
 
 #: invenio_oaiserver/models.py:53
 msgid "Description of the set."
-msgstr ""
+msgstr "Descripció del set."
 
 #: invenio_oaiserver/models.py:62
 msgid "Search pattern"
-msgstr ""
+msgstr "Patró de cerca"
 
 #: invenio_oaiserver/models.py:63
 msgid "Search pattern to select records"
-msgstr ""
+msgstr "Patró de cerca pels registres seleccionats"
 
 #: invenio_oaiserver/models.py:72
 msgid "System created"
