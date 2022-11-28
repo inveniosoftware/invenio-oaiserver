@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+	File from: https://www.loc.gov/standards/marcxml/xslt/MARC21slimUtils.xsl
+	According to: https://www.loc.gov/legal/understanding-copyright/ , we believe that this work also falls under a CC0 1.0 license.
+-->
 <xsl:stylesheet version="1.0" xmlns:marc="http://www.loc.gov/MARC21/slim" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 	<!-- 08/08/08: tmee added corrected chopPunctuation templates for 260c -->
