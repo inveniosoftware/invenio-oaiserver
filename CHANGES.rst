@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version 2.1.1 (released 2022-11-29)
+
+- Add translations
+
 Version 2.1.0 (released 2022-10-03)
 
 - Add support to OpenSearch v2
