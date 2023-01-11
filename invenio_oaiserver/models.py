@@ -9,8 +9,8 @@
 
 """Models for storing information about OAIServer state."""
 
-from flask_babelex import lazy_gettext as _
 from invenio_db import db
+from invenio_i18n import lazy_gettext as _
 from sqlalchemy.orm import validates
 from sqlalchemy_utils import Timestamp
 
