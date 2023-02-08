@@ -202,7 +202,7 @@ def test_identify(app):
 
 
 def test_identify_earliest_date(app, schema):
-
+    """Test identify earliest date."""
     with app.test_client() as c:
         result = c.get("/oai2d?verb=Identify")
         assert 200 == result.status_code
