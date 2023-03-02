@@ -17,6 +17,7 @@ from flask import Flask
 from flask_celeryext import FlaskCeleryExt
 from helpers import load_records, remove_records
 from invenio_db import InvenioDB, db
+from invenio_i18n import InvenioI18N
 from invenio_indexer import InvenioIndexer
 from invenio_jsonschemas import InvenioJSONSchemas
 from invenio_pidstore import InvenioPIDStore
@@ -69,6 +70,7 @@ def app():
     search.register_mappings("records", "data")
     InvenioIndexer(app)
     InvenioOAIServer(app)
+    InvenioI18N(app)
 
     app.register_blueprint(blueprint)
 
