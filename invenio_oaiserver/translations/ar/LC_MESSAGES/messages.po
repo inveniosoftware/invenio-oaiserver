@@ -7,6 +7,7 @@
 # Translators:
 # Tibor Simko <tibor.simko@cern.ch>, 2016
 # Bessem Aamira <bessemamira@gmail.com>, 2022
+# Salaheddine Ben Ali <salaheddine.benali@cnudst.tn>, 2022
 # 
 #, fuzzy
 msgid ""
@@ -15,8 +16,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: info@inveniosoftware.org\n"
 "POT-Creation-Date: 2022-10-12 09:18+0000\n"
 "PO-Revision-Date: 2016-08-19 09:55+0000\n"
-"Last-Translator: Bessem Aamira <bessemamira@gmail.com>, 2022\n"
-"Language-Team: Arabic (https://www.transifex.com/inveniosoftware/teams/23537/ar/)\n"
+"Last-Translator: Salaheddine Ben Ali <salaheddine.benali@cnudst.tn>, 2022\n"
+"Language-Team: Arabic (https://app.transifex.com/inveniosoftware/teams/23537/ar/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -42,7 +43,7 @@ msgstr "معرف المجموعة"
 
 #: invenio_oaiserver/models.py:41
 msgid "Long name"
-msgstr "الاسم الطويل"
+msgstr "الاسم الكامل"
 
 #: invenio_oaiserver/models.py:42
 msgid "Long name of the set."
@@ -62,12 +63,12 @@ msgstr "نمط بحث"
 
 #: invenio_oaiserver/models.py:63
 msgid "Search pattern to select records"
-msgstr "نمط البحث للسجلات المختارة"
+msgstr "نمط بحث لاختيار تسجيلات "
 
 #: invenio_oaiserver/models.py:72
 msgid "System created"
-msgstr ""
+msgstr "أنشئ النظام"
 
 #: invenio_oaiserver/models.py:73
 msgid "System created set"
-msgstr ""
+msgstr "مجموعة إنشاء النظام"
