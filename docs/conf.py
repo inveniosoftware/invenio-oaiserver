@@ -34,6 +34,7 @@ extensions = [
 
 nitpick_ignore = [
     ("py:class", "types.StrSequenceOrSet"),
+    ("py:class", "flask_admin.contrib.sqla.filters.BaseSQLAFilter"),
 ]
 
 # Add any paths that contain templates here, relative to this directory.
