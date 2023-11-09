@@ -68,6 +68,7 @@ def test_no_id_prefix():
         assert app.config["OAISERVER_ID_PREFIX"] == expected_id_prefix
 
 
+@pytest.mark.skip(reason="Mergepoint is on invenio-access.")
 def test_alembic(app):
     """Test alembic recipes."""
     ext = app.extensions["invenio-db"]

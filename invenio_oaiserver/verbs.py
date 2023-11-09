@@ -120,7 +120,7 @@ class Verbs(object):
         from_ = DateTime(
             format="permissive",
             metadata={"load_from": "from", "data_key": "from", "dump_to": "from"},
-            data_key="from"
+            data_key="from",
         )
         until = DateTime(format="permissive")
         set = fields.Str()
