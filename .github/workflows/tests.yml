@@ -30,29 +30,13 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-          python-version: [3.7, 3.8, 3.9]
+          python-version: [3.8, 3.9]
           requirements-level: [pypi]
-          db-service: [postgresql10,postgresql13,mysql8]
-          mq-service: [rabbitmq,redis]
+          db-service: [postgresql14,postgresql13,mysql8]
+          mq-service: [rabbitmq]
           search-service: [opensearch2,elasticsearch7]
-          exclude:
-          - db-service: postgresql10
-            python-version: 3.7
-
-          - db-service: postgresql13
-            python-version: 3.7
-
-          - search-service: opensearch2
-            python-version: 3.7
-
-          - search-service: elasticsearch7
-            python-version: 3.7
-
-          - db-service: mysql8
-            python-version: 3.7
-
           include:
-          - db-service: postgresql10
+          - db-service: postgresql14
             DB_EXTRAS: "postgresql"
 
           - db-service: postgresql13
