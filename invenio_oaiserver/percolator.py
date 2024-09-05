@@ -51,7 +51,9 @@ def _new_percolator(spec, search_pattern):
     """Create new percolator associated with the new set."""
     if spec and search_pattern:
         query = query_string_parser(search_pattern=search_pattern).to_dict()
-        oai_records_index = current_app.config["OAISERVER_RECORD_INDEX"]
+
+        # NOTE: We call `str` so that we can also handle lazy values (e.g. a LocalProxy)
+        oai_records_index = str(current_app.config["OAISERVER_RECORD_INDEX"])
         for index, mapping_path in current_search.mappings.items():
             # Skip indices/mappings not used by OAI-PMH
             if not index.startswith(oai_records_index):
