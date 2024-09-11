@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version v2.2.2 (released 2024-09-11)
+
+- percolator: allow lazy strings from config
+
 Version 2.2.1 (released 2023-11-09)
 
 - verbs: fix `from` parameter
