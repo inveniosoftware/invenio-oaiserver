@@ -73,7 +73,8 @@ def _new_percolator(spec, search_pattern):
 
 def _delete_percolator(spec, search_pattern):
     """Delete percolator associated with the removed/updated oaiset."""
-    oai_records_index = current_app.config["OAISERVER_RECORD_INDEX"]
+    # NOTE: We call `str` so that we can also handle lazy values (e.g. a LocalProxy)
+    oai_records_index = str(current_app.config["OAISERVER_RECORD_INDEX"])
     # Create the percolator doc_type in the existing index for >= ES5
     for index, mapping_path in current_search.mappings.items():
         # Skip indices/mappings not used by OAI-PMH
