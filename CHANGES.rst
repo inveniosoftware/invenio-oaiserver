@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version v2.2.3 (released 2024-09-25)
+
+- percolator: allow lazy strings from config for deletions
+
 Version v2.2.2 (released 2024-09-11)
 
 - percolator: allow lazy strings from config
