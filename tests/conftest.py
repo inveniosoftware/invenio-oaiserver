@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2024 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -75,10 +76,12 @@ def app():
     app.register_blueprint(blueprint)
 
     with app.app_context():
-        if str(db.engine.url) != "sqlite://" and not database_exists(
-            str(db.engine.url)
+        if str(
+            db.engine.url.render_as_string(hide_password=False)
+        ) != "sqlite://" and not database_exists(
+            str(db.engine.url.render_as_string(hide_password=False))
         ):
-            create_database(str(db.engine.url))
+            create_database(str(db.engine.url.render_as_string(hide_password=False)))
         db.create_all()
         list(search.delete(ignore=[404]))
         list(search.create())
@@ -89,8 +92,8 @@ def app():
 
     with app.app_context():
         db.session.close()
-        if str(db.engine.url) != "sqlite://":
-            drop_database(str(db.engine.url))
+        if str(db.engine.url.render_as_string(hide_password=False)) != "sqlite://":
+            drop_database(str(db.engine.url.render_as_string(hide_password=False)))
         list(search.delete(ignore=[404]))
         search.client.indices.delete("*-percolators")
     shutil.rmtree(instance_path)
