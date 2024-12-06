@@ -55,6 +55,7 @@ def app():
         OAISERVER_QUERY_PARSER_FIELDS=["title_statement"],
         OAISERVER_RECORD_INDEX="_all",
         OAISERVER_REGISTER_SET_SIGNALS=True,
+        INDEXER_DEFAULT_INDEX="records-record-v1.0.0",
     )
     if not hasattr(app, "cli"):
         from flask_cli import FlaskCLI
