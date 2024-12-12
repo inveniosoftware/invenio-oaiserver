@@ -12,7 +12,6 @@
 import json
 
 from flask import current_app
-from invenio_indexer.api import RecordIndexer
 from invenio_search import current_search, current_search_client
 from invenio_search.engine import search
 from invenio_search.utils import build_index_name
@@ -166,8 +165,8 @@ def sets_search_all(records):
     if not records:
         return []
 
-    # TODO: records should all have the same index. maybe add index as parameter?
-    record_index = RecordIndexer()._record_to_index(records[0])
+    record_index = str(current_app.config["OAISERVER_RECORD_INDEX"])
+    # TODO: We shouldn't have to always create the percolator mapping here
     _create_percolator_mapping(record_index)
     percolator_index = _build_percolator_index_name(record_index)
     record_sets = [[] for _ in range(len(records))]
