@@ -51,11 +51,11 @@ def app():
         ),
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
         SERVER_NAME="app",
+        INDEXER_DEFAULT_INDEX="records-record-v1.0.0",
         OAISERVER_ID_PREFIX="oai:inveniosoftware.org:recid/",
         OAISERVER_QUERY_PARSER_FIELDS=["title_statement"],
-        OAISERVER_RECORD_INDEX="_all",
+        OAISERVER_RECORD_INDEX="records-record-v1.0.0",
         OAISERVER_REGISTER_SET_SIGNALS=True,
-        INDEXER_DEFAULT_INDEX="records-record-v1.0.0",
     )
     if not hasattr(app, "cli"):
         from flask_cli import FlaskCLI
