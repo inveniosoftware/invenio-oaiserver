@@ -8,6 +8,12 @@
 Changes
 =======
 
+Version v2.3.0 (released 2024-12-13)
+
+- percolator: use `OAISERVER_RECORD_INDEX` to determine percolator index
+    * Instead of relying on the default `RecordIndexer` class to determine
+      the percolator index, we reuse the `OAISERVER_RECORD_INDEX` config variable.
+
 Version v2.2.3 (released 2024-09-25)
 
 - percolator: allow lazy strings from config for deletions
