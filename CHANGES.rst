@@ -9,6 +9,12 @@
 Changes
 =======
 
+Version v3.1.0 (released 2024-12-16)
+
+- percolator: use `OAISERVER_RECORD_INDEX` to determine percolator index
+    * Instead of relying on the default `RecordIndexer` class to determine
+      the percolator index, we reuse the `OAISERVER_RECORD_INDEX` config variable.
+
 Version 3.0.0 (release 2024-12-06)
 
 - fix: tests, apply invenio-indexer change
