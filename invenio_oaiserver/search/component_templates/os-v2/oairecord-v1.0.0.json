@@ -1,0 +1,22 @@
+{
+  "template": {
+    "mappings": {
+      "properties": {
+        "pids": {
+          "properties": {
+            "oai": {
+              "properties": {
+                "id": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },
+        "query": {
+          "type": "percolator"
+        }
+      }
+    }
+  }
+}
