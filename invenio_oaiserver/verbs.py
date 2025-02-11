@@ -90,7 +90,7 @@ class OAISchema(BaseSchema):
         if "verb" in data and data["verb"] != self.__class__.__name__:
             raise ValidationError(
                 # FIXME encode data
-                _("This is not a valid OAI-PMH verb:{0}").format(data["verb"]),
+                _("This is not a valid OAI-PMH verb:%(verb)s") % {"verb": data["verb"]},
                 field_names=["verb"],
             )
 
