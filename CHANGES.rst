@@ -8,6 +8,10 @@
 Changes
 =======
 
+Version v2.3.1 (released 2025-03-19)
+
+- i18n: mark missing strings for translations
+
 Version v2.3.0 (released 2024-12-13)
 
 - percolator: use `OAISERVER_RECORD_INDEX` to determine percolator index
