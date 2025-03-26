@@ -9,6 +9,10 @@
 Changes
 =======
 
+Version v3.2.0 (released 2025-03-26)
+
+- component_templates: Allow the usage of component templates to define the record schemas
+
 Version v3.1.0 (released 2024-12-16)
 
 - percolator: use `OAISERVER_RECORD_INDEX` to determine percolator index
