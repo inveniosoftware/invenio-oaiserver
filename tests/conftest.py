@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of Invenio.
-# Copyright (C) 2015-2018 CERN.
+# Copyright (C) 2015-2025 CERN.
+# Copyright (C) 2024 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -50,9 +51,10 @@ def app():
         ),
         SQLALCHEMY_TRACK_MODIFICATIONS=True,
         SERVER_NAME="app",
+        INDEXER_DEFAULT_INDEX="records-record-v1.0.0",
         OAISERVER_ID_PREFIX="oai:inveniosoftware.org:recid/",
         OAISERVER_QUERY_PARSER_FIELDS=["title_statement"],
-        OAISERVER_RECORD_INDEX="_all",
+        OAISERVER_RECORD_INDEX="records-record-v1.0.0",
         OAISERVER_REGISTER_SET_SIGNALS=True,
     )
     if not hasattr(app, "cli"):
@@ -75,10 +77,12 @@ def app():
     app.register_blueprint(blueprint)
 
     with app.app_context():
-        if str(db.engine.url) != "sqlite://" and not database_exists(
-            str(db.engine.url)
+        if str(
+            db.engine.url.render_as_string(hide_password=False)
+        ) != "sqlite://" and not database_exists(
+            str(db.engine.url.render_as_string(hide_password=False))
         ):
-            create_database(str(db.engine.url))
+            create_database(str(db.engine.url.render_as_string(hide_password=False)))
         db.create_all()
         list(search.delete(ignore=[404]))
         list(search.create())
@@ -89,8 +93,8 @@ def app():
 
     with app.app_context():
         db.session.close()
-        if str(db.engine.url) != "sqlite://":
-            drop_database(str(db.engine.url))
+        if str(db.engine.url.render_as_string(hide_password=False)) != "sqlite://":
+            drop_database(str(db.engine.url.render_as_string(hide_password=False)))
         list(search.delete(ignore=[404]))
         search.client.indices.delete("*-percolators")
     shutil.rmtree(instance_path)

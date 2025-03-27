@@ -24,5 +24,4 @@ def test_version():
 def test_init():
     """Test extension initialization."""
     app = Flask("testapp")
-    with pytest.warns(None):
-        InvenioOAIServer(app)
+    InvenioOAIServer(app)

@@ -3,6 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2017-2024 CERN.
 # Copyright (C) 2022 Graz University of Technology.
+# Copyright (C) 2024 KTH Royal Institute of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -12,7 +13,7 @@
 import json
 
 from flask import current_app
-from invenio_indexer.api import RecordIndexer
+from invenio_i18n import lazy_gettext as _
 from invenio_search import current_search, current_search_client
 from invenio_search.engine import search
 from invenio_search.utils import build_index_name
@@ -22,29 +23,28 @@ from invenio_oaiserver.query import query_string_parser
 
 def _build_percolator_index_name(index):
     """Build percolator index name."""
-    suffix = "-percolators"
-    return build_index_name(index, suffix=suffix, app=current_app)
+    # For backward compatibility only: percolators used to be written into a different index, with the suffix
+    # `-percolators`. In recent versions, the percolators can coexist in the same indices as the records
 
+    percolator_index = build_index_name(index, suffix="", app=current_app)
+    if current_search_client.indices.exists(f"{percolator_index}-percolators"):
+        percolator_index = f"{percolator_index}-percolators"
 
-def _create_percolator_mapping(index, mapping_path=None):
-    """Update mappings with the percolator field.
-
-    .. note::
-
-        This is only needed from ElasticSearch v5 onwards, because percolators
-        are now just a special type of field inside mappings.
-    """
-    percolator_index = _build_percolator_index_name(index)
-    if not mapping_path:
-        mapping_path = current_search.mappings[index]
-    if not current_search_client.indices.exists(percolator_index):
-        with open(mapping_path, "r") as body:
-            mapping = json.load(body)
-            mapping["mappings"]["properties"].update(PERCOLATOR_MAPPING["properties"])
-            current_search_client.indices.create(index=percolator_index, body=mapping)
-
-
-PERCOLATOR_MAPPING = {"properties": {"query": {"type": "percolator"}}}
+    # Let's check as well that the mapping for `query` exists. It would be better if this was done only once
+    # The main issue is that the first time could be either creating a set, or querying if a record is in any set
+    mapping = current_search_client.indices.get_field_mapping(
+        index=percolator_index, fields="query"
+    )
+    if (
+        not percolator_index in mapping
+        or "query" not in mapping[percolator_index]["mappings"]
+    ):
+        # The field is not there. Adding the mapping
+        current_search_client.indices.put_mapping(
+            index=percolator_index,
+            body={"properties": {"query": {"type": "percolator"}}},
+        )
+    return percolator_index
 
 
 def _new_percolator(spec, search_pattern):
@@ -54,16 +54,16 @@ def _new_percolator(spec, search_pattern):
 
         # NOTE: We call `str` so that we can also handle lazy values (e.g. a LocalProxy)
         oai_records_index = str(current_app.config["OAISERVER_RECORD_INDEX"])
-        for index, mapping_path in current_search.mappings.items():
+        for index, _ in (
+            current_search.mappings.items() | current_search.index_templates.items()
+        ):
             # Skip indices/mappings not used by OAI-PMH
             if not index.startswith(oai_records_index):
                 continue
-            # Create the percolator doc_type in the existing index for >= ES5
-            # TODO: Consider doing this only once in app initialization
             try:
-                _create_percolator_mapping(index, mapping_path)
+                percolator_index = _build_percolator_index_name(index)
                 current_search_client.index(
-                    index=_build_percolator_index_name(index),
+                    index=percolator_index,
                     id="oaiset-{}".format(spec),
                     body={"query": query},
                 )
@@ -76,7 +76,9 @@ def _delete_percolator(spec, search_pattern):
     # NOTE: We call `str` so that we can also handle lazy values (e.g. a LocalProxy)
     oai_records_index = str(current_app.config["OAISERVER_RECORD_INDEX"])
     # Create the percolator doc_type in the existing index for >= ES5
-    for index, mapping_path in current_search.mappings.items():
+    for index, _ in (
+        current_search.mappings.items() | current_search.index_templates.items()
+    ):
         # Skip indices/mappings not used by OAI-PMH
         if not index.startswith(oai_records_index):
             continue
@@ -128,7 +130,9 @@ def create_percolate_query(
         )
     else:
         raise Exception(
-            "Either documents or (document_search_ids and document_search_indices) must be specified."
+            _(
+                "Either documents or (document_search_ids and document_search_indices) must be specified."
+            )
         )
 
     if percolator_ids:
@@ -166,14 +170,10 @@ def sets_search_all(records):
     if not records:
         return []
 
-    # TODO: records should all have the same index. maybe add index as parameter?
-    record_index = RecordIndexer()._record_to_index(records[0])
-    _create_percolator_mapping(record_index)
+    record_index = str(current_app.config["OAISERVER_RECORD_INDEX"])
     percolator_index = _build_percolator_index_name(record_index)
     record_sets = [[] for _ in range(len(records))]
-
     result = percolate_query(percolator_index, documents=records)
-
     prefix = "oaiset-"
     prefix_len = len(prefix)
 

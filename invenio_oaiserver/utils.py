@@ -177,7 +177,7 @@ def sanitize_unicode(value):
     Following W3C recommandation : https://www.w3.org/TR/REC-xml/#charsets
     Based on https://lsimons.wordpress.com/2011/03/17/stripping-illegal-characters-out-of-xml-in-python/ # noqa
     """
-    return re.sub("[\x00-\x08\x0B\x0C\x0E-\x1F\uD800-\uDFFF\uFFFE\uFFFF]", "", value)
+    return re.sub("[\x00-\x08\x0b\x0c\x0e-\x1f\ud800-\udfff\ufffe\uffff]", "", value)
 
 
 def record_sets_fetcher(record):
