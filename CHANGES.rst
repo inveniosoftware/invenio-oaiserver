@@ -1,6 +1,6 @@
 ..
     This file is part of Invenio.
-    Copyright (C) 2016-2022 CERN.
+    Copyright (C) 2016-2025 CERN.
     Copyright (C) 2024 Graz University of Technology.
 
     Invenio is free software; you can redistribute it and/or modify it
@@ -8,6 +8,10 @@
 
 Changes
 =======
+
+Version v3.3.1 (released 2025-03-30)
+
+- chore: fix CHANGES.rst bullet formatting
 
 Version v3.3.0 (released 2025-03-30)
 
