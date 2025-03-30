@@ -9,6 +9,19 @@
 Changes
 =======
 
+Version v3.3.0 (released 2025-03-30)
+
+- tests: explictly test for warnings
+- Reverts "component_templates: Allow the usage of component templates to define the record schemas"
+    * Even though the change is backwards-compatible, it still is a major datamodel change regarding
+      how OAI Sets are managed in terms of indices. This can have a large impact on running
+      instances and should be released as a major version.
+- i18n: update string formatting for compatibility
+    * Update string formatting for compatibility with i18n
+    the following strings were updated:
+    invenio_oaiserver/verbs.py
+- i18n: mark strings for translation
+
 Version v3.2.0 (released 2025-03-26)
 
 - component_templates: Allow the usage of component templates to define the record schemas
