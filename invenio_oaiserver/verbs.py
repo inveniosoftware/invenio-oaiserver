@@ -2,7 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2025 CERN.
-# Copyright (C) 2021-2022 Graz University of Technology.
+# Copyright (C) 2021-2025 Graz University of Technology.
 # Copyright (C) 2022 RERO.
 # Copyright (C) 2024 KTH Royal Institute of Technology.
 #
@@ -11,12 +11,13 @@
 
 """OAI-PMH verbs."""
 
+import datetime as dt
+
 from flask import current_app, request
 from invenio_i18n import gettext as _
 from invenio_rest.serializer import BaseSchema
 from marshmallow import ValidationError, fields, validates_schema
 from marshmallow.fields import DateTime as _DateTime
-from marshmallow.utils import isoformat
 
 from .resumption_token import ResumptionTokenSchema
 
@@ -65,13 +66,15 @@ class DateTime(_DateTime):
             _DateTime.DATEFORMAT_DESERIALIZATION_FUNCS, permissive=from_iso_permissive
         )
         DATEFORMAT_SERIALIZATION_FUNCS = dict(
-            _DateTime.DATEFORMAT_SERIALIZATION_FUNCS, permissive=isoformat
+            _DateTime.DATEFORMAT_SERIALIZATION_FUNCS, permissive=dt.datetime.isoformat
         )
     except AttributeError:
         DESERIALIZATION_FUNCS = dict(
             _DateTime.DESERIALIZATION_FUNCS, permissive=from_iso_permissive
         )
-        SERIALIZATION_FUNCS = dict(_DateTime.SERIALIZATION_FUNCS, permissive=isoformat)
+        SERIALIZATION_FUNCS = dict(
+            _DateTime.SERIALIZATION_FUNCS, permissive=dt.datetime.isoformat
+        )
 
 
 class OAISchema(BaseSchema):
