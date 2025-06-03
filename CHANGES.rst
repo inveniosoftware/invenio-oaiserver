@@ -9,7 +9,12 @@
 Changes
 =======
 
+Version v3.5.0 (released 2025-06-03)
+
+- fix: serialization of from parameter
+
 Version v3.4.0 (released 2025-04-29)
+
 - component_templates: allow the usage of component_templates instead of mappings for the definition of the records (#254)
 - fix: setuptools require underscores instead of dashes
 - i18n: removed deprecated messages
