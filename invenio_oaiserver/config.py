@@ -2,15 +2,17 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
-# Copyright (C) 2022 Graz University of Technology.
+# Copyright (C) 2022-2025 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """The details of the configuration options for OAI-PMH server."""
 
+import os
+from importlib.resources import files
+
 import invenio_search
-import pkg_resources
 
 OAISERVER_PAGE_SIZE = 10
 """Define maximum length of list responses.
@@ -70,8 +72,8 @@ OAISERVER_METADATA_FORMATS = {
         "serializer": (
             "invenio_oaiserver.utils:dumps_etree",
             {
-                "xslt_filename": pkg_resources.resource_filename(
-                    "invenio_oaiserver", "static/xsl/MARC21slim2OAIDC.xsl"
+                "xslt_filename": os.path.join(
+                    files("invenio_oaiserver"), "static/xsl/MARC21slim2OAIDC.xsl"
                 ),
             },
         ),

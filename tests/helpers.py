@@ -2,6 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2016-2018 CERN.
+# Copyright (C) 2025 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -10,9 +11,9 @@
 """Utilities for loading test records."""
 
 import uuid
+from importlib.resources import files
 
 import mock
-import pkg_resources
 from dojson.contrib.marc21 import marc21
 from dojson.contrib.marc21.utils import load
 from invenio_db import db
@@ -34,7 +35,7 @@ def load_records(app, filename, schema, tries=5):
     records = []
     with app.app_context():
         with mock.patch("invenio_records.api.Record.validate", return_value=None):
-            data_filename = pkg_resources.resource_filename("invenio_records", filename)
+            data_filename = files("invenio_records") / filename
             records_data = load(data_filename)
             with db.session.begin_nested():
                 for item in records_data:
