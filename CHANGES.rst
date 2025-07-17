@@ -9,6 +9,11 @@
 Changes
 =======
 
+Version v3.7.0 (released 2025-07-17)
+
+- i18n: pulled translations
+- i18n: push translations
+
 Version v3.6.0 (released 2025-07-01)
 
 - fix: pkg_resources DeprecationWarning
