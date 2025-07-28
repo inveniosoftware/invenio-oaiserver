@@ -85,8 +85,8 @@ class OAISchema(BaseSchema):
         strict = True
 
     @validates_schema
-    def validate(self, data, **kwargs):
-        """Check range between dates under keys ``from_`` and ``until``."""
+    def validate_verb_and_dates(self, data, **kwargs):
+        """Check range between dates under keys ``from`` and ``until``."""
         if "verb" in data and data["verb"] != self.__class__.__name__:
             raise ValidationError(
                 # FIXME encode data
@@ -94,8 +94,7 @@ class OAISchema(BaseSchema):
                 field_names=["verb"],
             )
 
-        if "from_" in data and "until" in data and data["from_"] > data["until"]:
-
+        if "from" in data and "until" in data and data["from"] > data["until"]:
             raise ValidationError(_('Date "from" must be before "until".'))
 
 
