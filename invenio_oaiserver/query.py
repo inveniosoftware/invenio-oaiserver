@@ -71,8 +71,8 @@ def get_records(**kwargs):
             )
 
         time_range = {}
-        if "from_" in kwargs:
-            time_range["gte"] = kwargs["from_"]
+        if "from" in kwargs:
+            time_range["gte"] = kwargs["from"]
         if "until" in kwargs:
             time_range["lte"] = kwargs["until"]
         if time_range:
