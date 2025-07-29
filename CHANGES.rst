@@ -9,6 +9,13 @@
 Changes
 =======
 
+Version v3.7.1 (released 2025-07-29)
+
+- global: fix usage of `from` argument
+    * Parsing the `from` parameter in marshmallow was fixed in
+      ec51ae6, but the downstream uses of the parsed key were not adapted to
+      the change.
+
 Version v3.7.0 (released 2025-07-17)
 
 - i18n: pulled translations
