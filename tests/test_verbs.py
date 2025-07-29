@@ -14,6 +14,7 @@ import uuid
 from copy import deepcopy
 from datetime import datetime, timedelta
 
+import pytest
 from helpers import create_record, run_after_insert_oai_set
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
@@ -1052,6 +1053,79 @@ def test_listidentifiers(app):
                     namespaces=NAMESPACES,
                 )
                 assert len(identifier) == 1
+
+
+@pytest.mark.parametrize("verb", ["ListRecords", "ListIdentifiers"])
+def test_timestamp_filtering(app, verb):
+    """Test that from/until parameters work correctly."""
+    with app.app_context():
+        record = create_record(
+            app,
+            {"title_statement": {"title": "Test Record"}},
+        )
+        current_search.flush_and_refresh("_all")
+
+        record_timestamp = record.updated
+        record_oai_id = record["_oai"]["id"]
+
+        def _assert_no_records_found(resp):
+            assert resp.status_code == 422  # noRecordsMatch
+            tree = etree.fromstring(resp.data)
+
+            errors = tree.xpath("/x:OAI-PMH/x:error", namespaces=NAMESPACES)
+            assert len(errors) == 1
+            assert errors[0].get("code") == "noRecordsMatch"
+
+        def _assert_record_found(resp):
+            assert resp.status_code == 200
+            tree = etree.fromstring(resp.data)
+            records_found = tree.xpath(
+                f"/x:OAI-PMH/x:{verb}//x:header/x:identifier",
+                namespaces=NAMESPACES,
+            )
+            assert len(records_found) == 1
+            assert records_found[0].text == record_oai_id
+
+        # Request with a date range that includes the record
+        with app.test_client() as c:
+            from_date = record_timestamp - timedelta(days=1)
+            until_date = record_timestamp + timedelta(days=1)
+            resp = c.get(
+                f"/oai2d?verb={verb}&metadataPrefix=oai_dc"
+                f"&from={datetime_to_datestamp(from_date)}"
+                f"&until={datetime_to_datestamp(until_date)}"
+            )
+            _assert_record_found(resp)
+
+            # Request with a date range that excludes the record (10-5 days before)
+            from_date = record_timestamp - timedelta(days=10)
+            until_date = record_timestamp - timedelta(days=5)
+            resp = c.get(
+                f"/oai2d?verb={verb}&metadataPrefix=oai_dc"
+                f"&from={datetime_to_datestamp(from_date)}"
+                f"&until={datetime_to_datestamp(until_date)}"
+            )
+            _assert_no_records_found(resp)
+
+            # Request with only "from" parameter (from one day after the record)
+            from_date = record_timestamp + timedelta(days=1)
+            resp = c.get(
+                f"/oai2d?verb={verb}&metadataPrefix=oai_dc"
+                f"&from={datetime_to_datestamp(from_date)}"
+            )
+            _assert_no_records_found(resp)
+
+            # Request with only "until" parameter (includes record)
+            # Until one day after the record
+            until_date = record_timestamp + timedelta(days=1)
+            resp = c.get(
+                f"/oai2d?verb={verb}&metadataPrefix=oai_dc"
+                f"&until={datetime_to_datestamp(until_date)}"
+            )
+            _assert_record_found(resp)
+
+        db.session.delete(record.model)
+        db.session.commit()
 
 
 def test_list_sets_long(app):
