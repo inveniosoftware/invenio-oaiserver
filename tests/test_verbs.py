@@ -70,9 +70,7 @@ def test_identify(app):
         "and non-commercial service providers",
         "URL": "http://arXiv.org/arXiv_metadata_use.htm",
     }
-    dataPolicy = {
-        "text": "Full content, i.e. preprints may" "not be harvested by robots"
-    }
+    dataPolicy = {"text": "Full content, i.e. preprints may not be harvested by robots"}
     submissionPolicy = {"URL": "http://arXiv.org/arXiv_submission.htm"}
     # parameters for oai-identifier element
     scheme = "oai"
@@ -413,14 +411,14 @@ def _listmetadataformats(app, query):
         assert len(metadataFormats) == len(cfg_metadataFormats)
 
         prefixes = tree.xpath(
-            "/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/" "x:metadataPrefix",
+            "/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/x:metadataPrefix",
             namespaces=NAMESPACES,
         )
         assert len(prefixes) == len(cfg_metadataFormats)
         assert all(pfx.text in cfg_metadataFormats for pfx in prefixes)
 
         schemas = tree.xpath(
-            "/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/" "x:schema",
+            "/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/x:schema",
             namespaces=NAMESPACES,
         )
         assert len(schemas) == len(cfg_metadataFormats)
@@ -430,7 +428,7 @@ def _listmetadataformats(app, query):
         )
 
         metadataNamespaces = tree.xpath(
-            "/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/" "x:metadataNamespace",
+            "/x:OAI-PMH/x:ListMetadataFormats/x:metadataFormat/x:metadataNamespace",
             namespaces=NAMESPACES,
         )
         assert len(metadataNamespaces) == len(cfg_metadataFormats)
@@ -498,15 +496,14 @@ def test_listsets(app):
         assert (
             len(
                 tree.xpath(
-                    "/x:OAI-PMH/x:ListSets/x:set/x:setDescription/y:dc/"
-                    "z:description",
+                    "/x:OAI-PMH/x:ListSets/x:set/x:setDescription/y:dc/z:description",
                     namespaces=NAMESPACES,
                 )
             )
             == 1
         )
         text = tree.xpath(
-            "/x:OAI-PMH/x:ListSets/x:set/x:setDescription/y:dc/" "z:description/text()",
+            "/x:OAI-PMH/x:ListSets/x:set/x:setDescription/y:dc/z:description/text()",
             namespaces=NAMESPACES,
         )
         assert len(text) == 1
@@ -639,7 +636,7 @@ def test_listrecords(app):
         assert (
             len(
                 tree.xpath(
-                    "/x:OAI-PMH/x:ListRecords/x:record/x:header" "/x:identifier",
+                    "/x:OAI-PMH/x:ListRecords/x:record/x:header/x:identifier",
                     namespaces=NAMESPACES,
                 )
             )
@@ -648,7 +645,7 @@ def test_listrecords(app):
         assert (
             len(
                 tree.xpath(
-                    "/x:OAI-PMH/x:ListRecords/x:record/x:header" "/x:datestamp",
+                    "/x:OAI-PMH/x:ListRecords/x:record/x:header/x:datestamp",
                     namespaces=NAMESPACES,
                 )
             )
@@ -695,7 +692,7 @@ def test_listrecords(app):
         assert (
             len(
                 tree.xpath(
-                    "/x:OAI-PMH/x:ListRecords/x:record/x:header" "/x:identifier",
+                    "/x:OAI-PMH/x:ListRecords/x:record/x:header/x:identifier",
                     namespaces=NAMESPACES,
                 )
             )
@@ -704,7 +701,7 @@ def test_listrecords(app):
         assert (
             len(
                 tree.xpath(
-                    "/x:OAI-PMH/x:ListRecords/x:record/x:header" "/x:datestamp",
+                    "/x:OAI-PMH/x:ListRecords/x:record/x:header/x:datestamp",
                     namespaces=NAMESPACES,
                 )
             )
@@ -751,7 +748,7 @@ def test_listrecords(app):
         assert (
             len(
                 tree.xpath(
-                    "/x:OAI-PMH/x:ListRecords/x:record/x:header" "/x:identifier",
+                    "/x:OAI-PMH/x:ListRecords/x:record/x:header/x:identifier",
                     namespaces=NAMESPACES,
                 )
             )
@@ -760,7 +757,7 @@ def test_listrecords(app):
         assert (
             len(
                 tree.xpath(
-                    "/x:OAI-PMH/x:ListRecords/x:record/x:header" "/x:datestamp",
+                    "/x:OAI-PMH/x:ListRecords/x:record/x:header/x:datestamp",
                     namespaces=NAMESPACES,
                 )
             )
@@ -806,7 +803,7 @@ def test_listrecords(app):
         assert (
             len(
                 tree.xpath(
-                    "/x:OAI-PMH/x:ListRecords/x:record/x:header" "/x:identifier",
+                    "/x:OAI-PMH/x:ListRecords/x:record/x:header/x:identifier",
                     namespaces=NAMESPACES,
                 )
             )
@@ -815,7 +812,7 @@ def test_listrecords(app):
         assert (
             len(
                 tree.xpath(
-                    "/x:OAI-PMH/x:ListRecords/x:record/x:header" "/x:datestamp",
+                    "/x:OAI-PMH/x:ListRecords/x:record/x:header/x:datestamp",
                     namespaces=NAMESPACES,
                 )
             )
@@ -1005,15 +1002,7 @@ def test_listidentifiers(app):
         with app.test_client() as c:
             for granularity in (False, True):
                 result = c.get(
-                    "/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc"
-                    "&set=test0".format(
-                        datetime_to_datestamp(
-                            record.updated - timedelta(1), day_granularity=granularity
-                        ),
-                        datetime_to_datestamp(
-                            record.updated + timedelta(1), day_granularity=granularity
-                        ),
-                    )
+                    "/oai2d?verb=ListIdentifiers&metadataPrefix=oai_dc&set=test0"
                 )
                 assert result.status_code == 200
 
