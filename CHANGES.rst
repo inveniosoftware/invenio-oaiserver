@@ -9,6 +9,10 @@
 Changes
 =======
 
+Version v3.7.2 (released 2025-08-18)
+
+- component_templates: add missing ElasticSearch v7
+
 Version v3.7.1 (released 2025-07-29)
 
 - global: fix usage of `from` argument
