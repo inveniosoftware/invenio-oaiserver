@@ -2,14 +2,14 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2019 CERN.
-# Copyright (C) 2022 Graz University of Technology.
+# Copyright (C) 2022-2025 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """OAI-PMH 2.0 response generator."""
 
-from datetime import MINYEAR, datetime, timedelta
+from datetime import MINYEAR, datetime, timedelta, timezone
 
 import arrow
 from flask import current_app, url_for
@@ -68,7 +68,7 @@ def envelope(**kwargs):
 
     e_responseDate = SubElement(e_oaipmh, etree.QName(NS_OAIPMH, "responseDate"))
     # date should be first possible moment
-    e_responseDate.text = datetime_to_datestamp(datetime.utcnow())
+    e_responseDate.text = datetime_to_datestamp(datetime.now(timezone.utc))
     e_request = SubElement(e_oaipmh, etree.QName(NS_OAIPMH, "request"))
     for key, value in kwargs.items():
         if key == "from" or key == "until":
@@ -132,9 +132,7 @@ def identify(**kwargs):
         hit = hit.to_dict()
         created_date_str = hit.get("_source", {}).get(current_oaiserver.created_key)
         if created_date_str:
-            earliest_date = (
-                arrow.get(created_date_str).to("utc").datetime.replace(tzinfo=None)
-            )
+            earliest_date = arrow.get(created_date_str, tzinfo=timezone.utc).datetime
 
     e_earliestDatestamp.text = datetime_to_datestamp(earliest_date)
 
@@ -169,7 +167,7 @@ def resumption_token(parent, pagination, **kwargs):
     token = serialize(pagination, **kwargs)
     e_resumptionToken = SubElement(parent, etree.QName(NS_OAIPMH, "resumptionToken"))
     if pagination.total:
-        expiration_date = datetime.utcnow() + timedelta(
+        expiration_date = datetime.now(timezone.utc) + timedelta(
             seconds=current_app.config["OAISERVER_RESUMPTION_TOKEN_EXPIRE_TIME"]
         )
         e_resumptionToken.set("expirationDate", datetime_to_datestamp(expiration_date))
