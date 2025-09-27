@@ -3,6 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2015-2025 CERN.
 # Copyright (C) 2024 KTH Royal Institute of Technology.
+# Copyright (C) 2026 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -10,6 +11,7 @@
 """Admin model views for OAI sets."""
 
 from flask_admin.contrib.sqla import ModelView
+from invenio_admin.filters import FilterConverter
 from invenio_i18n import gettext as _
 
 from .models import OAISet
@@ -17,6 +19,8 @@ from .models import OAISet
 
 class OAISetModelView(ModelView):
     """OAISets model view."""
+
+    filter_converter = FilterConverter()
 
     can_create = True
     can_edit = True
