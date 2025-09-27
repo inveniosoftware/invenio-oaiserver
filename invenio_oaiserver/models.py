@@ -2,7 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2025 CERN.
-# Copyright (C) 2022 Graz University of Technology.
+# Copyright (C) 2022-2026 Graz University of Technology.
 # Copyright (C) 2024 KTH Royal Institute of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
@@ -13,12 +13,11 @@
 from invenio_db import db
 from invenio_i18n import lazy_gettext as _
 from sqlalchemy.orm import validates
-from sqlalchemy_utils import Timestamp
 
 from .errors import OAISetSpecUpdateError
 
 
-class OAISet(db.Model, Timestamp):
+class OAISet(db.Model, db.Timestamp):
     """Information about OAI set."""
 
     __tablename__ = "oaiserver_set"
