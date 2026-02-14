@@ -2,7 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2025 CERN.
-# Copyright (C) 2021-2022 Graz University of Technology.
+# Copyright (C) 2021-2026 Graz University of Technology.
 # Copyright (C) 2022 RERO.
 # Copyright (C) 2024 KTH Royal Institute of Technology.
 #
