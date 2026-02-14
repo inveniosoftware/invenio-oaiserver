@@ -75,7 +75,7 @@ class ResumptionTokenSchema(BaseSchema):
 
     resumptionToken = ResumptionToken(required=True, load_only=True)
 
-    def load(self, data, many=None, partial=None):
+    def load(self, data, many=None, partial=None, **kwargs):
         """Deserialize a data structure to an object."""
         result = super(ResumptionTokenSchema, self).load(
             data, many=many, partial=partial

@@ -2,7 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2015-2018 CERN.
-# Copyright (C) 2022 Graz University of Technology.
+# Copyright (C) 2022-2026 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -14,11 +14,18 @@ from invenio_pidstore.errors import PIDDoesNotExistError
 from itsdangerous import BadSignature
 from lxml import etree
 from marshmallow.exceptions import ValidationError
-from webargs.flaskparser import use_args
+from webargs.flaskparser import FlaskParser
 
 from .. import response as xml
 from ..errors import OAINoRecordsMatchError
 from ..verbs import make_request_validator
+
+try:
+    # webargs >= 6.0.0
+    use_args = FlaskParser(location="querystring").use_args
+except TypeError:
+    # webargs < 6.0.0
+    use_args = FlaskParser().use_args
 
 blueprint = Blueprint(
     "invenio_oaiserver",
@@ -39,11 +46,21 @@ def validation_error(exception):
     def extract_errors():
         """Extract errors from exception."""
         if isinstance(messages, dict):
-            for field, message in messages.items():
-                if field == "verb":
-                    yield "badVerb", "\n".join(message)
-                else:
-                    yield "badArgument", "\n".join(message)
+            try:
+                # webargs >=6.0.0b7
+                for location, field_data in messages.items():
+                    for field, message in field_data.items():
+                        if field == "verb":
+                            yield "badVerb", "\n".join(message)
+                        else:
+                            yield "badArgument", "\n".join(message)
+            except AttributeError:
+                # webargs < 6.0.0b7
+                for field, message in messages.items():
+                    if field == "verb":
+                        yield "badVerb", "\n".join(message)
+                    else:
+                        yield "badArgument", "\n".join(message)
         else:
             for field in exception.field_names:
                 if field == "verb":
