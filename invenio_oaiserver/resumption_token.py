@@ -2,7 +2,7 @@
 #
 # This file is part of Invenio.
 # Copyright (C) 2016-2018 CERN.
-# Copyright (C) 2021-2022 Graz University of Technology.
+# Copyright (C) 2021-2026 Graz University of Technology.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -40,7 +40,7 @@ def serialize(pagination, **kwargs):
     data = dict(
         seed=random.random(),
         page=pagination.next_num,
-        kwargs=schema.dump(schema_kwargs).data,
+        kwargs=schema.dump(schema_kwargs),
     )
     scroll_id = getattr(pagination, "_scroll_id", None)
     if scroll_id:
@@ -66,7 +66,7 @@ class ResumptionToken(fields.Field):
         schema_kwargs = result["kwargs"].copy()
         schema_kwargs["verb"] = data["verb"]
 
-        result["kwargs"] = _schema_from_verb(data["verb"]).load(schema_kwargs).data
+        result["kwargs"] = _schema_from_verb(data["verb"]).load(schema_kwargs)
         return result
 
 
@@ -80,7 +80,7 @@ class ResumptionTokenSchema(BaseSchema):
         result = super(ResumptionTokenSchema, self).load(
             data, many=many, partial=partial
         )
-        result.data.get("resumptionToken", {}).update(
-            result.data.get("resumptionToken", {}).get("kwargs", {})
+        result.get("resumptionToken", {}).update(
+            result.get("resumptionToken", {}).get("kwargs", {})
         )
         return result
