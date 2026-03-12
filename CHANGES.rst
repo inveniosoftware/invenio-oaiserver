@@ -10,6 +10,11 @@
 Changes
 =======
 
+Version v4.0.1 (released 2026-03-12)
+
+- chore: compatibility webargs > 6.0.0
+- fix(tests): PendingDeprecationWarning
+
 Version v4.0.0 (released 2026-01-28)
 
 - chore(setup): bump dependencies
