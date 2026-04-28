@@ -23,7 +23,12 @@ from .provider import OAIIDProvider
 from .proxies import current_oaiserver
 from .query import get_records
 from .resumption_token import serialize
-from .utils import datetime_to_datestamp, sanitize_unicode, serializer
+from .utils import (
+    about_serializer,
+    datetime_to_datestamp,
+    sanitize_unicode,
+    serializer,
+)
 
 NS_OAIPMH = "http://www.openarchives.org/OAI/2.0/"
 NS_OAIPMH_XSD = "http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd"
@@ -256,6 +261,7 @@ def header(parent, identifier, datestamp, sets=None, deleted=False):
 def getrecord(**kwargs):
     """Create OAI-PMH response for verb Identify."""
     record_dumper = serializer(kwargs["metadataPrefix"])
+    about_dumper = about_serializer(kwargs["metadataPrefix"])
 
     pid = OAIIDProvider.get(pid_value=kwargs["identifier"]).pid
     record = current_oaiserver.record_fetcher(pid.object_uuid)
@@ -271,6 +277,11 @@ def getrecord(**kwargs):
     )
     e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, "metadata"))
     e_metadata.append(record_dumper(pid, {"_source": record}))
+    if about_dumper:
+        about_payload = about_dumper(pid, {"_source": record})
+        if about_payload is not None:
+            e_about = SubElement(e_record, etree.QName(NS_OAIPMH, "about"))
+            e_about.append(about_payload)
 
     return e_tree
 
@@ -304,6 +315,7 @@ def listrecords(**kwargs):
         else kwargs["metadataPrefix"]
     )
     record_dumper = serializer(metadataPrefix)
+    about_dumper = about_serializer(metadataPrefix)
 
     e_tree, e_listrecords = verb(**kwargs)
     result = get_records(**kwargs)
@@ -322,6 +334,11 @@ def listrecords(**kwargs):
         )
         e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, "metadata"))
         e_metadata.append(record_dumper(pid, record["json"]))
+        if about_dumper:
+            about_payload = about_dumper(pid, record["json"])
+            if about_payload is not None:
+                e_about = SubElement(e_record, etree.QName(NS_OAIPMH, "about"))
+                e_about.append(about_payload)
 
     resumption_token(e_listrecords, result, **kwargs)
     return e_tree
