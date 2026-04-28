@@ -28,10 +28,12 @@ from invenio_oaiserver.models import OAISet
 from invenio_oaiserver.proxies import current_oaiserver
 from invenio_oaiserver.response import NS_DC, NS_OAIDC, NS_OAIPMH
 from invenio_oaiserver.utils import (
+    about_serializer,
     datetime_to_datestamp,
     eprints_description,
     friends_description,
     oai_identifier_description,
+    serializer,
 )
 
 NAMESPACES = {"x": NS_OAIPMH, "y": NS_OAIDC, "z": NS_DC}
@@ -321,6 +323,58 @@ def test_getrecord(app):
                 )
                 == 1
             )
+
+
+def _about_serializer_helper(pid, record):
+    element = etree.Element("test-about")
+    element.text = "about payload"
+    return element
+
+
+def test_getrecord_with_about(app):
+    """Test get record verb with about serializer."""
+
+    app.config["OAISERVER_METADATA_FORMATS"]["oai_dc"][
+        "about_serializer"
+    ] = _about_serializer_helper
+
+    with app.test_request_context():
+        pid_value = "oai:legacy:about-1"
+        with db.session.begin_nested():
+            record_id = uuid.uuid4()
+            data = {
+                "_oai": {"id": pid_value},
+                "title_statement": {"title": "Test about"},
+            }
+            pid = oaiid_minter(record_id, data)
+            current_oaiserver.record_cls.create(data, id_=record_id)
+
+        db.session.commit()
+        assert pid_value == pid.pid_value
+        with app.test_client() as c:
+            result = c.get(
+                "/oai2d?verb=GetRecord&identifier={0}&metadataPrefix=oai_dc".format(
+                    pid_value
+                )
+            )
+            assert 200 == result.status_code
+
+            tree = etree.fromstring(result.data)
+
+            assert (
+                len(
+                    tree.xpath(
+                        "/x:OAI-PMH/x:GetRecord/x:record/x:about",
+                        namespaces=NAMESPACES,
+                    )
+                )
+                == 1
+            )
+
+            assert tree.xpath(
+                "/x:OAI-PMH/x:GetRecord/x:record/x:about/x:test-about/text()",
+                namespaces=NAMESPACES,
+            ) == ["about payload"]
 
 
 def test_getrecord_fail(app):

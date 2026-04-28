@@ -41,6 +41,29 @@ FRIENDS_SCHEMA_LOCATION = "http://www.openarchives.org/OAI/2.0/friends/"
 FRIENDS_SCHEMA_LOCATION_XSD = "http://www.openarchives.org/OAI/2.0/friends/.xsd"
 
 
+def _resolve_serializer_value(metadata_prefix, key, default=None):
+    """Resolve serializer config value into callable/object."""
+    metadata_formats = current_app.config["OAISERVER_METADATA_FORMATS"]
+    serializer_value = metadata_formats[metadata_prefix].get(key, default)
+    if isinstance(serializer_value, tuple):
+        return partial(obj_or_import_string(serializer_value[0]), **serializer_value[1])
+    if serializer_value:
+        return obj_or_import_string(serializer_value)
+    return serializer_value
+
+
+@lru_cache(maxsize=100)
+def about_serializer(metadata_prefix):
+    """Return about serializer instances.
+
+    :param metadata_prefix: One of the metadata identifiers configured in
+             ``OAISERVER_METADATA_FORMATS``.
+    """
+    return _resolve_serializer_value(
+        metadata_prefix, key="about_serializer", default=None
+    )
+
+
 @lru_cache(maxsize=100)
 def serializer(metadata_prefix):
     """Return etree_dumper instances.
@@ -48,11 +71,7 @@ def serializer(metadata_prefix):
     :param metadata_prefix: One of the metadata identifiers configured in
         ``OAISERVER_METADATA_FORMATS``.
     """
-    metadataFormats = current_app.config["OAISERVER_METADATA_FORMATS"]
-    serializer_ = metadataFormats[metadata_prefix]["serializer"]
-    if isinstance(serializer_, tuple):
-        return partial(obj_or_import_string(serializer_[0]), **serializer_[1])
-    return obj_or_import_string(serializer_)
+    return _resolve_serializer_value(metadata_prefix, key="serializer")
 
 
 def dumps_etree(pid, record, **kwargs):
