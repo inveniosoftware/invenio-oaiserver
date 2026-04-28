@@ -338,6 +338,9 @@ def test_getrecord_with_about(app):
         "about_serializer"
     ] = _about_serializer_helper
 
+    serializer.cache_clear()
+    about_serializer.cache_clear()
+
     with app.test_request_context():
         pid_value = "oai:legacy:about-1"
         with db.session.begin_nested():
