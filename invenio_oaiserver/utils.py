@@ -59,9 +59,7 @@ def about_serializer(metadata_prefix):
     :param metadata_prefix: One of the metadata identifiers configured in
              ``OAISERVER_METADATA_FORMATS``.
     """
-    return _resolve_serializer_value(
-        metadata_prefix, key="about_serializer", default=None
-    )
+    return _resolve_serializer_value(metadata_prefix, key="about_serializer")
 
 
 @lru_cache(maxsize=100)

@@ -261,7 +261,6 @@ def header(parent, identifier, datestamp, sets=None, deleted=False):
 def getrecord(**kwargs):
     """Create OAI-PMH response for verb Identify."""
     record_dumper = serializer(kwargs["metadataPrefix"])
-    about_dumper = about_serializer(kwargs["metadataPrefix"])
 
     pid = OAIIDProvider.get(pid_value=kwargs["identifier"]).pid
     record = current_oaiserver.record_fetcher(pid.object_uuid)
@@ -277,6 +276,8 @@ def getrecord(**kwargs):
     )
     e_metadata = SubElement(e_record, etree.QName(NS_OAIPMH, "metadata"))
     e_metadata.append(record_dumper(pid, {"_source": record}))
+    about_dumper = about_serializer(kwargs["metadataPrefix"])
+
     if about_dumper:
         about_payload = about_dumper(pid, {"_source": record})
         if about_payload is not None:
@@ -314,14 +315,15 @@ def listrecords(**kwargs):
         if kwargs.get("resumptionToken")
         else kwargs["metadataPrefix"]
     )
-    record_dumper = serializer(metadataPrefix)
-    about_dumper = about_serializer(metadataPrefix)
 
     e_tree, e_listrecords = verb(**kwargs)
     result = get_records(**kwargs)
 
     all_records = [record for record in result.items]
     records_sets = sets_search_all([r["json"]["_source"] for r in all_records])
+
+    record_dumper = serializer(metadataPrefix)
+    about_dumper = about_serializer(metadataPrefix)
 
     for index, record in enumerate(all_records):
         pid = current_oaiserver.oaiid_fetcher(record["id"], record["json"]["_source"])
