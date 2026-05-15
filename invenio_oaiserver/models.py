@@ -4,12 +4,14 @@
 # Copyright (C) 2015-2025 CERN.
 # Copyright (C) 2022-2026 Graz University of Technology.
 # Copyright (C) 2024 KTH Royal Institute of Technology.
+# Copyright (C) 2026 CESNET z.s.p.o.
 #
 # Invenio is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Models for storing information about OAIServer state."""
 
+import sqlalchemy as sa
 from invenio_db import db
 from invenio_i18n import lazy_gettext as _
 from sqlalchemy.orm import validates
@@ -68,6 +70,7 @@ class OAISet(db.Model, db.Timestamp):
     system_created = db.Column(
         db.Boolean,
         nullable=False,
+        server_default=sa.sql.expression.literal(False),
         info=dict(
             label=_("System created"),
             description=_("System created set"),
