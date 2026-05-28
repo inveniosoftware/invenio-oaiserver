@@ -10,6 +10,12 @@
 Changes
 =======
 
+Version v5.0.0 (released 2026-05-28)
+
+- chore(setup): bump dependencies
+- fix: adding server-side default for system_created
+- feat(tests): added test for alembic migration
+
 Version v4.1.0 (released 2026-05-05)
 
 - feat: add support for OAI `about` serializer
