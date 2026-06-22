@@ -1,95 +1,95 @@
 # Translations template for invenio-oaiserver.
-# Copyright (C) 2025 CERN
+# Copyright (C) 2026 CERN
 # This file is distributed under the same license as the invenio-oaiserver
 # project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: invenio-oaiserver 3.6.0\n"
+"Project-Id-Version: invenio-oaiserver 5.0.0\n"
 "Report-Msgid-Bugs-To: info@inveniosoftware.org\n"
-"POT-Creation-Date: 2025-07-08 19:40+0000\n"
+"POT-Creation-Date: 2026-06-22 20:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.17.0\n"
+"Generated-By: Babel 2.18.0\n"
 
-#: invenio_oaiserver/admin.py:56
+#: invenio_oaiserver/admin.py:55
 msgid "OAI-PMH"
 msgstr ""
 
-#: invenio_oaiserver/admin.py:57
+#: invenio_oaiserver/admin.py:56
 msgid "Sets"
 msgstr ""
 
-#: invenio_oaiserver/models.py:33
+#: invenio_oaiserver/models.py:29
 msgid "Identifier"
 msgstr ""
 
-#: invenio_oaiserver/models.py:34
+#: invenio_oaiserver/models.py:30
 msgid "Identifier of the set."
 msgstr ""
 
-#: invenio_oaiserver/models.py:42
+#: invenio_oaiserver/models.py:38
 msgid "Long name"
 msgstr ""
 
-#: invenio_oaiserver/models.py:43
+#: invenio_oaiserver/models.py:39
 msgid "Long name of the set."
 msgstr ""
 
-#: invenio_oaiserver/models.py:53
+#: invenio_oaiserver/models.py:49
 msgid "Description"
 msgstr ""
 
-#: invenio_oaiserver/models.py:54
+#: invenio_oaiserver/models.py:50
 msgid "Description of the set."
 msgstr ""
 
-#: invenio_oaiserver/models.py:63
+#: invenio_oaiserver/models.py:59
 msgid "Search pattern"
 msgstr ""
 
-#: invenio_oaiserver/models.py:64
+#: invenio_oaiserver/models.py:60
 msgid "Search pattern to select records"
 msgstr ""
 
-#: invenio_oaiserver/models.py:73
+#: invenio_oaiserver/models.py:70
 msgid "System created"
 msgstr ""
 
-#: invenio_oaiserver/models.py:74
+#: invenio_oaiserver/models.py:71
 msgid "System created set"
 msgstr ""
 
-#: invenio_oaiserver/models.py:83
+#: invenio_oaiserver/models.py:80
 msgid "Updating spec is not allowed."
 msgstr ""
 
-#: invenio_oaiserver/percolator.py:141
+#: invenio_oaiserver/percolator.py:136
 msgid ""
 "Either documents or (document_search_ids and document_search_indices) "
 "must be specified."
 msgstr ""
 
-#: invenio_oaiserver/verbs.py:33
+#: invenio_oaiserver/verbs.py:28
 msgid "metadataPrefix does not exist"
 msgstr ""
 
-#: invenio_oaiserver/verbs.py:93
+#: invenio_oaiserver/verbs.py:88
 #, python-format
 msgid "This is not a valid OAI-PMH verb:%(verb)s"
 msgstr ""
 
-#: invenio_oaiserver/verbs.py:99
+#: invenio_oaiserver/verbs.py:93
 msgid "Date \"from\" must be before \"until\"."
 msgstr ""
 
-#: invenio_oaiserver/verbs.py:169
+#: invenio_oaiserver/verbs.py:163
 msgid "You have passed too many arguments."
 msgstr ""
 
