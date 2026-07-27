@@ -5,7 +5,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 # 
 # Translators:
-# Tibor Simko <tibor.simko@cern.ch>, 2016
+# Suthep Yonphimai <tomztt@gmail.com>, 2026
 # 
 #, fuzzy
 msgid ""
@@ -14,86 +14,87 @@ msgstr ""
 "Report-Msgid-Bugs-To: info@inveniosoftware.org\n"
 "POT-Creation-Date: 2026-06-22 20:36+0000\n"
 "PO-Revision-Date: 2016-08-19 09:55+0000\n"
-"Last-Translator: Tibor Simko <tibor.simko@cern.ch>, 2016\n"
-"Language-Team: Norwegian (https://app.transifex.com/inveniosoftware/teams/23537/no/)\n"
+"Last-Translator: Suthep Yonphimai <tomztt@gmail.com>, 2026\n"
+"Language-Team: Thai (https://app.transifex.com/inveniosoftware/teams/23537/th/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
-"Language: no\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: th\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: invenio_oaiserver/admin.py:55
 msgid "OAI-PMH"
-msgstr ""
+msgstr "OAI-PMH"
 
 #: invenio_oaiserver/admin.py:56
 msgid "Sets"
-msgstr ""
+msgstr "ชุด"
 
 #: invenio_oaiserver/models.py:29
 msgid "Identifier"
-msgstr ""
+msgstr "ตัวระบุ"
 
 #: invenio_oaiserver/models.py:30
 msgid "Identifier of the set."
-msgstr ""
+msgstr "ตัวระบุของชุด"
 
 #: invenio_oaiserver/models.py:38
 msgid "Long name"
-msgstr ""
+msgstr "ชื่อแบบยาว"
 
 #: invenio_oaiserver/models.py:39
 msgid "Long name of the set."
-msgstr ""
+msgstr "ชื่อแบบยาวของชุด"
 
 #: invenio_oaiserver/models.py:49
 msgid "Description"
-msgstr "Beskrivelse"
+msgstr "คำอธิบาย"
 
 #: invenio_oaiserver/models.py:50
 msgid "Description of the set."
-msgstr ""
+msgstr "คำอธิบายของชุด"
 
 #: invenio_oaiserver/models.py:59
 msgid "Search pattern"
-msgstr ""
+msgstr "รูปแบบการค้นหา"
 
 #: invenio_oaiserver/models.py:60
 msgid "Search pattern to select records"
-msgstr ""
+msgstr "รูปแบบการค้นหาเพื่อเลือกระเบียน"
 
 #: invenio_oaiserver/models.py:70
 msgid "System created"
-msgstr ""
+msgstr "สร้างโดยระบบ"
 
 #: invenio_oaiserver/models.py:71
 msgid "System created set"
-msgstr ""
+msgstr "ชุดที่สร้างโดยระบบ"
 
 #: invenio_oaiserver/models.py:80
 msgid "Updating spec is not allowed."
-msgstr ""
+msgstr "ไม่อนุญาตให้อัปเดต spec"
 
 #: invenio_oaiserver/percolator.py:136
 msgid ""
 "Either documents or (document_search_ids and document_search_indices) must "
 "be specified."
 msgstr ""
+"ต้องระบุ documents หรือ (document_search_ids และ document_search_indices)"
 
 #: invenio_oaiserver/verbs.py:28
 msgid "metadataPrefix does not exist"
-msgstr ""
+msgstr "ไม่พบ metadataPrefix"
 
 #: invenio_oaiserver/verbs.py:88
 #, python-format
 msgid "This is not a valid OAI-PMH verb:%(verb)s"
-msgstr ""
+msgstr "นี่ไม่ใช่ OAI-PMH verb ที่ถูกต้อง: %(verb)s"
 
 #: invenio_oaiserver/verbs.py:93
 msgid "Date \"from\" must be before \"until\"."
-msgstr ""
+msgstr "วันที่ \"from\" ต้องอยู่ก่อน \"until\""
 
 #: invenio_oaiserver/verbs.py:163
 msgid "You have passed too many arguments."
-msgstr ""
+msgstr "คุณส่งอาร์กิวเมนต์มากเกินไป"
