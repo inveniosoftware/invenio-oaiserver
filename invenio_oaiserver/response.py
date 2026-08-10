@@ -4,6 +4,7 @@
 
 """OAI-PMH 2.0 response generator."""
 
+import re
 from datetime import MINYEAR, datetime, timedelta, timezone
 
 import arrow
@@ -46,6 +47,12 @@ DATETIME_FORMATS = {
     "YYYY-MM-DD": "%Y-%m-%d",
 }
 
+# inverse of the characters allowed by the XML spec: https://www.w3.org/TR/xml/#charsets
+# Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+XML_INVALID_CHARS = re.compile(
+    "[^\u0009\u000a\u000d\u0020-\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]"
+)
+
 
 def envelope(**kwargs):
     """Create OAI-PMH envelope for response."""
@@ -84,9 +91,11 @@ def error(errors):
     """Create error element."""
     e_tree, e_oaipmh = envelope()
     for code, message in errors:
+        # strip characters not allowed by the XML spec from the response message
+        sanitized_message = XML_INVALID_CHARS.sub("", message)
         e_error = SubElement(e_oaipmh, etree.QName(NS_OAIPMH, "error"))
         e_error.set("code", code)
-        e_error.text = message
+        e_error.text = sanitized_message
     return e_tree
 
 
