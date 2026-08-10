@@ -4,6 +4,7 @@
 
 """OAI-PMH 2.0 response generator."""
 
+import unicodedata
 from datetime import MINYEAR, datetime, timedelta, timezone
 
 import arrow
@@ -84,9 +85,15 @@ def error(errors):
     """Create error element."""
     e_tree, e_oaipmh = envelope()
     for code, message in errors:
+        # remove control characters from the message, because they're not XML compatible
+        # cf. https://stackoverflow.com/questions/4324790/removing-control-characters-from-a-string-in-python
+        sanitized_message = "".join(
+            c for c in message if unicodedata.category(c)[0] != "C"
+        )
+
         e_error = SubElement(e_oaipmh, etree.QName(NS_OAIPMH, "error"))
         e_error.set("code", code)
-        e_error.text = message
+        e_error.text = sanitized_message
     return e_tree
 
 
