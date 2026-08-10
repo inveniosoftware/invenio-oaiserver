@@ -56,6 +56,15 @@ def test_wrong_verb(app):
         assert "This is not a valid OAI-PMH verb:Aaa" in _xpath_errors(tree)[0].text
 
 
+def test_verb_with_control_characters(app):
+    """Test malicious verb with included control characters."""
+    with app.test_client() as c:
+        result = c.get("/oai2d?verb=x%00x")
+        tree = etree.fromstring(result.data)
+
+        assert "This is not a valid OAI-PMH verb:xx" in _xpath_errors(tree)[0].text
+
+
 def test_identify(app):
     """Test Identify verb."""
     # baseUrls for friends element
