@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2015-2025 CERN.
 # SPDX-FileCopyrightText: 2024-2026 Graz University of Technology.
-# SPDX-FileCopyrightText: 2025 KTH Royal Institute of Technology.
+# SPDX-FileCopyrightText: 2025-2026 KTH Royal Institute of Technology.
 # SPDX-License-Identifier: MIT
 
 """Invenio module that implements OAI-PMH server.
@@ -182,6 +182,6 @@ repository
 from .ext import InvenioOAIServer
 from .proxies import current_oaiserver
 
-__version__ = "5.1.0"
+__version__ = "5.1.1"
 
 __all__ = ("__version__", "InvenioOAIServer", "current_oaiserver")
