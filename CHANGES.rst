@@ -7,6 +7,11 @@
 Changes
 =======
 
+Version v5.1.2 (released 2026-11-03)
+
+- fix: strip XML-incompatible characters from the response
+- chore: add test for verbs with included control characters
+
 Version v5.1.1 (released 2026-08-26)
 
 - i18n: pulled translations
