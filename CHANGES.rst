@@ -8,6 +8,11 @@
 Changes
 =======
 
+Version v6.0.3 (released 2026-11-03)
+
+- fix: strip XML-incompatible characters from the response
+- chore: add test for verbs with included control characters
+
 Version v6.0.2 (released 2026-08-04)
 
 - fix(build): include mo files
