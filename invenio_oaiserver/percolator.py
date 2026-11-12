@@ -22,7 +22,7 @@ def _build_percolator_index_name(index):
     # `-percolators`. In recent versions, the percolators can coexist in the same indices as the records
 
     percolator_index = build_index_name(index, suffix="", app=current_app)
-    if current_search_client.indices.exists(f"{percolator_index}-percolators"):
+    if current_search_client.indices.exists(index=f"{percolator_index}-percolators"):
         percolator_index = f"{percolator_index}-percolators"
     # If it does not exist, but we want it, we create it
     elif current_app.config["OAISERVER_PERCOLATOR_DEDICATED_INDEX"]:
