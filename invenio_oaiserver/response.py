@@ -7,7 +7,7 @@
 import re
 from datetime import MINYEAR, datetime, timedelta, timezone
 
-import arrow
+import pendulum
 from flask import current_app, url_for
 from lxml import etree
 from lxml.etree import Element, ElementTree, SubElement
@@ -141,7 +141,7 @@ def identify(**kwargs):
         hit = hit.to_dict()
         created_date_str = hit.get("_source", {}).get(current_oaiserver.created_key)
         if created_date_str:
-            earliest_date = arrow.get(created_date_str, tzinfo=timezone.utc).datetime
+            earliest_date = pendulum.parse(created_date_str, tzinfo=timezone.utc)
 
     e_earliestDatestamp.text = datetime_to_datestamp(earliest_date)
 
